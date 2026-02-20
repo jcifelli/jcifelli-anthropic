@@ -92,14 +92,23 @@
   .thin-line { height: 1px; background: var(--border); margin-bottom: 14px; }
 
   /* ── Career Arc ── */
-  .career-arc { display: flex; gap: 12px; margin-bottom: 22px; }
+  .career-arc { display: flex; gap: 8px; margin-bottom: 22px; }
   .era {
-    flex: 1; padding: 14px 16px; border-radius: 6px;
+    flex: 1; padding: 12px 12px; border-radius: 6px;
     background: var(--panel); border: 1px solid var(--border);
   }
-  .era .era-title { font-size: 11px; font-weight: 700; color: #fff; margin-bottom: 3px; }
-  .era .era-years { font-size: 9px; color: var(--dim); margin-bottom: 6px; }
-  .era .era-desc { font-size: 9.5px; color: #888; line-height: 1.5; }
+  .era .era-title { font-size: 10px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+  .era .era-years { font-size: 8px; color: var(--dim); margin-bottom: 5px; }
+  .era .era-desc { font-size: 8.5px; color: #888; line-height: 1.45; }
+  .edu-bar {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-left: 3px solid #8bc98b;
+    border-radius: 6px; padding: 10px 16px; margin-top: 14px;
+  }
+  .edu-bar .edu-icon { font-size: 16px; }
+  .edu-bar .edu-text { font-size: 9.5px; color: #888; line-height: 1.4; }
+  .edu-bar .edu-text strong { color: #fff; font-weight: 600; }
   .era.a { border-left: 3px solid var(--accent); }
   .era.b { border-left: 3px solid var(--accent3); }
   .era.c { border-left: 3px solid var(--accent2); }
@@ -155,7 +164,7 @@
       <div class="name">John Cifelli</div>
       <div class="role">Product Manager &middot; Builder &middot; Founder</div>
     </div>
-    <div class="hook">I built an <strong>interactive web experience</strong> instead of writing a cover letter. Startup founder turned McKinsey PM &mdash; 8 years building products across every industry.</div>
+    <div class="hook">I built an <strong>interactive web experience</strong> instead of writing a cover letter. Startup founder turned McKinsey PM &mdash; 12+ years building products across industries.</div>
   </div>
 
   <!-- CTA -->
@@ -171,7 +180,7 @@
 
   <!-- Stats -->
   <div class="stats">
-    <div class="stat"><div class="num">8+</div><div class="lbl">Years PM</div></div>
+    <div class="stat"><div class="num">12+</div><div class="lbl">Years PM</div></div>
     <div class="stat"><div class="num">11</div><div class="lbl">Engagements</div></div>
     <div class="stat"><div class="num">3</div><div class="lbl">Startups</div></div>
     <div class="stat"><div class="num">4</div><div class="lbl">Promotions</div></div>
@@ -183,8 +192,8 @@
   <div class="career-arc">
     <div class="era a">
       <div class="era-title">Chicago Startups</div>
-      <div class="era-years">2014 &ndash; 2018</div>
-      <div class="era-desc">Founded GigScout (live music). Led Matchist as CEO (dev marketplace turnaround). Built product at Fulton Works. Shipped under real constraints.</div>
+      <div class="era-years">2013 &ndash; 2018</div>
+      <div class="era-desc">Founded GigScout (live music). Led Matchist as CEO (dev marketplace turnaround). Built product at Fulton Works.</div>
     </div>
     <div class="era b">
       <div class="era-title">McKinsey Product Guild</div>
@@ -202,23 +211,29 @@
   <div class="section-title">Portfolio &mdash; 11 Product Engagements</div>
   <div class="thin-line"></div>
   <div class="eng-grid">
-    <div class="eng-tile"><div class="sector">Energy</div><div class="headline">Nuclear Maintenance Planning Platform</div></div>
-    <div class="eng-tile"><div class="sector">Utilities</div><div class="headline">First Responder Field Triage Platform</div></div>
-    <div class="eng-tile"><div class="sector">Commodities</div><div class="headline">CRM & Dynamic Pricing Tool</div></div>
-    <div class="eng-tile"><div class="sector">Banking</div><div class="headline">SMB Lending BaaS API Platform</div></div>
-    <div class="eng-tile"><div class="sector">Insurance</div><div class="headline">Broker Client Onboarding Tool</div></div>
-    <div class="eng-tile"><div class="sector">Healthcare</div><div class="headline">Pharma Negotiation Intelligence Platform</div></div>
-    <div class="eng-tile"><div class="sector">Government</div><div class="headline">Immigration Visa Workflow Modernization</div></div>
-    <div class="eng-tile"><div class="sector">Consumer</div><div class="headline">Lingo &mdash; Consumer Glucose Wearable</div></div>
-    <div class="eng-tile"><div class="sector">Entertainment</div><div class="headline">AI-Era Character IP Strategy</div></div>
     <div class="eng-tile"><div class="sector">Internal AI</div><div class="headline">Beacon &mdash; Agentic Business Builder</div></div>
+    <div class="eng-tile"><div class="sector">Entertainment</div><div class="headline">AI-Era Character IP Strategy</div></div>
+    <div class="eng-tile"><div class="sector">Consumer</div><div class="headline">Lingo &mdash; Consumer Glucose Wearable</div></div>
     <div class="eng-tile"><div class="sector">Finance</div><div class="headline">Platform Stabilization & Onboarding Fix</div></div>
+    <div class="eng-tile"><div class="sector">Government</div><div class="headline">Immigration Visa Workflow Modernization</div></div>
+    <div class="eng-tile"><div class="sector">Healthcare</div><div class="headline">Pharma Negotiation Intelligence Platform</div></div>
+    <div class="eng-tile"><div class="sector">Insurance</div><div class="headline">Broker Client Onboarding Tool</div></div>
+    <div class="eng-tile"><div class="sector">Banking</div><div class="headline">SMB Lending BaaS API Platform</div></div>
+    <div class="eng-tile"><div class="sector">Commodities</div><div class="headline">CRM & Dynamic Pricing Tool</div></div>
+    <div class="eng-tile"><div class="sector">Utilities</div><div class="headline">First Responder Field Triage Platform</div></div>
+    <div class="eng-tile"><div class="sector">Energy</div><div class="headline">Nuclear Maintenance Planning Platform</div></div>
   </div>
 
   <!-- Why Anthropic -->
   <div class="why-box">
     <div class="why-title">Why Anthropic</div>
     <p>I'm both excited and nervous about AI. As a PM, it's exhilarating &mdash; I can prototype in hours what used to take weeks. But what happens to craft when the barrier to creation drops to zero? <strong>Anthropic is doing what most can't: building best-in-class products while genuinely wrestling with what it all means.</strong> I'm hungry to build with people who are optimistic, aware, and scrappy enough to figure it out.</p>
+  </div>
+
+  <!-- Education -->
+  <div class="edu-bar">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/University_of_Illinois_Logo.svg" alt="Illinois" style="width: 22px; height: 22px; object-fit: contain;" />
+    <div class="edu-text"><strong>University of Illinois at Urbana-Champaign</strong> &mdash; B.S. Finance &amp; Accounting, 2012</div>
   </div>
 
   <!-- Footer -->

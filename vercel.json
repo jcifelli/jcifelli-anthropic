@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+          { "source": "/anthropic", "destination": "/index.html" },
+          { "source": "/bradesco", "destination": "/index.html" },
+          { "source": "/google", "destination": "/index.html" },
+          { "source": "/openai", "destination": "/index.html" }
+    ]
+}

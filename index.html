@@ -259,7 +259,7 @@ const timeline = [
   {
     era: "What\u2019s Next: Anthropic", years: "2026\u2013", icon: "\u2726",
     color: A.cyan, highlights: [
-      { metric: "\u221E", label: "mission passion" },
+      { metric: "\uD83D\uDD25", label: "mission passion" },
       { metric: "12yr+", label: "PM experience" },
       { metric: "1", label: "app you\u2019re reading" },
     ],
@@ -906,7 +906,7 @@ const InvaderTile = ({ eng, idx, cleared, isActive, isFiring, isExploding, score
 
 // ─── Screen: Mission Log (Track Record) ─────────────────────────────
 const MissionLog = ({ onBack, onComplete }) => {
-  const [activeEra, setActiveEra] = useState(1);
+  const [activeEra, setActiveEra] = useState(0);
   const [ready, setReady] = useState(false);
   useEffect(() => { setTimeout(() => setReady(true), 150); }, []);
 
@@ -928,18 +928,19 @@ const MissionLog = ({ onBack, onComplete }) => {
           }}>CAREER TRAJECTORY // 2012\u2013PRESENT</p>
 
           {/* Era Tabs */}
-          <div style={{ display: "flex", gap: 8, marginBottom: 28, flexWrap: "wrap", justifyContent: "center" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 28 }}>
             {timeline.map((t, i) => (
               <button key={i} onClick={() => setActiveEra(i)} style={{
-                padding: "10px 18px", borderRadius: 2,
+                padding: "10px 8px", borderRadius: 2,
                 border: `2px solid ${activeEra === i ? t.color : A.border}`,
-                background: activeEra === i ? `${t.color}15` : "transparent",
+                background: activeEra === i ? (A.isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)") : "transparent",
                 color: activeEra === i ? t.color : A.textDim,
-                fontFamily: A.font, fontSize: 8, cursor: "pointer",
+                fontFamily: A.font, fontSize: 7, cursor: "pointer",
                 transition: "all 0.2s ease",
-                boxShadow: activeEra === i ? `0 0 15px ${t.color}20` : "none",
+                boxShadow: "none",
+                textAlign: "center",
               }}>
-                {t.icon} {t.era.toUpperCase()}
+                {t.icon}<br/>{t.era.split(":")[0].toUpperCase()}
               </button>
             ))}
           </div>
@@ -947,7 +948,7 @@ const MissionLog = ({ onBack, onComplete }) => {
           {/* Era Card */}
           <div key={activeEra} style={{
             animation: "warp-in 0.4s ease-out",
-            background: A.bgPanel, border: `1px solid ${era.color}30`,
+            background: A.bgPanel, border: `1px solid ${A.border}`,
             borderRadius: 4, padding: 28,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 22 }}>
@@ -962,10 +963,11 @@ const MissionLog = ({ onBack, onComplete }) => {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 22 }}>
               {era.highlights.map((h, i) => (
                 <div key={i} style={{
-                  background: `${era.color}08`, border: `1px solid ${era.color}20`,
+                  background: A.isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
+                  border: `1px solid ${A.border}`,
                   borderRadius: 4, padding: 14, textAlign: "center",
                 }}>
-                  <div style={{ fontFamily: A.font, fontSize: 18, color: era.color, lineHeight: 1, marginBottom: 6, textShadow: A.isDark ? `0 0 15px ${era.color}60` : "none" }}>{h.metric}</div>
+                  <div style={{ fontFamily: A.font, fontSize: 18, color: era.color, lineHeight: 1, marginBottom: 6 }}>{h.metric}</div>
                   <div style={{ fontFamily: A.font, fontSize: 6, color: A.textDim, letterSpacing: "0.05em" }}>{h.label.toUpperCase()}</div>
                 </div>
               ))}

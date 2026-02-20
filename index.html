@@ -7,7 +7,7 @@
   <meta name="description" content="An interactive product manager application for Anthropic by John Cifelli. Startup founder turned McKinsey PM. Chicago-built." />
   <meta property="og:title" content="John Cifelli — Product Manager" />
   <meta property="og:description" content="I built this instead of a cover letter. Startup founder turned McKinsey PM. Chicago-built." />
-  <meta property="og:type" content="website" /
+  <meta property="og:type" content="website" />
   <meta property="og:url" content="https://jcifelli.dev" />
   <meta property="og:image" content="https://jcifelli.dev/og-image.png" />
   <meta property="og:image:width" content="1200" />
@@ -423,8 +423,8 @@ const Landing = ({ onStart }) => {
             animation: "fade-in 0.5s ease-out 0.3s both",
           }}>
             {[
-              { label: "One-Pager (Dark)", href: VARIANT_KEY === "anthropic" ? "jc-anthropic-teaser.html" : "jc-teaser.html", icon: "\u263E" },
-              { label: "One-Pager (Light)", href: VARIANT_KEY === "anthropic" ? "jc-anthropic-teaser-light.html" : "jc-teaser-light.html", icon: "\u2600" },
+              { label: "One-Pager (Dark)", href: "jc-anthropic-teaser.html", icon: "\u263E" },
+              { label: "One-Pager (Light)", href: "jc-anthropic-teaser-light.html", icon: "\u2600" },
             ].map((dl, i) => (
               <a key={i} href={dl.href} target="_blank" rel="noopener noreferrer" style={{
                 display: "flex", alignItems: "center", gap: 8,

@@ -231,17 +231,16 @@ const easterEggs = {
 const timeline = [
   {
     era: "University of Illinois", years: "2008\u20132012", icon: "\uD83C\uDF93",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/a/af/University_of_Illinois_Logo.svg",
-    color: A.green, highlights: [
-      { metric: "B.S.", label: "Finance & Accounting" },
+    color: A.amber, highlights: [
+      { metric: "B.S.", label: "Finance & Accountancy" },
       { metric: "UIUC", label: "Champaign, IL" },
       { metric: "2012", label: "graduated" },
     ],
-    description: "Bachelor of Science in Finance and Accounting from the University of Illinois at Urbana-Champaign. The quantitative foundation that would later inform everything \u2014 from startup P&Ls to McKinsey business cases to product metrics. Illinois planted me in the Midwest; Chicago kept me.",
+    description: "Bachelor of Science in Finance and Accountancy from the University of Illinois at Urbana-Champaign. The pragmatic Midwest foundations that would later inform everything.",
   },
   {
     era: "Chicago Startups", years: "2013\u20132018", icon: "\uD83D\uDE80",
-    color: A.amber, highlights: [
+    color: A.red, highlights: [
       { metric: "3", label: "ventures built" },
       { metric: "CEO", label: "of Matchist" },
       { metric: "0\u21921", label: "products shipped" },
@@ -363,15 +362,15 @@ const Landing = ({ onStart }) => {
       {phase >= 3 && (
         <div style={{ animation: "fade-in 0.6s ease-out", maxWidth: 520, marginTop: 16 }}>
           <p style={{
-            fontSize: 19, color: A.text, lineHeight: 1.65,
+            fontSize: 18, color: A.text, lineHeight: 1.65,
             fontFamily: A.bodyFont, marginBottom: 8,
-          }}>I built this instead of writing a cover letter.</p>
+          }}>I built this instead of a cover letter.</p>
           <p style={{
-            fontSize: 15, color: A.textDim, lineHeight: 1.6,
+            fontSize: 14, color: A.textDim, lineHeight: 1.6,
             fontFamily: A.bodyFont,
           }}>
-            Startup founder turned McKinsey PM. Chicago-built.
-            <br />This is my application for Product Manager at Anthropic.
+            Startup founder turned McKinsey PM.
+            <br />Chicago&#8209;built.
           </p>
         </div>
       )}
@@ -583,8 +582,10 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
   useEffect(() => {
     if (active !== null && detailRef.current) {
       setTimeout(() => {
-        detailRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
+        const el = detailRef.current;
+        const top = el.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top, behavior: "smooth" });
+      }, 350);
     }
   }, [active]);
 
@@ -905,7 +906,7 @@ const InvaderTile = ({ eng, idx, cleared, isActive, isFiring, isExploding, score
 
 // ─── Screen: Mission Log (Track Record) ─────────────────────────────
 const MissionLog = ({ onBack, onComplete }) => {
-  const [activeEra, setActiveEra] = useState(0);
+  const [activeEra, setActiveEra] = useState(1);
   const [ready, setReady] = useState(false);
   useEffect(() => { setTimeout(() => setReady(true), 150); }, []);
 
@@ -950,11 +951,7 @@ const MissionLog = ({ onBack, onComplete }) => {
             borderRadius: 4, padding: 28,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 22 }}>
-              {era.logo ? (
-                <img src={era.logo} alt={era.era} style={{ width: 44, height: 44, objectFit: "contain", filter: `drop-shadow(0 0 10px ${era.color})` }} />
-              ) : (
-                <span style={{ fontSize: 40, filter: `drop-shadow(0 0 10px ${era.color})` }}>{era.icon}</span>
-              )}
+              <span style={{ fontSize: 40, filter: `drop-shadow(0 0 10px ${era.color})` }}>{era.icon}</span>
               <div>
                 <h3 style={{ fontFamily: A.font, fontSize: 11, color: era.color, margin: 0 }}>{era.era.toUpperCase()}</h3>
                 <span style={{ fontFamily: A.font, fontSize: 8, color: A.textDim }}>{era.years}</span>

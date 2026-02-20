@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>John Cifelli — Product Manager Application | Anthropic</title>
+  <meta name="description" content="An interactive product manager application for Anthropic by John Cifelli. Startup founder turned McKinsey PM. Chicago-built." />
+  <meta property="og:title" content="John Cifelli — PM Application for Anthropic" />
+  <meta property="og:description" content="I built this instead of writing a cover letter. Startup founder turned McKinsey PM. Chicago-built." />
+  <meta property="og:type" content="website" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #06060f; color: #e0e0e0; }
+    #root { min-height: 100vh; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0a14; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,255,255,0.2); border-radius: 3px; }
+    ::selection { background: rgba(0,255,255,0.3); color: #fff; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel" data-type="module">
+    const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
+
+// ─── Theme Palettes ──────────────────────────────────────────────────
+const DARK = {
+  bg: "#06060f",
+  bgLight: "#0a0a14",
+  bgPanel: "rgba(0,255,255,0.03)",
+  border: "rgba(0,255,255,0.12)",
+  borderBright: "rgba(0,255,255,0.4)",
+  text: "#e0e0e0",
+  textDim: "#555",
+  textBright: "#fff",
+  cyan: "#0ff",
+  pink: "#f0f",
+  green: "#0f0",
+  amber: "#ffaa00",
+  red: "#f44",
+  cyanGlow: "0 0 20px rgba(0,255,255,0.3)",
+  pinkGlow: "0 0 20px rgba(255,0,255,0.3)",
+  greenGlow: "0 0 20px rgba(0,255,0,0.3)",
+  amberGlow: "0 0 20px rgba(255,170,0,0.3)",
+  font: "'Press Start 2P', monospace",
+  bodyFont: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  starOpacity: { min: 0.15, max: 0.5 },
+  scanlineOpacity: 0.5,
+  isDark: true,
+};
+const LIGHT = {
+  bg: "#f4f2ef",
+  bgLight: "#eae7e2",
+  bgPanel: "rgba(0,80,100,0.05)",
+  border: "rgba(0,80,100,0.14)",
+  borderBright: "rgba(0,100,120,0.4)",
+  text: "#333",
+  textDim: "#777",
+  textBright: "#111",
+  cyan: "#006878",
+  pink: "#8a1a8a",
+  green: "#157015",
+  amber: "#9a6800",
+  red: "#b02020",
+  cyanGlow: "0 0 8px rgba(0,104,120,0.15)",
+  pinkGlow: "0 0 8px rgba(138,26,138,0.15)",
+  greenGlow: "0 0 8px rgba(21,112,21,0.15)",
+  amberGlow: "0 0 8px rgba(154,104,0,0.15)",
+  font: "'Press Start 2P', monospace",
+  bodyFont: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  starOpacity: { min: 0.05, max: 0.15 },
+  scanlineOpacity: 0.08,
+  isDark: false,
+};
+
+// Theme context — all components read A from here
+const ThemeCtx = createContext(DARK);
+const useTheme = () => useContext(ThemeCtx);
+
+// Mutable ref for components that read A at module level (backwards compat)
+let A = DARK;
+
+// ─── Global Styles (injected once) ───────────────────────────────────
+const GlobalStyles = () => (
+  <style>{`
+    @keyframes star-drift { 0% { transform: translateY(0); opacity: 0.6; } 100% { transform: translateY(100vh); opacity: 0; } }
+    @keyframes blink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+    @keyframes pulse-glow { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+    @keyframes warp-in { 0% { transform: scale(0) rotate(-180deg); opacity: 0; } 60% { transform: scale(1.05) rotate(5deg); opacity: 1; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+    @keyframes descend { 0% { transform: translateY(-30px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+    @keyframes laser-down { 0% { height: 0; opacity: 1; } 50% { height: 80px; opacity: 1; } 100% { height: 0; opacity: 0; } }
+    @keyframes explode { 0% { transform: scale(1); opacity: 1; filter: brightness(1); } 40% { transform: scale(1.4); opacity: 1; filter: brightness(4) hue-rotate(60deg); } 100% { transform: scale(0.5); opacity: 0; filter: brightness(0); } }
+    @keyframes score-pop { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-40px) scale(1.3); opacity: 0; } }
+    @keyframes ship-hover { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } }
+    @keyframes crawl-full { 0% { transform: translateX(-50%) rotateX(22deg) translateY(100%); } 100% { transform: translateX(-50%) rotateX(22deg) translateY(-200%); } }
+    @keyframes fade-in { 0% { opacity: 0; transform: translateY(12px); } 100% { opacity: 1; transform: translateY(0); } }
+    @keyframes glow-pulse { 0%,100% { box-shadow: 0 0 8px rgba(0,255,255,0.15); } 50% { box-shadow: 0 0 24px rgba(0,255,255,0.35); } }
+    @keyframes target-lock { 0% { border-color: rgba(0,255,255,0.2); } 50% { border-color: rgba(0,255,255,0.8); } 100% { border-color: rgba(0,255,255,0.2); } }
+    @keyframes confetti-fall { 0% { transform: translateY(-10px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+  `}</style>
+);
+
+// ─── Star Field ──────────────────────────────────────────────────────
+const StarField = () => {
+  const T = useTheme();
+  const stars = useRef(Array.from({ length: 80 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: 0.5 + Math.random() * 2,
+    speed: 8 + Math.random() * 20,
+    delay: Math.random() * -15,
+    colorIdx: i,
+    opacityBase: Math.random(),
+  }))).current;
+  return (
+    <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
+      {stars.map(s => {
+        const color = s.colorIdx % 12 === 0 ? T.cyan : s.colorIdx % 9 === 0 ? T.pink : s.colorIdx % 7 === 0 ? T.amber : (T.isDark ? "#fff" : "#333");
+        const opacity = T.starOpacity.min + s.opacityBase * (T.starOpacity.max - T.starOpacity.min);
+        return (
+          <div key={s.id} style={{
+            position: "absolute", left: `${s.x}%`, top: `${s.y}%`,
+            width: s.size, height: s.size, borderRadius: "50%",
+            background: color, opacity,
+            animation: `star-drift ${s.speed}s linear ${s.delay}s infinite`,
+            transition: "background 0.4s, opacity 0.4s",
+          }} />
+        );
+      })}
+    </div>
+  );
+};
+
+// ─── Scanlines ───────────────────────────────────────────────────────
+const Scanlines = () => {
+  const T = useTheme();
+  return (
+  <div style={{
+    position: "fixed", inset: 0, pointerEvents: "none", zIndex: 9999,
+    background: "repeating-linear-gradient(0deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 3px)",
+    opacity: T.scanlineOpacity,
+    transition: "opacity 0.4s",
+  }} />
+  );
+};
+
+// ─── Confetti ────────────────────────────────────────────────────────
+const Confetti = ({ active }) => {
+  if (!active) return null;
+  const pieces = Array.from({ length: 50 }, (_, i) => ({
+    id: i, x: 5 + Math.random() * 90,
+    color: [A.cyan, A.pink, A.green, A.amber, A.textBright, A.red][i % 6],
+    size: 3 + Math.random() * 7, duration: 1.5 + Math.random() * 2,
+    delay: Math.random() * 0.8, shape: i % 3,
+  }));
+  return (
+    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 10000 }}>
+      {pieces.map(p => (
+        <div key={p.id} style={{
+          position: "absolute", left: `${p.x}%`, top: -10,
+          width: p.size, height: p.shape === 1 ? p.size : p.size * 1.5,
+          borderRadius: p.shape === 0 ? "50%" : p.shape === 1 ? "2px" : "0",
+          background: p.color,
+          animation: `confetti-fall ${p.duration}s ease-in ${p.delay}s forwards`,
+        }} />
+      ))}
+    </div>
+  );
+};
+
+// ─── Arcade HUD ──────────────────────────────────────────────────────
+const HUD = ({ score, cleared, total }) => (
+  <div style={{
+    position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+    display: "flex", justifyContent: "space-between", alignItems: "center",
+    padding: "10px 20px",
+    background: A.isDark
+      ? "linear-gradient(180deg, rgba(6,6,15,0.95) 0%, rgba(6,6,15,0.7) 80%, transparent 100%)"
+      : "linear-gradient(180deg, rgba(244,242,239,0.95) 0%, rgba(244,242,239,0.7) 80%, transparent 100%)",
+    fontFamily: A.font, fontSize: 9,
+    borderBottom: `1px solid ${A.border}`,
+  }}>
+    <div><span style={{ color: A.textDim }}>SCORE </span><span style={{ color: A.cyan }}>{String(score).padStart(6, "0")}</span></div>
+    <div><span style={{ color: A.textDim }}>TARGETS </span><span style={{ color: A.green }}>{cleared}</span><span style={{ color: A.textDim }}>/{total}</span></div>
+    <div><span style={{ color: A.textDim }}>PLAYER 1 </span><span style={{ color: A.amber }}>JC</span></div>
+  </div>
+);
+
+// ─── Shared: Arcade Button ───────────────────────────────────────────
+const ArcadeBtn = ({ children, onClick, color = A.cyan, large = false, style = {} }) => {
+  const [h, setH] = useState(false);
+  return (
+    <button onClick={onClick} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{
+      background: h ? `${color}${A.isDark ? "1a" : "14"}` : "transparent",
+      border: `2px solid ${color}`,
+      color: color,
+      fontFamily: A.font,
+      fontSize: large ? 11 : 8,
+      padding: large ? "16px 36px" : "10px 20px",
+      cursor: "pointer",
+      borderRadius: 2,
+      transition: "all 0.2s",
+      textShadow: h ? `0 0 12px ${color}` : "none",
+      boxShadow: h ? `0 0 20px ${color}40, inset 0 0 20px ${color}10` : "none",
+      letterSpacing: "0.05em",
+      ...style,
+    }}>
+      {children}
+    </button>
+  );
+};
+
+// ─── Easter Eggs ─────────────────────────────────────────────────────
+const easterEggs = {
+  starClick: [
+    "You found an easter egg! I hid a few in here.",
+    "Fun fact: I convinced a McKinsey partner to try deep dish at Lou Malnati\u2019s. He switched firms to Chicago.",
+    "This entire app was built as a product exercise. The meta is the message.",
+    "If you\u2019re reading this, you\u2019re exactly the curious person I\u2019d love to work with.",
+  ],
+  engagementFacts: {},
+};
+
+// ─── Data ────────────────────────────────────────────────────────────
+const timeline = [
+  {
+    era: "Chicago Startups", years: "2013\u20132018", icon: "\uD83D\uDE80",
+    color: A.amber, highlights: [
+      { metric: "3", label: "ventures built" },
+      { metric: "CEO", label: "of Matchist" },
+      { metric: "0\u21921", label: "products shipped" },
+    ],
+    description: "Started in finance at Cortland Capital, then caught the startup bug. Founded GigScout \u2014 a live music discovery app born from frustration with Chicago\u2019s fragmented venue scene. Took over as CEO of Matchist, a developer marketplace that needed a turnaround. Built product at Fulton Works. Chicago\u2019s startup ecosystem taught me scrappiness, speed, and the art of building with constraints.",
+  },
+  {
+    era: "McKinsey Product Guild", years: "2018\u2013Present", icon: "\uD83C\uDFDB\uFE0F",
+    color: A.pink, highlights: [
+      { metric: "11+", label: "engagements" },
+      { metric: "4", label: "promotions" },
+      { metric: "EM", label: "current level" },
+    ],
+    description: "Rose from Digital Analyst to Engagement Specialist & Manager in McKinsey\u2019s Product Management practice. Built products across energy, financial services, government, insurance, healthcare, consumer tech, and entertainment. From dynamic pricing algorithms for a global commodities firm, to first responder tools for a major NYC utility, to an internal AI tool (Beacon) for McKinsey\u2019s own Business Building practice. Brought a rare founder\u2019s perspective \u2014 I\u2019ve actually shipped the things most consultants only advise on.",
+  },
+  {
+    era: "What\u2019s Next: Anthropic", years: "2026\u2013", icon: "\u2726",
+    color: A.cyan, highlights: [
+      { metric: "\u221E", label: "mission passion" },
+      { metric: "8yr+", label: "PM experience" },
+      { metric: "1", label: "app you\u2019re reading" },
+    ],
+    description: "I want to build products that make AI safe and beneficial for everyone. Anthropic isn\u2019t just a company I admire \u2014 it\u2019s the company building the future I want to live in. I bring the rare combination of McKinsey-grade strategic thinking and startup shipping velocity.",
+  },
+];
+
+const engagements = [
+  { icon: "\u26A1", sector: "Energy", headline: "Nuclear Maintenance Planning Platform", product: "Maintenance tasks \u2014 even replacing a single screw \u2014 could take up to 2 years due to regulatory, safety, and coordination overhead. Built an end-to-end web application that unified planners, procurement, and implementation teams onto one platform, streamlining collaboration and dramatically cutting cycle times for facility maintenance.", team: "~30 people (multiple PMs, designers, large engineering group)", timeline: "~6 months", tag: "Product Build", color: A.amber },
+  { icon: "\uD83C\uDFD9\uFE0F", sector: "Utilities", headline: "First Responder Field Triage Platform", product: "When outages or infrastructure issues hit, first responders were surveying damage with paper forms and manual photos \u2014 slowing restoration times across all five NYC boroughs. Built an iPad-based web app that let responders triage issues on-site, capture structured data, and receive real-time instructions on whether to fix in place or dispatch a repair crew \u2014 all within a single experience. Directly improved how quickly power got restored.", team: "~25 people (multiple PMs, ~5 designers, ~15\u201320 engineers)", timeline: "~4 months to MVP", tag: "Mobile Product", color: A.cyan },
+  { icon: "\uD83C\uDF3E", sector: "Commodities", headline: "Buyer-Seller CRM & Dynamic Pricing Tool", product: "Worked on-site at a soybean processing plant in Lincoln, Nebraska. The buyer\u2019s team had no structured way to manage farmer relationships or price competitively in real time. Built a CRM-style platform that gave buyers full context on each seller \u2014 history, past deals, relationship notes \u2014 plus dynamic pricing that factored in market forces and competition so they could offer the right price on any given day. Helped them win significantly more business.", team: "~8 people (1 PM, 1 designer, ~6 engineers)", timeline: "~3\u20134 months", tag: "CRM + Pricing", color: A.green },
+  { icon: "\uD83C\uDFE6", sector: "Banking", headline: "SMB Lending BaaS API Platform", product: "Built a Banking-as-a-Service product for a major bank to sell small business loans through affiliate partners. No UI \u2014 entirely API-driven. Mapped out every requirement in the loan origination process and translated it into a structured API spec that affiliates could integrate against, letting them collect borrower details and pass them back seamlessly. A different kind of product problem: designing the experience without owning the interface.", team: "~11 people (3 PMs, no designers, ~8 engineers)", timeline: "~6 months", tag: "0\u21921 API Product", color: A.pink },
+  { icon: "\uD83D\uDEE1\uFE0F", sector: "Insurance", headline: "Broker Client Onboarding Tool", product: "First fully remote engagement \u2014 kicked off during the pandemic. Digitized how insurance brokers onboarded new clients, replacing a clunky manual process with a streamlined web app focused on high usability. Brokers could gather prospective client information and feed it directly into their pipeline. Not the sexiest problem, but a masterclass in shipping product with a distributed team.", team: "~8 people (1 PM, 2 designers, ~5 engineers)", timeline: "~3 months", tag: "Product Build", color: A.amber },
+  { icon: "\uD83D\uDC8A", sector: "Healthcare", headline: "Pharma Negotiation Intelligence Platform", product: "Built the first digital negotiation tool for a top 3 PBM. Drug pricing negotiations involve deep secrecy and real game theory \u2014 negotiators had always done it manually. Had to deeply understand how they thought about pricing strategy, then build tooling that let them craft proposals, react to pharma counter-offers, and get creative with deal structures \u2014 all within a single digital experience. Another fully remote build at the peak of the pandemic.", team: "~27 people (3 PMs, 4 designers, ~20 engineers)", timeline: "~6 months", tag: "Product Build", color: A.red },
+  { icon: "\uD83C\uDDE8\uD83C\uDDE6", sector: "Government", headline: "Immigration Visa Workflow Modernization", product: "Extended a G7 nation\u2019s legacy visa decisioning software \u2014 infrastructure dating back to 1980 that agents were legislatively required to keep using. Couldn\u2019t rip and replace, so we got creative: built lightweight UI layers and automated repetitive interactions for agents buried in a Frankenstein system. Deployments only happened 3 times a year on a fixed schedule \u2014 miss the window and you wait months. Scoped lean, hit the timeline, and shipped. Team was a mix of our engineers and theirs, building their internal capability along the way.", team: "~20 people (3 PMs, 2 designers, ~15 engineers \u2014 mixed McKinsey + client)", timeline: "~2.5 months", tag: "UX / Product", color: A.cyan },
+  { icon: "\uD83D\uDCF1", sector: "Consumer Tech", headline: "Lingo \u2014 Consumer Glucose Wearable", product: "Took an established medical glucose monitoring business and reimagined it for the consumer wellness market \u2014 an entirely different use case, audience, and bar for design. Built a mobile-led wearable experience requiring high-fidelity UX, brand building from scratch, and careful navigation of health claims without FDA-approved language. Launched across multiple markets \u2014 starting in the UK to test and learn, then expanding to North America. Built on top of hardware SDKs we didn\u2019t control, while simultaneously navigating FDA approval \u2014 one of the most complex product environments I\u2019ve worked in.", team: "Large cross-functional team (product, design, engineering, regulatory)", timeline: "~12+ months", tag: "Consumer 0\u21921", color: A.green },
+  { icon: "\uD83C\uDFAE", sector: "Entertainment", headline: "AI-Era Character IP Protection Strategy", product: "A major toy company needed to protect its character IP in a world where LLMs have ingested countless unauthorized copies and users are remixing them freely. Consulted on building an official \u2018character bank\u2019 \u2014 a controlled, canonical source for how their IP could be used by content creators and internal teams. Skeletoned out the core architecture considering the state of AI in early 2026: knowledge graphs, character constitutions, usage guardrails. Short engagement, high-leverage strategic framing.", team: "Small advisory team", timeline: "~2 months", tag: "AI Strategy", color: A.pink },
+  { icon: "\uD83E\uDD16", sector: "Internal AI", headline: "Beacon \u2014 Agentic Business Building Tool", product: "Built Beacon, an internal agentic AI tool for McKinsey\u2019s Business Building practice. Start with a few lines describing an idea, and Beacon explores its potential \u2014 mapping value pools, identifying strategic advantages, and using AI to generate novel business concepts executives hadn\u2019t considered. Genuine human-in-the-loop experience where the machine surfaced patterns and the human steered. Went all the way from ideation to business cases, wireframes, personas, and pitch decks \u2014 everything needed to sell a new venture. ~100 agentic workflows, aggressively pushing the fidelity of what LLMs could deliver.", team: "~16 people (3 PMs, 3 designers, ~10 engineers)", timeline: "~6 months (2024)", tag: "AI Product", color: A.cyan },
+  { icon: "\uD83C\uDFDB\uFE0F", sector: "Finance", headline: "Platform Stabilization & Client Onboarding Fix", product: "A major bank had launched a platform to great fanfare \u2014 but core tech decisions were breaking down. They\u2019d stopped onboarding new clients entirely, turning away millions in potential revenue. Came in as a SWAT team: audited infrastructure weaknesses, standardized the onboarding process, and built criteria for which clients could be brought on and in what order. Less of a hands-on build, more of a diagnose-and-repair mission. Unblocked the pipeline so they could start onboarding again.", team: "Advisory / SWAT team", timeline: "~4 months", tag: "Product Ops", color: A.amber },
+  { icon: "\uD83C\uDFB5", sector: "GigScout", headline: "GigScout \u2014 Rebuilt in a Day with AI", product: "GigScout was my first startup \u2014 a live music discovery app born from frustration with Chicago\u2019s fragmented venue scene. In 2025, I rebuilt the entire thing in a single day using AI tools. Same vision, modern stack, shipped and live. A personal proof point that the barrier to creation has fundamentally changed.", team: "Solo (AI-assisted)", timeline: "1 day", tag: "BONUS ROUND", color: A.amber, bonus: true, link: "https://gigscout.app" },
+  { icon: "\uD83D\uDCF0", sector: "The AI Brief", headline: "The AI Brief \u2014 AI News for Real People", product: "A newsletter and web experience that translates AI developments into plain language for non-technical readers. No hype, no jargon \u2014 just real context about what\u2019s happening and why it matters. Built and launched in a week as a personal project to make AI accessible to everyone.", team: "Solo (AI-assisted)", timeline: "1 week", tag: "BONUS ROUND", color: A.cyan, bonus: true, link: "https://the-ai-brief-lilac.vercel.app" },
+];
+
+// ─── Screen: Landing (Arcade Boot) ───────────────────────────────────
+const Landing = ({ onStart }) => {
+  const [phase, setPhase] = useState(0);
+  const [eggIdx, setEggIdx] = useState(-1);
+  const [eggShow, setEggShow] = useState(false);
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setPhase(1), 400);
+    const t2 = setTimeout(() => setPhase(2), 1200);
+    const t3 = setTimeout(() => setPhase(3), 2000);
+    const t4 = setTimeout(() => setPhase(4), 2800);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+  }, []);
+
+  const handleEgg = () => {
+    const next = (eggIdx + 1) % easterEggs.starClick.length;
+    setEggIdx(next); setEggShow(true);
+    setTimeout(() => setEggShow(false), 3500);
+  };
+
+  return (
+    <div style={{
+      minHeight: "100vh", display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center", padding: 32,
+      textAlign: "center", position: "relative", zIndex: 1,
+    }}>
+      {/* Glowing JC avatar */}
+      {phase >= 1 && (
+        <div style={{
+          animation: "warp-in 0.6s ease-out",
+          marginBottom: 20,
+        }}>
+          <div onClick={handleEgg} style={{
+            width: 100, height: 100, borderRadius: "50%",
+            border: `3px solid ${A.cyan}`,
+            background: A.isDark ? "radial-gradient(circle at 30% 30%, #1a2a3a, #06060f)" : "radial-gradient(circle at 30% 30%, #e8f0f2, #d0dfe3)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: A.cyanGlow,
+            animation: "glow-pulse 3s ease-in-out infinite",
+            transition: "background 0.4s, box-shadow 0.4s",
+          }}>
+            <span style={{ fontFamily: A.font, fontSize: 24, color: A.cyan, textShadow: A.isDark ? `0 0 20px ${A.cyan}` : "none" }}>JC</span>
+          </div>
+          {eggShow && (
+            <div style={{
+              fontSize: 12, color: A.amber, fontStyle: "italic",
+              marginTop: 12, maxWidth: 350, lineHeight: 1.6,
+              animation: "fade-in 0.3s ease-out",
+              fontFamily: A.bodyFont,
+            }}>{easterEggs.starClick[eggIdx]}</div>
+          )}
+        </div>
+      )}
+
+      {/* Title */}
+      {phase >= 2 && (
+        <div style={{ animation: "fade-in 0.6s ease-out" }}>
+          <h1 style={{
+            fontFamily: A.bodyFont, fontSize: 48, fontWeight: 700,
+            color: A.textBright, margin: "0 0 8px 0", lineHeight: 1.1,
+            letterSpacing: "-0.02em",
+            textShadow: A.isDark ? `0 0 40px rgba(0,255,255,0.15)` : "none",
+          }}>Hi, I'm John.</h1>
+          <p style={{
+            fontFamily: A.font, fontSize: 9, color: A.cyan,
+            letterSpacing: "0.1em", marginBottom: 8,
+          }}>PRODUCT MANAGER // BUILDER // APPLICANT</p>
+        </div>
+      )}
+
+      {/* Subtitle */}
+      {phase >= 3 && (
+        <div style={{ animation: "fade-in 0.6s ease-out", maxWidth: 520, marginTop: 16 }}>
+          <p style={{
+            fontSize: 19, color: A.text, lineHeight: 1.65,
+            fontFamily: A.bodyFont, marginBottom: 8,
+          }}>I built this instead of writing a cover letter.</p>
+          <p style={{
+            fontSize: 15, color: A.textDim, lineHeight: 1.6,
+            fontFamily: A.bodyFont,
+          }}>
+            Startup founder turned McKinsey PM. Chicago-built.
+            <br />This is my application for Product Manager at Anthropic.
+          </p>
+        </div>
+      )}
+
+      {/* TL;DR Panel */}
+      {phase >= 3 && (
+        <div style={{
+          animation: "fade-in 0.6s ease-out 0.3s both",
+          maxWidth: 540, width: "100%", marginTop: 32,
+          background: A.bgPanel, border: `1px solid ${A.border}`,
+          borderRadius: 4, padding: "22px 26px", textAlign: "left",
+        }}>
+          <p style={{ fontFamily: A.font, fontSize: 8, color: A.pink, letterSpacing: "0.1em", marginBottom: 14 }}>MISSION BRIEFING</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {[
+              { icon: "\uD83D\uDE80", text: "Founded GigScout (live music) and led Matchist (dev marketplace) as CEO in Chicago\u2019s startup scene" },
+              { icon: "\uD83C\uDFDB\uFE0F", text: "8 years at McKinsey \u2014 Digital Analyst to Engagement Manager. 11+ product engagements across energy, banking, government, AI, consumer tech" },
+              { icon: "\uD83E\uDD16", text: "Built Beacon, McKinsey\u2019s internal AI tool. Advised a global entertainment co on AI & IP strategy" },
+              { icon: "\u26A1", text: "This week: rebuilt GigScout in a day with AI, launched The AI Brief. Still shipping." },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <span style={{ fontSize: 16, lineHeight: 1.4, flexShrink: 0 }}>{item.icon}</span>
+                <p style={{ fontSize: 14, color: A.text, lineHeight: 1.55, margin: 0, fontFamily: A.bodyFont }}>{item.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Start button */}
+      {phase >= 4 && (
+        <div style={{ animation: "fade-in 0.5s ease-out", marginTop: 36 }}>
+          <ArcadeBtn large color={A.cyan} onClick={onStart}>
+            INSERT COIN TO BEGIN {"\u25B6"}
+          </ArcadeBtn>
+          <p style={{ fontFamily: A.font, fontSize: 7, color: A.textDim, marginTop: 16 }}>
+            ~4 MIN {"\u00B7"} INTERACTIVE {"\u00B7"} NO LOGIN REQUIRED
+          </p>
+          <div style={{
+            marginTop: 32, display: "flex", gap: 10, justifyContent: "center",
+            animation: "fade-in 0.5s ease-out 0.3s both",
+          }}>
+            {[
+              { label: "One-Pager (Dark)", href: "jc-anthropic-teaser.html", icon: "\u263E" },
+              { label: "One-Pager (Light)", href: "jc-anthropic-teaser-light.html", icon: "\u2600" },
+            ].map((dl, i) => (
+              <a key={i} href={dl.href} target="_blank" rel="noopener noreferrer" style={{
+                display: "flex", alignItems: "center", gap: 8,
+                padding: "8px 16px", borderRadius: 4,
+                background: A.bgPanel, border: `1px solid ${A.border}`,
+                textDecoration: "none", transition: "all 0.2s",
+                cursor: "pointer",
+              }}>
+                <span style={{ fontSize: 14 }}>{dl.icon}</span>
+                <span style={{ fontFamily: A.font, fontSize: 7, color: A.textDim, letterSpacing: "0.06em" }}>{dl.label.toUpperCase()}</span>
+                <span style={{ fontSize: 10, color: A.textDim }}>{"\u2197"}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Screen: Hub (Arcade Menu) ───────────────────────────────────────
+const Hub = ({ onNavigate, onHome, completed, score }) => {
+  const [ready, setReady] = useState(false);
+  useEffect(() => { setTimeout(() => setReady(true), 100); }, []);
+
+  const allDone = completed.fleet && completed.record && completed.why;
+
+  const missions = [
+    {
+      key: "fleet", icon: "\uD83D\uDC7E", title: "ENGAGEMENT FLEET",
+      subtitle: "11 TARGETS TO CLEAR", color: A.cyan,
+      desc: "Destroy the invaders to reveal my McKinsey & startup portfolio. Each tile is a real engagement.",
+      time: "~2 min", done: completed.fleet,
+    },
+    {
+      key: "record", icon: "\uD83D\uDE80", title: "THE MISSION LOG",
+      subtitle: "3 CAREER ERAS", color: A.amber,
+      desc: "Chicago startups \u2192 McKinsey Product Guild \u2192 Anthropic. The full career arc with real milestones.",
+      time: "~1 min", done: completed.record,
+    },
+    {
+      key: "why", icon: "\u2726", title: "INCOMING TRANSMISSION",
+      subtitle: "A MESSAGE FROM THE PILOT", color: A.pink,
+      desc: "Why Anthropic. The genuine version \u2014 no buzzwords, just conviction.",
+      time: "~1 min", done: completed.why,
+    },
+  ];
+
+  return (
+    <div style={{
+      minHeight: "100vh", display: "flex", flexDirection: "column",
+      alignItems: "center", padding: "70px 24px 60px", maxWidth: 720, margin: "0 auto",
+      position: "relative", zIndex: 1,
+    }}>
+      {ready && (
+        <div style={{ textAlign: "center", marginBottom: 40, animation: "fade-in 0.5s ease-out" }}>
+          <p style={{ fontFamily: A.font, fontSize: 8, color: A.pink, letterSpacing: "0.1em", marginBottom: 10 }}>PRODUCT MANAGER APPLICATION</p>
+          <h2 style={{
+            fontFamily: A.bodyFont, fontSize: 34, fontWeight: 700,
+            color: A.textBright, margin: "0 0 8px 0", letterSpacing: "-0.01em",
+          }}>Select your mission</h2>
+          <p style={{ fontSize: 15, color: A.textDim, fontFamily: A.bodyFont }}>Explore in any order. Each reveals a different dimension.</p>
+        </div>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 14, width: "100%" }}>
+        {missions.map((m, i) => (
+          <MissionCard key={m.key} m={m} delay={200 + i * 120} ready={ready} onClick={() => onNavigate(m.key)} />
+        ))}
+      </div>
+
+      {allDone && (
+        <div style={{ textAlign: "center", marginTop: 40, animation: "warp-in 0.6s ease-out" }}>
+          <p style={{ fontFamily: A.font, fontSize: 10, color: A.green, marginBottom: 16, textShadow: A.isDark ? `0 0 20px ${A.green}` : "none" }}>
+            ALL MISSIONS COMPLETE
+          </p>
+          <p style={{ fontSize: 16, color: A.text, fontFamily: A.bodyFont, marginBottom: 20 }}>You explored all three dimensions. Let's talk.</p>
+          <ArcadeBtn large color={A.green} onClick={() => onNavigate("contact")}>
+            SIGNAL HOME {"\u2605"}
+          </ArcadeBtn>
+        </div>
+      )}
+
+      {/* Back to start */}
+      <div style={{ marginTop: 40, textAlign: "center" }}>
+        <button onClick={onHome} style={{
+          background: "transparent", border: "none",
+          fontFamily: A.font, fontSize: 7, color: A.textDim,
+          cursor: "pointer", letterSpacing: "0.08em",
+          padding: "8px 16px", transition: "color 0.2s",
+          opacity: 0.6,
+        }}>{"\u25C0"} BACK TO START</button>
+      </div>
+    </div>
+  );
+};
+
+const MissionCard = ({ m, delay, ready, onClick }) => {
+  const [hovered, setHovered] = useState(false);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => { if (ready) { const t = setTimeout(() => setVisible(true), delay); return () => clearTimeout(t); } }, [ready]);
+
+  if (!visible) return <div style={{ height: 110 }} />;
+
+  return (
+    <div onClick={onClick} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+      style={{
+        background: hovered ? (A.isDark ? "rgba(0,255,255,0.04)" : "rgba(0,100,120,0.04)") : A.bgPanel,
+        border: `1px solid ${hovered ? m.color : A.border}`,
+        borderLeft: `4px solid ${m.done ? A.green : m.color}`,
+        borderRadius: 4, padding: "22px 24px",
+        cursor: "pointer", transition: "all 0.25s ease",
+        boxShadow: hovered ? `0 0 30px ${m.color}15` : "none",
+        animation: "descend 0.4s ease-out",
+        position: "relative", overflow: "hidden",
+      }}
+    >
+      {/* Targeting reticle on hover */}
+      {hovered && !m.done && (
+        <div style={{
+          position: "absolute", top: 14, right: 16,
+          width: 28, height: 28, borderRadius: "50%",
+          border: `2px solid ${m.color}`, opacity: 0.5,
+          animation: "target-lock 1s ease-in-out infinite",
+        }}>
+          <div style={{ position: "absolute", top: "50%", left: -4, right: -4, height: 1, background: m.color }} />
+          <div style={{ position: "absolute", left: "50%", top: -4, bottom: -4, width: 1, background: m.color }} />
+        </div>
+      )}
+
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 18 }}>
+        <div style={{
+          fontSize: 30, lineHeight: 1, minWidth: 40, textAlign: "center",
+          filter: hovered ? `drop-shadow(0 0 8px ${m.color})` : "none",
+          transition: "filter 0.3s ease",
+        }}>{m.icon}</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+            <h3 style={{ fontFamily: A.font, fontSize: 11, color: m.done ? A.green : A.textBright, margin: 0 }}>{m.title}</h3>
+            {m.done && <span style={{ fontFamily: A.font, fontSize: 8, color: A.green, animation: "pulse-glow 2s infinite" }}>CLEAR</span>}
+          </div>
+          <p style={{ fontFamily: A.font, fontSize: 7, color: m.color, margin: "0 0 8px 0", letterSpacing: "0.08em" }}>{m.subtitle}</p>
+          <p style={{ fontSize: 14, color: A.textDim, margin: "0 0 6px 0", lineHeight: 1.5, fontFamily: A.bodyFont }}>{m.desc}</p>
+          <span style={{ fontFamily: A.font, fontSize: 7, color: A.textDim }}>{m.time}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── Screen: Engagement Fleet (Shootable Grid) ──────────────────────
+const Fleet = ({ onBack, onComplete, score, setScore }) => {
+  const [cleared, setCleared] = useState({});
+  const [active, setActive] = useState(null);
+  const [firing, setFiring] = useState(null);
+  const [exploding, setExploding] = useState(null);
+  const [scorePop, setScorePop] = useState(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => { setTimeout(() => setReady(true), 200); }, []);
+
+  const clearedCount = Object.keys(cleared).length;
+
+  useEffect(() => {
+    if (clearedCount === engagements.length && !active) {
+      setTimeout(() => onComplete(), 800);
+    }
+  }, [clearedCount, active]);
+
+  const handleShoot = (idx) => {
+    if (cleared[idx] || firing !== null) return;
+    setFiring(idx);
+    setTimeout(() => {
+      setExploding(idx);
+      setFiring(null);
+      setTimeout(() => {
+        setExploding(null);
+        setCleared(prev => ({ ...prev, [idx]: true }));
+        setActive(idx);
+        setScore(prev => prev + 500);
+        setScorePop(idx);
+        setTimeout(() => setScorePop(null), 1000);
+      }, 400);
+    }, 300);
+  };
+
+  const eng = active !== null ? engagements[active] : null;
+  const fact = eng ? easterEggs.engagementFacts[eng.sector] : null;
+
+  return (
+    <div style={{ minHeight: "100vh", position: "relative", zIndex: 1, padding: "70px 20px 40px" }}>
+      <div style={{ maxWidth: 800, margin: "0 auto" }}>
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+          <ArcadeBtn onClick={onBack}>ESC</ArcadeBtn>
+          <div style={{ fontFamily: A.font, fontSize: 8, color: A.textDim }}>
+            CLEARED: <span style={{ color: A.green }}>{clearedCount}</span>/{engagements.length}
+          </div>
+        </div>
+
+        {ready && (
+          <div style={{ animation: "fade-in 0.4s ease-out" }}>
+            <h2 style={{
+              fontFamily: A.font, fontSize: 14, color: A.cyan,
+              textShadow: A.isDark ? `0 0 20px ${A.cyan}` : "none", marginBottom: 6, textAlign: "center",
+            }}>ENGAGEMENT FLEET</h2>
+            <p style={{ fontFamily: A.font, fontSize: 7, color: A.pink, textAlign: "center", marginBottom: 28, letterSpacing: "0.1em" }}>
+              {"\u25BC"} DESTROY TARGETS TO REVEAL PORTFOLIO {"\u25BC"}
+            </p>
+          </div>
+        )}
+
+        {/* Invader Grid — Main engagements */}
+        {ready && (
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+            gap: 10,
+            marginBottom: 20,
+          }}>
+            {engagements.filter(e => !e.bonus).map((eng, _) => {
+              const idx = engagements.indexOf(eng);
+              return (
+              <InvaderTile
+                key={idx}
+                eng={eng}
+                idx={idx}
+                cleared={!!cleared[idx]}
+                isActive={active === idx}
+                isFiring={firing === idx}
+                isExploding={exploding === idx}
+                scorePop={scorePop === idx}
+                onShoot={() => handleShoot(idx)}
+                onSelect={() => cleared[idx] && setActive(idx)}
+              />
+              );
+            })}
+          </div>
+        )}
+
+        {/* Bonus Round divider + tiles */}
+        {ready && (
+          <>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 12, marginBottom: 14,
+              animation: "fade-in 0.4s ease-out 0.6s both",
+            }}>
+              <div style={{ flex: 1, height: 1, background: A.border }} />
+              <span style={{ fontFamily: A.font, fontSize: 7, color: A.pink, letterSpacing: "0.15em" }}>BONUS ROUND</span>
+              <div style={{ flex: 1, height: 1, background: A.border }} />
+            </div>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, minmax(140px, 1fr))",
+              gap: 10, marginBottom: 28,
+              maxWidth: 300, margin: "0 auto 28px",
+              animation: "fade-in 0.4s ease-out 0.7s both",
+            }}>
+              {engagements.filter(e => e.bonus).map((eng, _) => {
+                const idx = engagements.indexOf(eng);
+                return (
+                <InvaderTile
+                  key={idx}
+                  eng={eng}
+                  idx={idx}
+                  cleared={!!cleared[idx]}
+                  isActive={active === idx}
+                  isFiring={firing === idx}
+                  isExploding={exploding === idx}
+                  scorePop={scorePop === idx}
+                  onShoot={() => handleShoot(idx)}
+                  onSelect={() => cleared[idx] && setActive(idx)}
+                />
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* Detail Panel */}
+        {eng && (
+          <div style={{
+            animation: "warp-in 0.4s ease-out",
+            background: A.bgPanel,
+            border: `1px solid ${eng.color}40`,
+            borderLeft: `4px solid ${eng.color}`,
+            borderRadius: 4, padding: "28px 24px",
+            marginBottom: 24,
+          }}>
+            {/* Header: icon + sector + tag */}
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+              <span style={{ fontSize: 32, filter: `drop-shadow(0 0 8px ${eng.color})` }}>{eng.icon}</span>
+              <div>
+                <div style={{ fontFamily: A.font, fontSize: 10, color: eng.color, marginBottom: 4 }}>{eng.sector.toUpperCase()}</div>
+                <div style={{ fontFamily: A.font, fontSize: 7, color: A.textDim, letterSpacing: "0.05em" }}>{eng.tag}</div>
+              </div>
+            </div>
+
+            {/* Headline */}
+            <h3 style={{
+              fontFamily: A.bodyFont, fontSize: 20, fontWeight: 700,
+              color: A.textBright, margin: "0 0 14px 0", lineHeight: 1.3,
+            }}>{eng.headline}</h3>
+
+            {/* Product description */}
+            <p style={{ fontSize: 15, color: A.text, lineHeight: 1.7, fontFamily: A.bodyFont, margin: "0 0 18px 0" }}>{eng.product}</p>
+
+            {/* Team & Timeline stats */}
+            <div style={{
+              display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap",
+            }}>
+              <div style={{
+                flex: 1, minWidth: 180,
+                background: A.isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                border: `1px solid ${A.border}`,
+                borderRadius: 4, padding: "12px 14px",
+              }}>
+                <div style={{ fontFamily: A.font, fontSize: 7, color: eng.color, letterSpacing: "0.1em", marginBottom: 6 }}>TEAM</div>
+                <div style={{ fontSize: 13, color: A.text, lineHeight: 1.5, fontFamily: A.bodyFont }}>{eng.team}</div>
+              </div>
+              <div style={{
+                minWidth: 100,
+                background: A.isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                border: `1px solid ${A.border}`,
+                borderRadius: 4, padding: "12px 14px",
+              }}>
+                <div style={{ fontFamily: A.font, fontSize: 7, color: eng.color, letterSpacing: "0.1em", marginBottom: 6 }}>DURATION</div>
+                <div style={{ fontFamily: A.bodyFont, fontSize: 18, fontWeight: 700, color: A.textBright }}>{eng.timeline}</div>
+              </div>
+            </div>
+
+            {/* Visit link for bonus items */}
+            {eng.link && (
+              <a href={eng.link} target="_blank" rel="noopener noreferrer" style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                background: `${eng.color}15`, border: `1px solid ${eng.color}40`,
+                borderRadius: 4, padding: "10px 18px", marginBottom: 16,
+                textDecoration: "none", transition: "all 0.2s",
+                fontFamily: A.font, fontSize: 8, color: eng.color,
+                letterSpacing: "0.08em",
+              }}>
+                VISIT LIVE {"\u2192"}
+              </a>
+            )}
+
+            {/* Easter egg fact */}
+            {fact && (
+              <div style={{
+                borderTop: `1px solid ${A.border}`, paddingTop: 12,
+                fontSize: 13, color: A.amber, fontStyle: "italic", lineHeight: 1.6,
+                fontFamily: A.bodyFont,
+              }}>
+                {"\uD83D\uDCAC"} {fact}
+              </div>
+            )}
+            <button onClick={() => setActive(null)} style={{
+              marginTop: 14, background: "transparent", border: `1px solid ${A.border}`,
+              color: A.textDim, fontFamily: A.font, fontSize: 7, padding: "6px 14px",
+              cursor: "pointer", borderRadius: 2,
+            }}>CLOSE</button>
+          </div>
+        )}
+
+        {/* Completion */}
+        {clearedCount === engagements.length && (
+          <div style={{ textAlign: "center", marginTop: 20, animation: "warp-in 0.5s ease-out" }}>
+            <div style={{ fontFamily: A.font, fontSize: 14, color: A.green, textShadow: A.isDark ? `0 0 30px ${A.green}` : "none", marginBottom: 12 }}>
+              FLEET DESTROYED
+            </div>
+            <p style={{ fontSize: 15, color: A.text, fontFamily: A.bodyFont, marginBottom: 20 }}>
+              11 engagements. 4 industries. One relentless builder.
+            </p>
+            <ArcadeBtn color={A.green} onClick={onBack}>RETURN TO BASE {"\u25C0"}</ArcadeBtn>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const InvaderTile = ({ eng, idx, cleared, isActive, isFiring, isExploding, scorePop, onShoot, onSelect }) => {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div
+      onClick={cleared ? onSelect : onShoot}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        position: "relative",
+        aspectRatio: "1",
+        border: `2px solid ${isActive ? eng.color : cleared ? `${A.green}40` : hovered ? eng.color : A.border}`,
+        borderRadius: 4,
+        background: isActive ? `${eng.color}12` : cleared ? (A.isDark ? "rgba(0,255,0,0.03)" : "rgba(21,112,21,0.05)") : hovered ? `${eng.color}08` : A.bgPanel,
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        cursor: "pointer", transition: "all 0.2s ease",
+        animation: isExploding ? "explode 0.4s ease-out forwards"
+          : `descend 0.3s ease-out ${0.05 * idx}s both`,
+        boxShadow: hovered && !cleared ? `0 0 20px ${eng.color}30` : isActive ? `0 0 20px ${eng.color}25` : "none",
+        overflow: "hidden",
+      }}
+    >
+      {/* Bonus badge */}
+      {eng.bonus && !cleared && (
+        <div style={{
+          position: "absolute", top: 4, right: 4,
+          fontFamily: A.font, fontSize: 5, color: A.pink,
+          letterSpacing: "0.1em", opacity: 0.8,
+          animation: "pulse-glow 2s infinite",
+        }}>BONUS</div>
+      )}
+
+      {/* Laser beam */}
+      {isFiring && (
+        <div style={{
+          position: "absolute", bottom: "50%", left: "50%",
+          width: 3, transform: "translateX(-50%)",
+          background: `linear-gradient(to top, ${eng.color}, transparent)`,
+          animation: "laser-down 0.3s ease-out forwards",
+          zIndex: 5,
+        }} />
+      )}
+
+      {/* Score popup */}
+      {scorePop && (
+        <div style={{
+          position: "absolute", top: "30%", left: "50%", transform: "translateX(-50%)",
+          fontFamily: A.font, fontSize: 8, color: A.green,
+          textShadow: A.isDark ? `0 0 10px ${A.green}` : "none",
+          animation: "score-pop 1s ease-out forwards",
+          zIndex: 10,
+        }}>+500</div>
+      )}
+
+      {/* Icon */}
+      <div style={{
+        fontSize: cleared ? 20 : 28,
+        lineHeight: 1,
+        filter: hovered && !cleared ? `drop-shadow(0 0 10px ${eng.color})` : cleared ? "grayscale(0.3) brightness(0.7)" : "none",
+        transition: "all 0.2s ease",
+        marginBottom: 6,
+      }}>
+        {cleared ? "\u2713" : eng.icon}
+      </div>
+
+      {/* Label */}
+      <div style={{
+        fontFamily: A.font,
+        fontSize: 6,
+        color: cleared ? A.green : hovered ? eng.color : A.textDim,
+        textAlign: "center",
+        letterSpacing: "0.05em",
+        transition: "color 0.2s ease",
+        padding: "0 4px",
+      }}>
+        {eng.sector.toUpperCase()}
+      </div>
+
+      {/* Targeting reticle */}
+      {hovered && !cleared && (
+        <div style={{
+          position: "absolute", inset: 8,
+          border: `1px solid ${eng.color}60`,
+          borderRadius: "50%",
+          animation: "target-lock 0.8s ease-in-out infinite",
+          pointerEvents: "none",
+        }}>
+          <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: `${eng.color}40` }} />
+          <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: `${eng.color}40` }} />
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Screen: Mission Log (Track Record) ─────────────────────────────
+const MissionLog = ({ onBack, onComplete }) => {
+  const [activeEra, setActiveEra] = useState(0);
+  const [ready, setReady] = useState(false);
+  useEffect(() => { setTimeout(() => setReady(true), 150); }, []);
+
+  const era = timeline[activeEra];
+
+  return (
+    <div style={{ minHeight: "100vh", position: "relative", zIndex: 1, padding: "70px 24px 40px", maxWidth: 720, margin: "0 auto" }}>
+      <div style={{ marginBottom: 28 }}><ArcadeBtn onClick={onBack}>ESC</ArcadeBtn></div>
+
+      {ready && (
+        <div style={{ animation: "fade-in 0.4s ease-out" }}>
+          <h2 style={{
+            fontFamily: A.font, fontSize: 14, color: A.amber,
+            textShadow: A.isDark ? `0 0 20px ${A.amber}` : "none", marginBottom: 6, textAlign: "center",
+          }}>THE MISSION LOG</h2>
+          <p style={{
+            fontFamily: A.font, fontSize: 7, color: A.textDim,
+            textAlign: "center", marginBottom: 28, letterSpacing: "0.1em",
+          }}>CAREER TRAJECTORY // 2013\u2013PRESENT</p>
+
+          {/* Era Tabs */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 28, flexWrap: "wrap", justifyContent: "center" }}>
+            {timeline.map((t, i) => (
+              <button key={i} onClick={() => setActiveEra(i)} style={{
+                padding: "10px 18px", borderRadius: 2,
+                border: `2px solid ${activeEra === i ? t.color : A.border}`,
+                background: activeEra === i ? `${t.color}15` : "transparent",
+                color: activeEra === i ? t.color : A.textDim,
+                fontFamily: A.font, fontSize: 8, cursor: "pointer",
+                transition: "all 0.2s ease",
+                boxShadow: activeEra === i ? `0 0 15px ${t.color}20` : "none",
+              }}>
+                {t.icon} {t.era.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
+          {/* Era Card */}
+          <div key={activeEra} style={{
+            animation: "warp-in 0.4s ease-out",
+            background: A.bgPanel, border: `1px solid ${era.color}30`,
+            borderRadius: 4, padding: 28,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 22 }}>
+              <span style={{ fontSize: 40, filter: `drop-shadow(0 0 10px ${era.color})` }}>{era.icon}</span>
+              <div>
+                <h3 style={{ fontFamily: A.font, fontSize: 11, color: era.color, margin: 0 }}>{era.era.toUpperCase()}</h3>
+                <span style={{ fontFamily: A.font, fontSize: 8, color: A.textDim }}>{era.years}</span>
+              </div>
+            </div>
+
+            {/* Metrics */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 22 }}>
+              {era.highlights.map((h, i) => (
+                <div key={i} style={{
+                  background: `${era.color}08`, border: `1px solid ${era.color}20`,
+                  borderRadius: 4, padding: 14, textAlign: "center",
+                }}>
+                  <div style={{ fontFamily: A.font, fontSize: 18, color: era.color, lineHeight: 1, marginBottom: 6, textShadow: A.isDark ? `0 0 15px ${era.color}60` : "none" }}>{h.metric}</div>
+                  <div style={{ fontFamily: A.font, fontSize: 6, color: A.textDim, letterSpacing: "0.05em" }}>{h.label.toUpperCase()}</div>
+                </div>
+              ))}
+            </div>
+
+            <p style={{ fontSize: 15, color: A.text, lineHeight: 1.75, fontFamily: A.bodyFont }}>{era.description}</p>
+          </div>
+        </div>
+      )}
+
+      <div style={{ textAlign: "center", marginTop: 32 }}>
+        <ArcadeBtn color={A.amber} onClick={() => { onComplete(); onBack(); }}>MISSION LOGGED {"\u2713"}</ArcadeBtn>
+      </div>
+    </div>
+  );
+};
+
+// ─── Screen: Why Anthropic (Star Wars Crawl + Static Toggle) ─────────
+const WhyAnthropic = ({ onBack, onComplete }) => {
+  const [mode, setMode] = useState("crawl"); // "crawl" | "static"
+  const [crawlKey, setCrawlKey] = useState(0); // bump to restart animation
+  const [crawlDone, setCrawlDone] = useState(false);
+  const [ready, setReady] = useState(false);
+  const crawlTimer = useRef(null);
+
+  useEffect(() => { setTimeout(() => setReady(true), 300); }, []);
+
+  // When crawl starts, set a timer for when it finishes (~55s)
+  useEffect(() => {
+    if (mode === "crawl") {
+      setCrawlDone(false);
+      crawlTimer.current = setTimeout(() => {
+        setCrawlDone(true);
+        // Auto-transition to static after crawl ends
+        setTimeout(() => setMode("static"), 1200);
+      }, 55000);
+      return () => clearTimeout(crawlTimer.current);
+    }
+  }, [mode, crawlKey]);
+
+  const goStatic = () => {
+    clearTimeout(crawlTimer.current);
+    setMode("static");
+  };
+
+  const replayCrawl = () => {
+    setCrawlKey(k => k + 1);
+    setCrawlDone(false);
+    setMode("crawl");
+  };
+
+  // Shared content for both modes
+  const contentBlocks = [
+    { type: "text", text: "I'll be honest: I'm both excited and nervous about AI." },
+    { type: "text", text: "As a PM, it's exhilarating. Suddenly I can make things I needed so much help to build before. I can prototype in hours what used to take weeks. I can test ideas at a pace that would have seemed absurd even two years ago." },
+    { type: "projects" },
+    { type: "text", text: "But in parallel \u2014 does it mean anything to make creative things when everyone else can just as easily too? What happens to craft when the barrier to creation drops to zero? These aren't rhetorical questions for me. They keep me up at night." },
+    { type: "quote", text: "What I appreciate about Anthropic is that you're taking these questions seriously \u2014 even when you don't have the answers yet." },
+    { type: "text", text: "That's rare. Most companies in this space are either moving too fast to ask the hard questions, or too paralyzed by them to ship anything. Anthropic is doing both \u2014 building best-in-class products while genuinely wrestling with what it all means." },
+    { type: "text", text: "I'm hungry to make the best of this new technology with people who are optimistic, aware, and willing to be scrappy to figure it out. That's the energy I've felt in every interaction with Anthropic's work \u2014 and it's the energy I'd bring on day one." },
+    { type: "ps", text: "P.S. \u2014 I built this interactive application because I believe the best way to evaluate a PM is to experience their product thinking, not read about it. This app is the artifact. I hope it shows something a resume can't." },
+  ];
+
+  const projects = [
+    { icon: "\uD83C\uDFB5", title: "GigScout \u2014 Rebuilt", desc: "Rebuilt my first startup in a single day using AI.", link: "https://gigscout.app", color: A.amber },
+    { icon: "\uD83D\uDCF0", title: "The AI Brief", desc: "AI news for non-techies \u2014 real context for real people.", link: "https://the-ai-brief-lilac.vercel.app", color: A.cyan },
+  ];
+
+  const renderBlock = (b, i, isCrawl) => {
+    const baseText = { fontSize: isCrawl ? 20 : 17, color: isCrawl ? (A.isDark ? "#eee" : "#444") : A.text, lineHeight: isCrawl ? 2 : 1.85, fontFamily: A.bodyFont, textAlign: "center" };
+    const mb = isCrawl ? 36 : 28;
+    const animStyle = !isCrawl ? { animation: `fade-in 0.5s ease-out ${0.1 + i * 0.1}s both`, textAlign: "left" } : {};
+
+    if (b.type === "projects") {
+      return (
+        <div key={i} style={{ display: "flex", gap: isCrawl ? 14 : 14, marginBottom: isCrawl ? 36 : 36, justifyContent: "center", ...animStyle }}>
+          {projects.map((proj, j) => (
+            <a key={j} href={proj.link} target="_blank" rel="noopener noreferrer" style={{
+              flex: isCrawl ? "0 1 260px" : 1, background: A.bgPanel,
+              border: `1px solid ${proj.color}25`, borderTop: `3px solid ${proj.color}`,
+              borderRadius: 4, padding: isCrawl ? "16px 14px" : "18px 16px",
+              textDecoration: "none", transition: "all 0.25s ease",
+              textAlign: "left",
+            }}>
+              <div style={{ fontSize: isCrawl ? 22 : 24, marginBottom: isCrawl ? 8 : 10 }}>{proj.icon}</div>
+              <div style={{ fontFamily: A.font, fontSize: isCrawl ? 8 : 8, color: proj.color, marginBottom: isCrawl ? 6 : 8 }}>{proj.title.toUpperCase()}</div>
+              <div style={{ fontSize: isCrawl ? 13 : 14, color: A.textDim, lineHeight: 1.55, fontFamily: A.bodyFont }}>{proj.desc}</div>
+              <div style={{ fontFamily: A.font, fontSize: 6, color: proj.color, marginTop: isCrawl ? 10 : 12, letterSpacing: "0.08em" }}>BUILT THIS WEEK {"\u2192"}</div>
+            </a>
+          ))}
+        </div>
+      );
+    }
+    if (b.type === "quote") {
+      return (
+        <div key={i} style={{
+          borderLeft: isCrawl ? "none" : `3px solid ${A.cyan}`,
+          borderTop: isCrawl ? `2px solid ${A.cyan}40` : "none",
+          borderBottom: isCrawl ? `2px solid ${A.cyan}40` : "none",
+          paddingLeft: isCrawl ? 0 : 24,
+          padding: isCrawl ? "20px 16px" : undefined,
+          margin: isCrawl ? "32px auto" : "36px 0",
+          maxWidth: isCrawl ? 560 : "none",
+          textAlign: "center",
+          ...animStyle,
+        }}>
+          <p style={{
+            fontSize: isCrawl ? 22 : 20, fontWeight: 600, color: A.textBright,
+            fontStyle: "italic", lineHeight: isCrawl ? 1.75 : 1.6,
+            fontFamily: A.bodyFont,
+            textShadow: A.isDark ? `0 0 30px rgba(0,255,255,0.12)` : "none",
+          }}>{b.text}</p>
+        </div>
+      );
+    }
+    if (b.type === "ps") {
+      return (
+        <div key={i} style={{
+          background: A.bgPanel, border: `1px solid ${A.border}`,
+          borderRadius: 4, padding: isCrawl ? "16px 20px" : "20px 22px",
+          marginTop: isCrawl ? 24 : 16, marginBottom: isCrawl ? 0 : 40,
+          maxWidth: isCrawl ? 540 : "none",
+          marginLeft: "auto", marginRight: "auto",
+          textAlign: "center",
+          ...animStyle,
+        }}>
+          <p style={{
+            fontSize: isCrawl ? 16 : 15, color: isCrawl ? (A.isDark ? "#bbb" : "#666") : A.textDim, lineHeight: 1.75,
+            fontStyle: "italic", fontFamily: A.bodyFont, margin: 0,
+          }}>{b.text}</p>
+        </div>
+      );
+    }
+    return (
+      <p key={i} style={{ ...baseText, marginBottom: mb, ...animStyle }}>{b.text}</p>
+    );
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", position: "relative", zIndex: 1, overflow: "hidden" }}>
+      {/* Fixed header */}
+      <div style={{
+        position: "fixed", top: 44, left: 0, right: 0, zIndex: 20,
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        padding: "10px 20px",
+      }}>
+        <ArcadeBtn onClick={onBack}>ESC</ArcadeBtn>
+        <div style={{ display: "flex", gap: 8 }}>
+          {mode === "crawl" && (
+            <ArcadeBtn color={A.textDim} onClick={goStatic}>SKIP TO TEXT</ArcadeBtn>
+          )}
+          {mode === "static" && (
+            <ArcadeBtn color={A.pink} onClick={replayCrawl}>{"\u25B6"} REPLAY CRAWL</ArcadeBtn>
+          )}
+        </div>
+      </div>
+
+      {/* ═══ CRAWL MODE ═══ */}
+      {mode === "crawl" && ready && (
+        <div style={{
+          position: "fixed", inset: 0,
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "flex-end",
+          opacity: crawlDone ? 0 : 1,
+          transition: "opacity 1s ease",
+        }}>
+          {/* Perspective viewport */}
+          <div style={{
+            perspective: 350,
+            perspectiveOrigin: "50% 100%",
+            width: "100%",
+            flex: 1,
+            overflow: "hidden",
+            position: "relative",
+          }}>
+            {/* Top fade mask */}
+            <div style={{
+              position: "absolute", top: 0, left: 0, right: 0, height: 120,
+              background: `linear-gradient(180deg, ${A.bg} 0%, transparent 100%)`,
+              zIndex: 5, pointerEvents: "none",
+            }} />
+
+            {/* Scrolling content */}
+            <div key={crawlKey} style={{
+              position: "absolute", bottom: 0, left: "50%",
+              transform: "translateX(-50%)",
+              width: 540, maxWidth: "92vw",
+              transformOrigin: "50% 100%",
+              animation: `crawl-full 55s linear forwards`,
+              textAlign: "center",
+              padding: "0 24px 60px",
+            }}>
+              {/* Crawl preamble */}
+              <div style={{
+                fontFamily: A.font, fontSize: 8, color: A.pink,
+                letterSpacing: "0.2em", marginBottom: 24,
+              }}>A LONG TIME AGO IN A STARTUP FAR, FAR AWAY...</div>
+              <div style={{
+                fontFamily: A.font, fontSize: 18, color: A.cyan,
+                textShadow: A.isDark ? `0 0 30px ${A.cyan}, 0 0 60px ${A.cyan}40` : "none",
+                marginBottom: 12, lineHeight: 1.5,
+              }}>WHY ANTHROPIC</div>
+              <div style={{
+                width: 50, height: 2,
+                background: `linear-gradient(90deg, transparent, ${A.cyan}, transparent)`,
+                margin: "0 auto 36px",
+              }} />
+
+              {/* Full content in crawl style */}
+              {contentBlocks.map((b, i) => renderBlock(b, i, true))}
+            </div>
+          </div>
+
+          {/* Bottom controls */}
+          <div style={{
+            position: "relative", zIndex: 10,
+            padding: "20px 20px 30px",
+            textAlign: "center",
+            background: `linear-gradient(180deg, transparent, ${A.bg} 50%)`,
+            width: "100%",
+          }}>
+            <ArcadeBtn color={A.textDim} onClick={goStatic}>SKIP TO TEXT {"\u25B6"}</ArcadeBtn>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ STATIC MODE ═══ */}
+      {mode === "static" && (
+        <div style={{
+          maxWidth: 640, margin: "0 auto",
+          padding: "100px 28px 80px",
+          animation: "fade-in 0.6s ease-out",
+        }}>
+          {/* Title */}
+          <div style={{ textAlign: "center", marginBottom: 48 }}>
+            <div style={{ fontFamily: A.font, fontSize: 8, color: A.pink, letterSpacing: "0.15em", marginBottom: 12 }}>INCOMING TRANSMISSION</div>
+            <div style={{ fontFamily: A.font, fontSize: 20, color: A.cyan, textShadow: A.isDark ? `0 0 30px ${A.cyan}, 0 0 60px ${A.cyan}40` : "none", marginBottom: 6 }}>WHY ANTHROPIC</div>
+            <div style={{ width: 60, height: 2, background: `linear-gradient(90deg, transparent, ${A.cyan}, transparent)`, margin: "16px auto 0" }} />
+          </div>
+
+          {/* All content blocks rendered in static style */}
+          {contentBlocks.map((b, i) => renderBlock(b, i, false))}
+
+          {/* Complete button */}
+          <div style={{ textAlign: "center", paddingBottom: 40 }}>
+            <ArcadeBtn color={A.pink} onClick={() => { onComplete(); onBack(); }}>
+              TRANSMISSION RECEIVED {"\u2713"}
+            </ArcadeBtn>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Screen: Contact (Game Credits) ──────────────────────────────────
+const Contact = ({ onBack, score }) => {
+  const [ready, setReady] = useState(false);
+  const [showBuild, setShowBuild] = useState(false);
+  useEffect(() => { setTimeout(() => setReady(true), 100); }, []);
+
+  const rank = score >= 7000 ? "PM LEGEND" : score >= 5000 ? "STRATEGIC THINKER" : score >= 3000 ? "SOLID OPERATOR" : "RECRUIT";
+
+  return (
+    <div style={{
+      minHeight: "100vh", display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      padding: "70px 32px 60px", textAlign: "center",
+      position: "relative", zIndex: 1,
+    }}>
+      {ready && (
+        <>
+          <div style={{ animation: "warp-in 0.6s ease-out", marginBottom: 24 }}>
+            <div style={{
+              fontFamily: A.font, fontSize: 8, color: A.textDim, marginBottom: 12,
+            }}>FINAL SCORE</div>
+            <div style={{
+              fontFamily: A.font, fontSize: 28, color: A.cyan,
+              textShadow: A.isDark ? `0 0 30px ${A.cyan}, 0 0 60px ${A.cyan}40` : "none",
+              marginBottom: 8,
+            }}>{String(score).padStart(6, "0")}</div>
+            <div style={{
+              fontFamily: A.font, fontSize: 10, color: A.amber,
+              textShadow: A.isDark ? `0 0 15px ${A.amber}` : "none",
+            }}>RANK: {rank}</div>
+          </div>
+
+          <div style={{ animation: "fade-in 0.5s ease-out 0.3s both" }}>
+            <h2 style={{
+              fontFamily: A.bodyFont, fontSize: 36, fontWeight: 700,
+              color: A.textBright, margin: "0 0 10px 0",
+            }}>Thanks for playing.</h2>
+            <p style={{
+              fontSize: 17, color: A.textDim, maxWidth: 480,
+              lineHeight: 1.6, fontFamily: A.bodyFont, marginBottom: 36,
+            }}>I'd love to continue this conversation in person.</p>
+          </div>
+
+          {/* Contact Card */}
+          <div style={{
+            animation: "fade-in 0.5s ease-out 0.5s both",
+            maxWidth: 400, width: "100%",
+            background: A.bgPanel, border: `1px solid ${A.border}`,
+            borderRadius: 4, padding: "28px 24px", textAlign: "left",
+          }}>
+            <div style={{ fontFamily: A.font, fontSize: 12, color: A.cyan, marginBottom: 20 }}>JOHN CIFELLI</div>
+            {[
+              { label: "EMAIL", value: "cifelli89@gmail.com", href: "mailto:cifelli89@gmail.com", color: A.amber },
+              { label: "LINKEDIN", value: "linkedin.com/in/johnlcifelli", href: "https://linkedin.com/in/johnlcifelli", color: A.cyan },
+              { label: "LOCATION", value: "Chicago, IL", color: A.green },
+            ].map((item, i) => (
+              <div key={i} style={{ marginBottom: 16 }}>
+                <div style={{ fontFamily: A.font, fontSize: 7, color: A.textDim, letterSpacing: "0.1em", marginBottom: 4 }}>{item.label}</div>
+                {item.href ? (
+                  <a href={item.href} target="_blank" rel="noopener noreferrer" style={{
+                    fontSize: 15, color: item.color, textDecoration: "none",
+                    fontFamily: A.bodyFont, fontWeight: 500,
+                  }}>{item.value}</a>
+                ) : (
+                  <div style={{ fontSize: 15, color: A.text, fontFamily: A.bodyFont }}>{item.value}</div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ animation: "fade-in 0.5s ease-out 0.7s both", marginTop: 32 }}>
+            <ArcadeBtn onClick={onBack}>{"\u25C0"} PLAY AGAIN</ArcadeBtn>
+          </div>
+
+          <div style={{ animation: "fade-in 0.5s ease-out 1s both", marginTop: 48 }}>
+            <p onClick={() => setShowBuild(!showBuild)} style={{
+              fontFamily: A.font, fontSize: 7, color: A.textDim,
+              cursor: "pointer", transition: "color 0.3s",
+            }}>
+              BUILT WITH CARE FOR ANTHROPIC {"\u00B7"} 2026
+            </p>
+            {showBuild && (
+              <div style={{
+                marginTop: 14, padding: "16px 20px",
+                background: A.bgPanel, border: `1px solid ${A.border}`,
+                borderRadius: 4, maxWidth: 420, textAlign: "left",
+                animation: "fade-in 0.3s ease-out",
+              }}>
+                <p style={{ fontFamily: A.font, fontSize: 7, color: A.cyan, marginBottom: 8 }}>{"\uD83D\uDEE0"} HOW THIS WAS BUILT</p>
+                <p style={{ fontSize: 13, color: A.textDim, lineHeight: 1.65, fontFamily: A.bodyFont }}>
+                  React, zero dependencies, single-file deployment. No templates. Space Invaders meets PM portfolio. The engagements are real \u2014 pulled from my actual McKinsey and startup work. Even the easter eggs are intentional product decisions: they reward curiosity, which is exactly the kind of user behavior I'd optimize for at Anthropic.
+                </p>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+// ─── Theme Toggle Button ────────────────────────────────────────────
+const ThemeToggle = ({ isDark, onToggle }) => (
+  <button onClick={onToggle} style={{
+    position: "fixed", bottom: 16, right: 16, zIndex: 9998,
+    width: 40, height: 40, borderRadius: "50%",
+    background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+    border: `1.5px solid ${isDark ? "rgba(0,255,255,0.25)" : "rgba(0,122,138,0.2)"}`,
+    color: isDark ? "#0ff" : "#007a8a",
+    fontSize: 16, cursor: "pointer",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    transition: "all 0.3s ease",
+    boxShadow: isDark ? "0 0 12px rgba(0,255,255,0.15)" : "0 2px 8px rgba(0,0,0,0.08)",
+  }}
+  title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+  >{isDark ? "\u2600" : "\u263E"}</button>
+);
+
+// ─── App ─────────────────────────────────────────────────────────────
+function App() {
+  const [screen, setScreen] = useState("landing");
+  const [completed, setCompleted] = useState({ fleet: false, record: false, why: false });
+  const [score, setScore] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [isDark, setIsDark] = useState(true);
+
+  // Swap the global A palette SYNCHRONOUSLY during render (not in useEffect)
+  // This fixes the double-click bug — A is correct before children render
+  A = isDark ? DARK : LIGHT;
+
+  // Update body + scrollbar/selection styles via effect (DOM side-effect)
+  useEffect(() => {
+    document.body.style.background = A.bg;
+    document.body.style.transition = "background 0.4s ease";
+    // Update dynamic stylesheet for scrollbar/selection
+    let dynStyle = document.getElementById("theme-dynamic");
+    if (!dynStyle) { dynStyle = document.createElement("style"); dynStyle.id = "theme-dynamic"; document.head.appendChild(dynStyle); }
+    dynStyle.textContent = `
+      ::-webkit-scrollbar-track { background: ${A.bgLight}; }
+      ::-webkit-scrollbar-thumb { background: ${A.isDark ? "rgba(0,255,255,0.2)" : "rgba(0,100,120,0.2)"}; border-radius: 3px; }
+      ::selection { background: ${A.isDark ? "rgba(0,255,255,0.3)" : "rgba(0,100,120,0.2)"}; color: ${A.textBright}; }
+    `;
+  }, [isDark]);
+
+  const toggleTheme = () => setIsDark(d => !d);
+
+  const markComplete = (key) => {
+    setCompleted(prev => {
+      const next = { ...prev, [key]: true };
+      const wasAllDone = prev.fleet && prev.record && prev.why;
+      const isAllDone = next.fleet && next.record && next.why;
+      if (isAllDone && !wasAllDone) {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 4000);
+        setScore(s => s + 2000); // completion bonus
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [screen]);
+
+  const totalCleared = Object.values(completed).filter(Boolean).length;
+
+  return (
+    <ThemeCtx.Provider value={A}>
+      <div style={{
+        background: A.bg, minHeight: "100vh",
+        fontFamily: A.bodyFont, WebkitFontSmoothing: "antialiased",
+        position: "relative",
+        transition: "background 0.4s ease",
+      }}>
+        <GlobalStyles />
+        <StarField />
+        <Scanlines />
+        <Confetti active={showConfetti} />
+        <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
+
+        {screen !== "landing" && (
+          <HUD score={score} cleared={totalCleared} total={3} />
+        )}
+
+        {screen === "landing" && <Landing onStart={() => setScreen("hub")} />}
+        {screen === "hub" && <Hub onNavigate={setScreen} onHome={() => setScreen("landing")} completed={completed} score={score} />}
+        {screen === "fleet" && <Fleet onBack={() => setScreen("hub")} onComplete={() => markComplete("fleet")} score={score} setScore={setScore} />}
+        {screen === "record" && <MissionLog onBack={() => setScreen("hub")} onComplete={() => markComplete("record")} />}
+        {screen === "why" && <WhyAnthropic onBack={() => setScreen("hub")} onComplete={() => markComplete("why")} />}
+        {screen === "contact" && <Contact onBack={() => setScreen("hub")} score={score} />}
+      </div>
+    </ThemeCtx.Provider>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+  </script>
+</body>
+</html>

@@ -230,6 +230,16 @@ const easterEggs = {
 // ─── Data ────────────────────────────────────────────────────────────
 const timeline = [
   {
+    era: "University of Illinois", years: "2008\u20132012", icon: "\uD83C\uDF93",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/a/af/University_of_Illinois_Logo.svg",
+    color: A.green, highlights: [
+      { metric: "B.S.", label: "Finance & Accounting" },
+      { metric: "UIUC", label: "Champaign, IL" },
+      { metric: "2012", label: "graduated" },
+    ],
+    description: "Bachelor of Science in Finance and Accounting from the University of Illinois at Urbana-Champaign. The quantitative foundation that would later inform everything \u2014 from startup P&Ls to McKinsey business cases to product metrics. Illinois planted me in the Midwest; Chicago kept me.",
+  },
+  {
     era: "Chicago Startups", years: "2013\u20132018", icon: "\uD83D\uDE80",
     color: A.amber, highlights: [
       { metric: "3", label: "ventures built" },
@@ -251,25 +261,29 @@ const timeline = [
     era: "What\u2019s Next: Anthropic", years: "2026\u2013", icon: "\u2726",
     color: A.cyan, highlights: [
       { metric: "\u221E", label: "mission passion" },
-      { metric: "8yr+", label: "PM experience" },
+      { metric: "12yr+", label: "PM experience" },
       { metric: "1", label: "app you\u2019re reading" },
     ],
-    description: "I want to build products that make AI safe and beneficial for everyone. Anthropic isn\u2019t just a company I admire \u2014 it\u2019s the company building the future I want to live in. I bring the rare combination of McKinsey-grade strategic thinking and startup shipping velocity.",
+    description: "I want to build products that make AI safe and beneficial for everyone. Anthropic isn\u2019t just a company I admire \u2014 it\u2019s the company building the future I want to live in. 12+ years of product experience, from founding startups to leading McKinsey engagements \u2014 strategic rigor meets shipping velocity.",
   },
 ];
 
 const engagements = [
-  { icon: "\u26A1", sector: "Energy", headline: "Nuclear Maintenance Planning Platform", product: "Maintenance tasks \u2014 even replacing a single screw \u2014 could take up to 2 years due to regulatory, safety, and coordination overhead. Built an end-to-end web application that unified planners, procurement, and implementation teams onto one platform, streamlining collaboration and dramatically cutting cycle times for facility maintenance.", team: "~30 people (multiple PMs, designers, large engineering group)", timeline: "~6 months", tag: "Product Build", color: A.amber },
-  { icon: "\uD83C\uDFD9\uFE0F", sector: "Utilities", headline: "First Responder Field Triage Platform", product: "When outages or infrastructure issues hit, first responders were surveying damage with paper forms and manual photos \u2014 slowing restoration times across all five NYC boroughs. Built an iPad-based web app that let responders triage issues on-site, capture structured data, and receive real-time instructions on whether to fix in place or dispatch a repair crew \u2014 all within a single experience. Directly improved how quickly power got restored.", team: "~25 people (multiple PMs, ~5 designers, ~15\u201320 engineers)", timeline: "~4 months to MVP", tag: "Mobile Product", color: A.cyan },
-  { icon: "\uD83C\uDF3E", sector: "Commodities", headline: "Buyer-Seller CRM & Dynamic Pricing Tool", product: "Worked on-site at a soybean processing plant in Lincoln, Nebraska. The buyer\u2019s team had no structured way to manage farmer relationships or price competitively in real time. Built a CRM-style platform that gave buyers full context on each seller \u2014 history, past deals, relationship notes \u2014 plus dynamic pricing that factored in market forces and competition so they could offer the right price on any given day. Helped them win significantly more business.", team: "~8 people (1 PM, 1 designer, ~6 engineers)", timeline: "~3\u20134 months", tag: "CRM + Pricing", color: A.green },
-  { icon: "\uD83C\uDFE6", sector: "Banking", headline: "SMB Lending BaaS API Platform", product: "Built a Banking-as-a-Service product for a major bank to sell small business loans through affiliate partners. No UI \u2014 entirely API-driven. Mapped out every requirement in the loan origination process and translated it into a structured API spec that affiliates could integrate against, letting them collect borrower details and pass them back seamlessly. A different kind of product problem: designing the experience without owning the interface.", team: "~11 people (3 PMs, no designers, ~8 engineers)", timeline: "~6 months", tag: "0\u21921 API Product", color: A.pink },
-  { icon: "\uD83D\uDEE1\uFE0F", sector: "Insurance", headline: "Broker Client Onboarding Tool", product: "First fully remote engagement \u2014 kicked off during the pandemic. Digitized how insurance brokers onboarded new clients, replacing a clunky manual process with a streamlined web app focused on high usability. Brokers could gather prospective client information and feed it directly into their pipeline. Not the sexiest problem, but a masterclass in shipping product with a distributed team.", team: "~8 people (1 PM, 2 designers, ~5 engineers)", timeline: "~3 months", tag: "Product Build", color: A.amber },
-  { icon: "\uD83D\uDC8A", sector: "Healthcare", headline: "Pharma Negotiation Intelligence Platform", product: "Built the first digital negotiation tool for a top 3 PBM. Drug pricing negotiations involve deep secrecy and real game theory \u2014 negotiators had always done it manually. Had to deeply understand how they thought about pricing strategy, then build tooling that let them craft proposals, react to pharma counter-offers, and get creative with deal structures \u2014 all within a single digital experience. Another fully remote build at the peak of the pandemic.", team: "~27 people (3 PMs, 4 designers, ~20 engineers)", timeline: "~6 months", tag: "Product Build", color: A.red },
-  { icon: "\uD83C\uDDE8\uD83C\uDDE6", sector: "Government", headline: "Immigration Visa Workflow Modernization", product: "Extended a G7 nation\u2019s legacy visa decisioning software \u2014 infrastructure dating back to 1980 that agents were legislatively required to keep using. Couldn\u2019t rip and replace, so we got creative: built lightweight UI layers and automated repetitive interactions for agents buried in a Frankenstein system. Deployments only happened 3 times a year on a fixed schedule \u2014 miss the window and you wait months. Scoped lean, hit the timeline, and shipped. Team was a mix of our engineers and theirs, building their internal capability along the way.", team: "~20 people (3 PMs, 2 designers, ~15 engineers \u2014 mixed McKinsey + client)", timeline: "~2.5 months", tag: "UX / Product", color: A.cyan },
-  { icon: "\uD83D\uDCF1", sector: "Consumer Tech", headline: "Lingo \u2014 Consumer Glucose Wearable", product: "Took an established medical glucose monitoring business and reimagined it for the consumer wellness market \u2014 an entirely different use case, audience, and bar for design. Built a mobile-led wearable experience requiring high-fidelity UX, brand building from scratch, and careful navigation of health claims without FDA-approved language. Launched across multiple markets \u2014 starting in the UK to test and learn, then expanding to North America. Built on top of hardware SDKs we didn\u2019t control, while simultaneously navigating FDA approval \u2014 one of the most complex product environments I\u2019ve worked in.", team: "Large cross-functional team (product, design, engineering, regulatory)", timeline: "~12+ months", tag: "Consumer 0\u21921", color: A.green },
-  { icon: "\uD83C\uDFAE", sector: "Entertainment", headline: "AI-Era Character IP Protection Strategy", product: "A major toy company needed to protect its character IP in a world where LLMs have ingested countless unauthorized copies and users are remixing them freely. Consulted on building an official \u2018character bank\u2019 \u2014 a controlled, canonical source for how their IP could be used by content creators and internal teams. Skeletoned out the core architecture considering the state of AI in early 2026: knowledge graphs, character constitutions, usage guardrails. Short engagement, high-leverage strategic framing.", team: "Small advisory team", timeline: "~2 months", tag: "AI Strategy", color: A.pink },
+  // AI / Agentic engagements first
   { icon: "\uD83E\uDD16", sector: "Internal AI", headline: "Beacon \u2014 Agentic Business Building Tool", product: "Built Beacon, an internal agentic AI tool for McKinsey\u2019s Business Building practice. Start with a few lines describing an idea, and Beacon explores its potential \u2014 mapping value pools, identifying strategic advantages, and using AI to generate novel business concepts executives hadn\u2019t considered. Genuine human-in-the-loop experience where the machine surfaced patterns and the human steered. Went all the way from ideation to business cases, wireframes, personas, and pitch decks \u2014 everything needed to sell a new venture. ~100 agentic workflows, aggressively pushing the fidelity of what LLMs could deliver.", team: "~16 people (3 PMs, 3 designers, ~10 engineers)", timeline: "~6 months (2024)", tag: "AI Product", color: A.cyan },
+  { icon: "\uD83C\uDFAE", sector: "Entertainment", headline: "AI-Era Character IP Protection Strategy", product: "A major toy company needed to protect its character IP in a world where LLMs have ingested countless unauthorized copies and users are remixing them freely. Consulted on building an official \u2018character bank\u2019 \u2014 a controlled, canonical source for how their IP could be used by content creators and internal teams. Skeletoned out the core architecture considering the state of AI in early 2026: knowledge graphs, character constitutions, usage guardrails. Short engagement, high-leverage strategic framing.", team: "Small advisory team", timeline: "~2 months", tag: "AI Strategy", color: A.pink },
+  // Lingo
+  { icon: "\uD83D\uDCF1", sector: "Consumer Tech", headline: "Lingo \u2014 Consumer Glucose Wearable", product: "Took an established medical glucose monitoring business and reimagined it for the consumer wellness market \u2014 an entirely different use case, audience, and bar for design. Built a mobile-led wearable experience requiring high-fidelity UX, brand building from scratch, and careful navigation of health claims without FDA-approved language. Launched across multiple markets \u2014 starting in the UK to test and learn, then expanding to North America. Built on top of hardware SDKs we didn\u2019t control, while simultaneously navigating FDA approval \u2014 one of the most complex product environments I\u2019ve worked in.", team: "Large cross-functional team (product, design, engineering, regulatory)", timeline: "~12+ months", tag: "Consumer 0\u21921", color: A.green },
+  // Rest: most recent to oldest
   { icon: "\uD83C\uDFDB\uFE0F", sector: "Finance", headline: "Platform Stabilization & Client Onboarding Fix", product: "A major bank had launched a platform to great fanfare \u2014 but core tech decisions were breaking down. They\u2019d stopped onboarding new clients entirely, turning away millions in potential revenue. Came in as a SWAT team: audited infrastructure weaknesses, standardized the onboarding process, and built criteria for which clients could be brought on and in what order. Less of a hands-on build, more of a diagnose-and-repair mission. Unblocked the pipeline so they could start onboarding again.", team: "Advisory / SWAT team", timeline: "~4 months", tag: "Product Ops", color: A.amber },
+  { icon: "\uD83C\uDFDB\uFE0F", sector: "Government", headline: "Immigration Visa Workflow Modernization", product: "Extended a G7 nation\u2019s legacy visa decisioning software \u2014 infrastructure dating back to 1980 that agents were legislatively required to keep using. Couldn\u2019t rip and replace, so we got creative: built lightweight UI layers and automated repetitive interactions for agents buried in a Frankenstein system. Deployments only happened 3 times a year on a fixed schedule \u2014 miss the window and you wait months. Scoped lean, hit the timeline, and shipped. Team was a mix of our engineers and theirs, building their internal capability along the way.", team: "~20 people (3 PMs, 2 designers, ~15 engineers \u2014 mixed McKinsey + client)", timeline: "~2.5 months", tag: "UX / Product", color: A.cyan },
+  { icon: "\uD83D\uDC8A", sector: "Healthcare", headline: "Pharma Negotiation Intelligence Platform", product: "Built the first digital negotiation tool for a top 3 PBM. Drug pricing negotiations involve deep secrecy and real game theory \u2014 negotiators had always done it manually. Had to deeply understand how they thought about pricing strategy, then build tooling that let them craft proposals, react to pharma counter-offers, and get creative with deal structures \u2014 all within a single digital experience. Another fully remote build at the peak of the pandemic.", team: "~27 people (3 PMs, 4 designers, ~20 engineers)", timeline: "~6 months", tag: "Product Build", color: A.red },
+  { icon: "\uD83D\uDEE1\uFE0F", sector: "Insurance", headline: "Broker Client Onboarding Tool", product: "First fully remote engagement \u2014 kicked off during the pandemic. Digitized how insurance brokers onboarded new clients, replacing a clunky manual process with a streamlined web app focused on high usability. Brokers could gather prospective client information and feed it directly into their pipeline. Not the sexiest problem, but a masterclass in shipping product with a distributed team.", team: "~8 people (1 PM, 2 designers, ~5 engineers)", timeline: "~3 months", tag: "Product Build", color: A.amber },
+  { icon: "\uD83C\uDFE6", sector: "Banking", headline: "SMB Lending BaaS API Platform", product: "Built a Banking-as-a-Service product for a major bank to sell small business loans through affiliate partners. No UI \u2014 entirely API-driven. Mapped out every requirement in the loan origination process and translated it into a structured API spec that affiliates could integrate against, letting them collect borrower details and pass them back seamlessly. A different kind of product problem: designing the experience without owning the interface.", team: "~11 people (3 PMs, no designers, ~8 engineers)", timeline: "~6 months", tag: "0\u21921 API Product", color: A.pink },
+  { icon: "\uD83C\uDF3E", sector: "Commodities", headline: "Buyer-Seller CRM & Dynamic Pricing Tool", product: "Worked on-site at a soybean processing plant in Lincoln, Nebraska. The buyer\u2019s team had no structured way to manage farmer relationships or price competitively in real time. Built a CRM-style platform that gave buyers full context on each seller \u2014 history, past deals, relationship notes \u2014 plus dynamic pricing that factored in market forces and competition so they could offer the right price on any given day. Helped them win significantly more business.", team: "~8 people (1 PM, 1 designer, ~6 engineers)", timeline: "~3\u20134 months", tag: "CRM + Pricing", color: A.green },
+  { icon: "\uD83C\uDFD9\uFE0F", sector: "Utilities", headline: "First Responder Field Triage Platform", product: "When outages or infrastructure issues hit, first responders were surveying damage with paper forms and manual photos \u2014 slowing restoration times across all five NYC boroughs. Built an iPad-based web app that let responders triage issues on-site, capture structured data, and receive real-time instructions on whether to fix in place or dispatch a repair crew \u2014 all within a single experience. Directly improved how quickly power got restored.", team: "~25 people (multiple PMs, ~5 designers, ~15\u201320 engineers)", timeline: "~4 months to MVP", tag: "Mobile Product", color: A.cyan },
+  { icon: "\u26A1", sector: "Energy", headline: "Nuclear Maintenance Planning Platform", product: "Maintenance tasks \u2014 even replacing a single screw \u2014 could take up to 2 years due to regulatory, safety, and coordination overhead. Built an end-to-end web application that unified planners, procurement, and implementation teams onto one platform, streamlining collaboration and dramatically cutting cycle times for facility maintenance.", team: "~30 people (multiple PMs, designers, large engineering group)", timeline: "~6 months", tag: "Product Build", color: A.amber },
+  // Bonus round
   { icon: "\uD83C\uDFB5", sector: "GigScout", headline: "GigScout \u2014 Rebuilt in a Day with AI", product: "GigScout was my first startup \u2014 a live music discovery app born from frustration with Chicago\u2019s fragmented venue scene. In 2025, I rebuilt the entire thing in a single day using AI tools. Same vision, modern stack, shipped and live. A personal proof point that the barrier to creation has fundamentally changed.", team: "Solo (AI-assisted)", timeline: "1 day", tag: "BONUS ROUND", color: A.amber, bonus: true, link: "https://gigscout.app" },
   { icon: "\uD83D\uDCF0", sector: "The AI Brief", headline: "The AI Brief \u2014 AI News for Real People", product: "A newsletter and web experience that translates AI developments into plain language for non-technical readers. No hype, no jargon \u2014 just real context about what\u2019s happening and why it matters. Built and launched in a week as a personal project to make AI accessible to everyone.", team: "Solo (AI-assisted)", timeline: "1 week", tag: "BONUS ROUND", color: A.cyan, bonus: true, link: "https://the-ai-brief-lilac.vercel.app" },
 ];
@@ -374,7 +388,7 @@ const Landing = ({ onStart }) => {
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {[
               { icon: "\uD83D\uDE80", text: "Founded GigScout (live music) and led Matchist (dev marketplace) as CEO in Chicago\u2019s startup scene" },
-              { icon: "\uD83C\uDFDB\uFE0F", text: "8 years at McKinsey \u2014 Digital Analyst to Engagement Manager. 11+ product engagements across energy, banking, government, AI, consumer tech" },
+              { icon: "\uD83C\uDFDB\uFE0F", text: "12+ years in product \u2014 5 in Chicago startups, 8 at McKinsey (Analyst to Engagement Manager). 11+ engagements across energy, banking, government, AI, consumer tech" },
               { icon: "\uD83E\uDD16", text: "Built Beacon, McKinsey\u2019s internal AI tool. Advised a global entertainment co on AI & IP strategy" },
               { icon: "\u26A1", text: "This week: rebuilt GigScout in a day with AI, launched The AI Brief. Still shipping." },
             ].map((item, i) => (
@@ -439,8 +453,8 @@ const Hub = ({ onNavigate, onHome, completed, score }) => {
     },
     {
       key: "record", icon: "\uD83D\uDE80", title: "THE MISSION LOG",
-      subtitle: "3 CAREER ERAS", color: A.amber,
-      desc: "Chicago startups \u2192 McKinsey Product Guild \u2192 Anthropic. The full career arc with real milestones.",
+      subtitle: "4 CAREER ERAS", color: A.amber,
+      desc: "UIUC \u2192 Chicago startups \u2192 McKinsey Product Guild \u2192 Anthropic. The full career arc with real milestones.",
       time: "~1 min", done: completed.record,
     },
     {
@@ -561,8 +575,18 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
   const [exploding, setExploding] = useState(null);
   const [scorePop, setScorePop] = useState(null);
   const [ready, setReady] = useState(false);
+  const detailRef = useRef(null);
 
   useEffect(() => { setTimeout(() => setReady(true), 200); }, []);
+
+  // On mobile, scroll the detail panel into view when an engagement is selected
+  useEffect(() => {
+    if (active !== null && detailRef.current) {
+      setTimeout(() => {
+        detailRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, [active]);
 
   const clearedCount = Object.keys(cleared).length;
 
@@ -603,88 +627,9 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
           </div>
         </div>
 
-        {ready && (
-          <div style={{ animation: "fade-in 0.4s ease-out" }}>
-            <h2 style={{
-              fontFamily: A.font, fontSize: 14, color: A.cyan,
-              textShadow: A.isDark ? `0 0 20px ${A.cyan}` : "none", marginBottom: 6, textAlign: "center",
-            }}>ENGAGEMENT FLEET</h2>
-            <p style={{ fontFamily: A.font, fontSize: 7, color: A.pink, textAlign: "center", marginBottom: 28, letterSpacing: "0.1em" }}>
-              {"\u25BC"} DESTROY TARGETS TO REVEAL PORTFOLIO {"\u25BC"}
-            </p>
-          </div>
-        )}
-
-        {/* Invader Grid — Main engagements */}
-        {ready && (
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-            gap: 10,
-            marginBottom: 20,
-          }}>
-            {engagements.filter(e => !e.bonus).map((eng, _) => {
-              const idx = engagements.indexOf(eng);
-              return (
-              <InvaderTile
-                key={idx}
-                eng={eng}
-                idx={idx}
-                cleared={!!cleared[idx]}
-                isActive={active === idx}
-                isFiring={firing === idx}
-                isExploding={exploding === idx}
-                scorePop={scorePop === idx}
-                onShoot={() => handleShoot(idx)}
-                onSelect={() => cleared[idx] && setActive(idx)}
-              />
-              );
-            })}
-          </div>
-        )}
-
-        {/* Bonus Round divider + tiles */}
-        {ready && (
-          <>
-            <div style={{
-              display: "flex", alignItems: "center", gap: 12, marginBottom: 14,
-              animation: "fade-in 0.4s ease-out 0.6s both",
-            }}>
-              <div style={{ flex: 1, height: 1, background: A.border }} />
-              <span style={{ fontFamily: A.font, fontSize: 7, color: A.pink, letterSpacing: "0.15em" }}>BONUS ROUND</span>
-              <div style={{ flex: 1, height: 1, background: A.border }} />
-            </div>
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(2, minmax(140px, 1fr))",
-              gap: 10, marginBottom: 28,
-              maxWidth: 300, margin: "0 auto 28px",
-              animation: "fade-in 0.4s ease-out 0.7s both",
-            }}>
-              {engagements.filter(e => e.bonus).map((eng, _) => {
-                const idx = engagements.indexOf(eng);
-                return (
-                <InvaderTile
-                  key={idx}
-                  eng={eng}
-                  idx={idx}
-                  cleared={!!cleared[idx]}
-                  isActive={active === idx}
-                  isFiring={firing === idx}
-                  isExploding={exploding === idx}
-                  scorePop={scorePop === idx}
-                  onShoot={() => handleShoot(idx)}
-                  onSelect={() => cleared[idx] && setActive(idx)}
-                />
-                );
-              })}
-            </div>
-          </>
-        )}
-
-        {/* Detail Panel */}
+        {/* Detail Panel — rendered above grid so it's visible on mobile */}
         {eng && (
-          <div style={{
+          <div ref={detailRef} style={{
             animation: "warp-in 0.4s ease-out",
             background: A.bgPanel,
             border: `1px solid ${eng.color}40`,
@@ -764,6 +709,85 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
               cursor: "pointer", borderRadius: 2,
             }}>CLOSE</button>
           </div>
+        )}
+
+        {ready && (
+          <div style={{ animation: "fade-in 0.4s ease-out" }}>
+            <h2 style={{
+              fontFamily: A.font, fontSize: 14, color: A.cyan,
+              textShadow: A.isDark ? `0 0 20px ${A.cyan}` : "none", marginBottom: 6, textAlign: "center",
+            }}>ENGAGEMENT FLEET</h2>
+            <p style={{ fontFamily: A.font, fontSize: 7, color: A.pink, textAlign: "center", marginBottom: 28, letterSpacing: "0.1em" }}>
+              {"\u25BC"} DESTROY TARGETS TO REVEAL PORTFOLIO {"\u25BC"}
+            </p>
+          </div>
+        )}
+
+        {/* Invader Grid — Main engagements */}
+        {ready && (
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+            gap: 10,
+            marginBottom: 20,
+          }}>
+            {engagements.filter(e => !e.bonus).map((eng, _) => {
+              const idx = engagements.indexOf(eng);
+              return (
+              <InvaderTile
+                key={idx}
+                eng={eng}
+                idx={idx}
+                cleared={!!cleared[idx]}
+                isActive={active === idx}
+                isFiring={firing === idx}
+                isExploding={exploding === idx}
+                scorePop={scorePop === idx}
+                onShoot={() => handleShoot(idx)}
+                onSelect={() => cleared[idx] && setActive(idx)}
+              />
+              );
+            })}
+          </div>
+        )}
+
+        {/* Bonus Round divider + tiles */}
+        {ready && (
+          <>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 12, marginBottom: 14,
+              animation: "fade-in 0.4s ease-out 0.6s both",
+            }}>
+              <div style={{ flex: 1, height: 1, background: A.border }} />
+              <span style={{ fontFamily: A.font, fontSize: 7, color: A.pink, letterSpacing: "0.15em" }}>BONUS ROUND</span>
+              <div style={{ flex: 1, height: 1, background: A.border }} />
+            </div>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, minmax(140px, 1fr))",
+              gap: 10, marginBottom: 28,
+              maxWidth: 300, margin: "0 auto 28px",
+              animation: "fade-in 0.4s ease-out 0.7s both",
+            }}>
+              {engagements.filter(e => e.bonus).map((eng, _) => {
+                const idx = engagements.indexOf(eng);
+                return (
+                <InvaderTile
+                  key={idx}
+                  eng={eng}
+                  idx={idx}
+                  cleared={!!cleared[idx]}
+                  isActive={active === idx}
+                  isFiring={firing === idx}
+                  isExploding={exploding === idx}
+                  scorePop={scorePop === idx}
+                  onShoot={() => handleShoot(idx)}
+                  onSelect={() => cleared[idx] && setActive(idx)}
+                />
+                );
+              })}
+            </div>
+          </>
         )}
 
         {/* Completion */}
@@ -900,7 +924,7 @@ const MissionLog = ({ onBack, onComplete }) => {
           <p style={{
             fontFamily: A.font, fontSize: 7, color: A.textDim,
             textAlign: "center", marginBottom: 28, letterSpacing: "0.1em",
-          }}>CAREER TRAJECTORY // 2013\u2013PRESENT</p>
+          }}>CAREER TRAJECTORY // 2012\u2013PRESENT</p>
 
           {/* Era Tabs */}
           <div style={{ display: "flex", gap: 8, marginBottom: 28, flexWrap: "wrap", justifyContent: "center" }}>
@@ -926,7 +950,11 @@ const MissionLog = ({ onBack, onComplete }) => {
             borderRadius: 4, padding: 28,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 22 }}>
-              <span style={{ fontSize: 40, filter: `drop-shadow(0 0 10px ${era.color})` }}>{era.icon}</span>
+              {era.logo ? (
+                <img src={era.logo} alt={era.era} style={{ width: 44, height: 44, objectFit: "contain", filter: `drop-shadow(0 0 10px ${era.color})` }} />
+              ) : (
+                <span style={{ fontSize: 40, filter: `drop-shadow(0 0 10px ${era.color})` }}>{era.icon}</span>
+              )}
               <div>
                 <h3 style={{ fontFamily: A.font, fontSize: 11, color: era.color, margin: 0 }}>{era.era.toUpperCase()}</h3>
                 <span style={{ fontFamily: A.font, fontSize: 8, color: A.textDim }}>{era.years}</span>
@@ -1392,9 +1420,5 @@ function App() {
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);
   </script>
-  <script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

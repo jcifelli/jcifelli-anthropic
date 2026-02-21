@@ -87,31 +87,30 @@ const LIGHT = {
 };
 
 const VANGOGH = {
-  bg: "#0b1a3b",
-  bgLight: "#102450",
-  bgPanel: "rgba(255,200,50,0.06)",
-  border: "rgba(180,150,80,0.25)",
-  borderBright: "rgba(255,210,80,0.5)",
-  text: "#d4c9a8",
-  textDim: "#8a7a58",
-  textBright: "#fff5d4",
-  cyan: "#f0c040",        // Van Gogh's golden yellow
-  pink: "#e85020",        // burnt orange
-  green: "#5a9040",       // muted olive
-  amber: "#f4a830",       // warm amber
-  red: "#c03020",         // deep vermillion
-  cyanGlow: "0 0 30px rgba(240,192,64,0.5)",
-  pinkGlow: "0 0 24px rgba(232,80,32,0.4)",
-  greenGlow: "0 0 20px rgba(90,144,64,0.35)",
-  amberGlow: "0 0 26px rgba(244,168,48,0.4)",
-  font: '"Georgia", "Times New Roman", serif',  // No pixel font — impressionist
+  bg: "#0a1628",           // The deep night — not black, but the blue-black of a Provence sky
+  bgLight: "#0e1e3a",
+  bgPanel: "rgba(14,24,50,0.75)",   // More opaque — panels need solid backing for readability
+  border: "rgba(200,170,60,0.28)",
+  borderBright: "rgba(255,210,40,0.55)",
+  text: "#e8e2cc",         // Brighter warm parchment — readable against deep blue
+  textDim: "#b8a878",      // Warmer, brighter dim text — was too muddy before
+  textBright: "#fff8e0",    // Chrome yellow white
+  cyan: "#f5c832",          // Chrome yellow No. 1 — straight from the tube
+  pink: "#e06020",          // Red ochre — the Arles rooftops
+  green: "#4a8830",         // Viridian — the cypresses
+  amber: "#f0a818",         // Naples yellow — sunflower hearts
+  red: "#c42818",           // Vermillion — his chair, his anguish
+  cyanGlow: "0 0 40px rgba(245,200,50,0.55), 0 0 80px rgba(245,200,50,0.2)",
+  pinkGlow: "0 0 30px rgba(224,96,32,0.45), 0 0 60px rgba(224,96,32,0.15)",
+  greenGlow: "0 0 25px rgba(74,136,48,0.4)",
+  amberGlow: "0 0 35px rgba(240,168,24,0.5), 0 0 70px rgba(240,168,24,0.15)",
+  font: '"Georgia", "Times New Roman", serif',
   bodyFont: '"Georgia", "Times New Roman", serif',
-  starOpacity: { min: 0.3, max: 0.9 },
+  starOpacity: { min: 0.4, max: 1.0 },
   scanlineOpacity: 0,
   isDark: true,
   isVanGogh: true,
-  // Impressionist extras
-  panelBg: "linear-gradient(135deg, rgba(30,50,100,0.6) 0%, rgba(20,35,70,0.4) 50%, rgba(40,60,110,0.5) 100%)",
+  panelBg: "linear-gradient(135deg, rgba(14,24,56,0.82) 0%, rgba(10,20,48,0.78) 40%, rgba(18,30,64,0.80) 70%, rgba(12,22,52,0.82) 100%)",
   canvasTexture: true,
   borderRadius: 12,
 };
@@ -149,7 +148,10 @@ const GlobalStyles = () => (
   `}</style>
 );
 
-// ─── Van Gogh Overlay (SVG turbulence + painted sky + canvas) ────────
+// ─── Van Gogh Overlay ────────────────────────────────────────────────
+// "I dream of painting and then I paint my dream."
+// The sky is not a backdrop — it is the subject. Every brushstroke carries
+// the weight of a man who saw the world vibrating with color and feeling.
 const VanGoghOverlay = () => {
   const T = useTheme();
   if (!T.isVanGogh) return null;
@@ -158,61 +160,384 @@ const VanGoghOverlay = () => {
       <svg style={{ position: "absolute", width: 0, height: 0 }}>
         <defs>
           <filter id="vg-turb">
-            <feTurbulence type="turbulence" baseFrequency="0.015 0.012" numOctaves="4" seed="3" result="turb" />
-            <feDisplacementMap in="SourceGraphic" in2="turb" scale="8" xChannelSelector="R" yChannelSelector="G" />
+            <feTurbulence type="turbulence" baseFrequency="0.012 0.01" numOctaves="5" seed="3" result="turb" />
+            <feDisplacementMap in="SourceGraphic" in2="turb" scale="10" xChannelSelector="R" yChannelSelector="G" />
           </filter>
           <filter id="vg-paint">
-            <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" seed="7" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" />
+            <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="6" seed="7" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" />
           </filter>
           <filter id="vg-heavy">
-            <feTurbulence type="turbulence" baseFrequency="0.02 0.018" numOctaves="3" seed="11" result="turb" />
-            <feDisplacementMap in="SourceGraphic" in2="turb" scale="12" xChannelSelector="R" yChannelSelector="G" />
+            <feTurbulence type="turbulence" baseFrequency="0.018 0.015" numOctaves="4" seed="11" result="turb" />
+            <feDisplacementMap in="SourceGraphic" in2="turb" scale="14" xChannelSelector="R" yChannelSelector="G" />
           </filter>
           <filter id="vg-canvas">
-            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="4" seed="2" result="grain" />
+            <feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="5" seed="2" result="grain" />
             <feColorMatrix type="saturate" values="0" in="grain" result="bw" />
             <feBlend in="SourceGraphic" in2="bw" mode="multiply" />
           </filter>
+          {/* Swirl distortion — static, like dried paint on canvas */}
+          <filter id="vg-swirl-filter">
+            <feTurbulence type="turbulence" baseFrequency="0.008 0.006" numOctaves="3" seed="42" result="turb" />
+            <feDisplacementMap in="SourceGraphic" in2="turb" scale="18" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
         </defs>
       </svg>
-      {/* Deep Starry Night sky with dramatic swirls */}
+
+      {/* ═══ LAYER 1: The Deep Night Sky ═══
+          Not black. Never black. Van Gogh's night was alive —
+          Prussian blue bleeding into ultramarine, cobalt into violet.
+          "The night is more alive and more richly coloured than the day." */}
       <div style={{
         position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
         background: `
-          radial-gradient(ellipse 600px 300px at 70% 15%, #1a4a8a 0%, transparent 60%),
-          radial-gradient(ellipse 500px 250px at 25% 30%, #162e6a 0%, transparent 55%),
-          radial-gradient(ellipse 400px 200px at 55% 55%, #0d2a5a 0%, transparent 50%),
-          radial-gradient(ellipse 700px 350px at 40% 80%, #0a1530 0%, transparent 60%)
-        `,
-        opacity: 0.85,
+          linear-gradient(175deg,
+            #0c1a38 0%,
+            #0e2248 15%,
+            #142e5c 30%,
+            #1a3a70 45%,
+            #163264 60%,
+            #122850 75%,
+            #0e1e3c 90%,
+            #0a1628 100%
+          )`,
       }} />
-      {/* Swirling brushstroke luminance — like visible paint */}
+
+      {/* ═══ LAYER 2: The Great Swirls ═══
+          The churning sky of Saint-Rémy — not decoration, but
+          the visible movement of air, of anguish, of wonder.
+          Bold cobalt and cerulean swirling against the dark. */}
       <div style={{
         position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
-        backgroundImage: `
-          radial-gradient(ellipse 280px 100px at 20% 12%, rgba(240,192,64,0.18) 0%, transparent 100%),
-          radial-gradient(ellipse 350px 120px at 68% 20%, rgba(80,140,220,0.15) 0%, transparent 100%),
-          radial-gradient(ellipse 200px 80px at 82% 40%, rgba(240,192,64,0.12) 0%, transparent 100%),
-          radial-gradient(ellipse 320px 110px at 12% 65%, rgba(60,110,200,0.14) 0%, transparent 100%),
-          radial-gradient(ellipse 260px 90px at 50% 85%, rgba(240,180,48,0.10) 0%, transparent 100%),
-          radial-gradient(ellipse 180px 70px at 90% 70%, rgba(100,80,180,0.10) 0%, transparent 100%)
+        filter: "url(#vg-swirl-filter)",
+        background: `
+          radial-gradient(ellipse 800px 250px at 55% 12%, rgba(30,80,180,0.45) 0%, transparent 70%),
+          radial-gradient(ellipse 600px 200px at 20% 22%, rgba(40,90,190,0.35) 0%, transparent 65%),
+          radial-gradient(ellipse 700px 220px at 78% 28%, rgba(25,65,160,0.40) 0%, transparent 68%),
+          radial-gradient(ellipse 500px 180px at 40% 40%, rgba(50,100,200,0.25) 0%, transparent 60%),
+          radial-gradient(ellipse 650px 200px at 65% 55%, rgba(30,70,170,0.20) 0%, transparent 65%)
         `,
-        animation: "vg-bg-shift 25s ease-in-out infinite",
-        backgroundSize: "200% 200%",
       }} />
-      {/* Canvas grain texture — subtle linen/burlap feel */}
+
+      {/* ═══ LAYER 3: The Golden Light ═══
+          Chrome yellow — the color he was obsessed with.
+          It bleeds through the sky like lamplight through a window,
+          like the halo around every star he ever painted. */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        background: `
+          radial-gradient(ellipse 400px 150px at 25% 10%, rgba(245,200,50,0.22) 0%, transparent 100%),
+          radial-gradient(ellipse 300px 100px at 72% 18%, rgba(240,180,30,0.18) 0%, transparent 100%),
+          radial-gradient(ellipse 250px 90px at 85% 35%, rgba(255,210,60,0.14) 0%, transparent 100%),
+          radial-gradient(ellipse 350px 120px at 10% 55%, rgba(245,190,40,0.12) 0%, transparent 100%),
+          radial-gradient(ellipse 200px 80px at 50% 75%, rgba(240,170,30,0.10) 0%, transparent 100%),
+          radial-gradient(ellipse 280px 100px at 90% 65%, rgba(220,160,40,0.08) 0%, transparent 100%)
+        `,
+      }} />
+
+      {/* ═══ LAYER 4: The Violet Undertow ═══
+          Beneath the blues — the purples and mauves he mixed
+          when the sadness crept in. "I put my heart and my soul
+          into my work, and have lost my mind in the process." */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        background: `
+          radial-gradient(ellipse 500px 200px at 35% 70%, rgba(80,50,140,0.18) 0%, transparent 70%),
+          radial-gradient(ellipse 400px 160px at 70% 80%, rgba(90,60,150,0.12) 0%, transparent 65%),
+          radial-gradient(ellipse 350px 130px at 15% 85%, rgba(70,40,120,0.15) 0%, transparent 60%)
+        `,
+      }} />
+
+      {/* ═══ LAYER 5: Visible Brushstrokes — the hand of the painter ═══
+          These aren't textures. They're the physical evidence of a man
+          dragging paint across canvas with fury and tenderness.
+          Horizontal and swirling strokes, like the sky is being BUILT. */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        opacity: 0.08,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='120' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 Q10 12 25 18 Q40 24 55 16 Q70 8 85 18 Q100 28 120 20' stroke='%234880c8' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M0 30 Q15 22 35 28 Q55 34 75 24 Q95 14 120 26' stroke='%23f5c832' stroke-width='2' fill='none' stroke-linecap='round' opacity='0.7'/%3E%3Cpath d='M0 10 Q20 4 40 12 Q60 20 80 10 Q100 2 120 14' stroke='%233060a0' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='0.5'/%3E%3C/svg%3E")`,
+        backgroundSize: "120px 40px",
+      }} />
+
+      {/* ═══ LAYER 6: Thick Impasto — the paint has BODY ═══
+          You can almost feel the ridges where the palette knife
+          dragged through cadmium yellow. The paint sits above
+          the canvas, casting tiny shadows. */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        opacity: 0.06,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 25 C20 18 40 30 60 22 C70 18 80 24 80 24' stroke='%23d4a830' stroke-width='4' fill='none' stroke-linecap='round' opacity='0.5'/%3E%3Cpath d='M10 55 C25 48 45 58 65 50 C75 46 80 52 80 52' stroke='%232858a0' stroke-width='3.5' fill='none' stroke-linecap='round' opacity='0.4'/%3E%3Cpath d='M0 70 C15 64 30 72 50 66 C65 62 80 68 80 68' stroke='%235030a0' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='0.3'/%3E%3Cpath d='M5 10 C20 5 35 14 55 8 C70 4 80 10 80 10' stroke='%23e0a020' stroke-width='3' fill='none' stroke-linecap='round' opacity='0.35'/%3E%3C/svg%3E")`,
+        backgroundSize: "80px 80px",
+        filter: "url(#vg-turb)",
+      }} />
+
+      {/* ═══ LAYER 7: Canvas Weave ═══
+          The linen shows through — you can see the texture of the
+          support beneath the paint. Rough, real, physical. */}
       <div style={{
         position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none",
-        opacity: 0.06,
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='6' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='1' height='1' x='0' y='0' fill='%23fff' opacity='0.5'/%3E%3Crect width='1' height='1' x='3' y='3' fill='%23fff' opacity='0.3'/%3E%3Crect width='1' height='1' x='1' y='4' fill='%23fff' opacity='0.2'/%3E%3C/svg%3E")`,
-        backgroundSize: "6px 6px",
+        opacity: 0.1,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='10' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='2' height='1' x='0' y='0' fill='%23c8b070' opacity='0.5'/%3E%3Crect width='1' height='2' x='5' y='5' fill='%23b8a060' opacity='0.4'/%3E%3Crect width='2' height='1' x='3' y='7' fill='%23c8b070' opacity='0.3'/%3E%3Crect width='1' height='2' x='8' y='2' fill='%23a89050' opacity='0.35'/%3E%3Crect width='1' height='1' x='1' y='4' fill='%23d0b878' opacity='0.2'/%3E%3C/svg%3E")`,
+        backgroundSize: "10px 10px",
       }} />
+
+      {/* ═══ LAYER 8: Cypress Silhouettes ═══
+          The dark flames reaching up from the bottom of the canvas.
+          Van Gogh painted cypresses like tongues of green-black fire
+          licking at the swirling sky. They anchor the composition. */}
+      <div style={{
+        position: "fixed", bottom: 0, left: 0, right: 0, height: "35vh",
+        zIndex: 0, pointerEvents: "none",
+        opacity: 0.15,
+      }}>
+        <svg width="100%" height="100%" viewBox="0 0 1200 300" preserveAspectRatio="none" style={{ display: "block" }}>
+          {/* Rolling hills */}
+          <path d="M0 280 Q150 240 300 260 Q450 280 600 250 Q750 220 900 260 Q1050 290 1200 260 L1200 300 L0 300Z"
+            fill="#0c1a2c" opacity="0.8" />
+          <path d="M0 290 Q200 260 400 275 Q600 290 800 265 Q1000 240 1200 270 L1200 300 L0 300Z"
+            fill="#081420" opacity="0.9" />
+          {/* Cypress trees — dark flames */}
+          <path d="M80 300 C80 240 65 180 72 140 C78 100 82 80 80 60 C78 80 75 100 70 140 C64 180 60 240 60 300Z"
+            fill="#0a1820" opacity="0.7" />
+          <path d="M180 300 C180 250 170 200 175 160 C180 120 178 90 176 70 C174 90 168 120 165 160 C160 200 158 250 158 300Z"
+            fill="#0c1c28" opacity="0.5" />
+          <path d="M1050 300 C1050 230 1038 170 1044 120 C1050 80 1048 50 1046 30 C1044 50 1038 80 1034 120 C1028 170 1020 230 1020 300Z"
+            fill="#0a1820" opacity="0.6" />
+          <path d="M1130 300 C1130 260 1122 210 1126 180 C1130 150 1128 130 1126 115 C1124 130 1120 150 1118 180 C1114 210 1110 260 1110 300Z"
+            fill="#0c1c28" opacity="0.45" />
+          {/* Small village church spire hint — like Starry Night */}
+          <path d="M600 270 L604 230 L608 270Z" fill="#0e1e30" opacity="0.35" />
+          <path d="M580 275 L580 255 L620 255 L620 275Z" fill="#0c1a28" opacity="0.25" />
+        </svg>
+      </div>
+
+      {/* ═══ LAYER 9: Swirling sky forms ═══
+          The great spirals — frozen in paint, as they are on canvas.
+          A painting doesn't move. It holds its breath forever. */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        opacity: 0.12,
+      }}>
+        <svg width="100%" height="100%" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+          {/* Great swirl — upper right, like Starry Night */}
+          <ellipse cx="800" cy="150" rx="180" ry="60"
+            fill="none" stroke="rgba(60,120,210,0.4)" strokeWidth="8" strokeLinecap="round" />
+          <ellipse cx="800" cy="150" rx="130" ry="42"
+            fill="none" stroke="rgba(80,140,230,0.3)" strokeWidth="6" strokeLinecap="round" />
+          <ellipse cx="800" cy="150" rx="80" ry="26"
+            fill="none" stroke="rgba(245,200,50,0.25)" strokeWidth="4" strokeLinecap="round" />
+          {/* Second swirl — upper left */}
+          <ellipse cx="300" cy="200" rx="140" ry="50"
+            fill="none" stroke="rgba(50,100,190,0.3)" strokeWidth="7" strokeLinecap="round" />
+          <ellipse cx="300" cy="200" rx="90" ry="32"
+            fill="none" stroke="rgba(70,120,210,0.25)" strokeWidth="5" strokeLinecap="round" />
+          {/* Third swirl — middle */}
+          <ellipse cx="550" cy="350" rx="120" ry="40"
+            fill="none" stroke="rgba(40,80,170,0.2)" strokeWidth="6" strokeLinecap="round" />
+        </svg>
+      </div>
     </>
   );
 };
 
+// ─── Painted SVG Icons (replace emojis in VG mode) ──────────────────
+// Each icon is a tiny hand-painted SVG — organic, imperfect, brushstroke-style
+const PaintIcon = ({ type, size = 28, color = "#f0c040", style = {} }) => {
+  const s = size;
+  const icons = {
+    // Swirling star — like Starry Night
+    star: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M16 3 C17 8 20 10 26 11 C20 13 17 16 16 22 C15 16 11 13 5 11 C11 10 15 8 16 3Z"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+          style={{ filter: "url(#vg-paint)" }} />
+        <circle cx="16" cy="12" r="2" fill={color} opacity="0.6" />
+      </svg>
+    ),
+    // Palette — art/gallery
+    palette: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M6 16 C6 8 12 4 18 4 C26 4 28 10 24 14 C22 16 18 15 18 18 C18 22 14 26 10 26 C6 26 4 22 6 16Z"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"
+          style={{ filter: "url(#vg-paint)" }} />
+        <circle cx="11" cy="12" r="2" fill="#e85020" opacity="0.8" />
+        <circle cx="16" cy="9" r="1.8" fill="#5a9040" opacity="0.8" />
+        <circle cx="21" cy="11" r="1.8" fill="#508cdc" opacity="0.8" />
+        <circle cx="12" cy="18" r="1.5" fill="#f4a830" opacity="0.8" />
+      </svg>
+    ),
+    // Quill pen — writing/statement
+    quill: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M8 28 C10 20 14 14 24 4 C22 10 20 16 12 24Z"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+          style={{ filter: "url(#vg-paint)" }} />
+        <path d="M8 28 L6 26 C10 22 12 24 8 28Z" fill={color} opacity="0.4" />
+        <line x1="14" y1="18" x2="22" y2="8" stroke={color} strokeWidth="1" opacity="0.3" />
+      </svg>
+    ),
+    // Gallery frame — collection/portfolio
+    frame: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <rect x="4" y="6" width="24" height="20" rx="2"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"
+          style={{ filter: "url(#vg-paint)" }} />
+        <rect x="8" y="10" width="16" height="12" rx="1"
+          fill="none" stroke={color} strokeWidth="1" opacity="0.35" />
+        <path d="M10 18 L14 14 L18 17 L22 13 L24 16" stroke={color} strokeWidth="1.5" fill="none" opacity="0.5" />
+      </svg>
+    ),
+    // Sunflower — Van Gogh signature motif
+    sunflower: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <circle cx="16" cy="14" r="4" fill={color} opacity="0.5" />
+        {[0,45,90,135,180,225,270,315].map((angle, i) => {
+          const rad = angle * Math.PI / 180;
+          const px = 16 + Math.cos(rad) * 9;
+          const py = 14 + Math.sin(rad) * 9;
+          return <ellipse key={i} cx={px} cy={py} rx="3.5" ry="2"
+            transform={`rotate(${angle} ${px} ${py})`}
+            fill="none" stroke={color} strokeWidth="1.8" opacity="0.6" />;
+        })}
+        <path d="M16 19 C16 24 15 28 16 28 C17 28 16 24 16 19" stroke="#5a9040" strokeWidth="2" fill="none" opacity="0.5" />
+      </svg>
+    ),
+    // Cypress tree — landscape motif
+    cypress: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M16 4 C12 8 10 14 11 22 C12 26 14 28 16 28 C18 28 20 26 21 22 C22 14 20 8 16 4Z"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"
+          style={{ filter: "url(#vg-paint)" }} />
+        <path d="M13 12 Q16 10 19 12" stroke={color} strokeWidth="1" fill="none" opacity="0.3" />
+        <path d="M12 18 Q16 15 20 18" stroke={color} strokeWidth="1" fill="none" opacity="0.3" />
+      </svg>
+    ),
+    // Moon crescent — night sky
+    moon: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M20 6 C14 8 10 13 10 19 C10 25 15 28 20 26 C15 25 12 21 12 16 C12 11 15 7 20 6Z"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"
+          style={{ filter: "url(#vg-paint)" }} />
+      </svg>
+    ),
+    // Wheat/field — agriculture/harvest
+    wheat: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M16 28 L16 10" stroke={color} strokeWidth="2" strokeLinecap="round" />
+        <path d="M12 12 Q14 8 16 10" stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" />
+        <path d="M20 12 Q18 8 16 10" stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" />
+        <path d="M13 16 Q15 13 16 15" stroke={color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M19 16 Q17 13 16 15" stroke={color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M14 20 Q15 18 16 19" stroke={color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M18 20 Q17 18 16 19" stroke={color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+      </svg>
+    ),
+    // Swirl — movement/energy
+    swirl: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M16 8 C22 8 26 12 26 16 C26 22 20 24 16 22 C12 20 12 16 16 16 C18 16 20 18 18 20"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"
+          style={{ filter: "url(#vg-paint)" }} />
+      </svg>
+    ),
+    // Candle/lamp — light/illumination
+    lamp: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M16 6 C14 10 12 12 12 16 C12 20 14 22 16 22 C18 22 20 20 20 16 C20 12 18 10 16 6Z"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"
+          style={{ filter: "url(#vg-paint)" }} />
+        <path d="M14 22 L14 26 L18 26 L18 22" stroke={color} strokeWidth="1.5" fill="none" opacity="0.5" />
+        <circle cx="16" cy="14" r="2" fill={color} opacity="0.4" />
+      </svg>
+    ),
+    // Bridge/arch — connections
+    bridge: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M4 24 Q10 8 16 8 Q22 8 28 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"
+          style={{ filter: "url(#vg-paint)" }} />
+        <line x1="10" y1="16" x2="10" y2="24" stroke={color} strokeWidth="1.5" opacity="0.4" />
+        <line x1="16" y1="8" x2="16" y2="24" stroke={color} strokeWidth="1.5" opacity="0.4" />
+        <line x1="22" y1="16" x2="22" y2="24" stroke={color} strokeWidth="1.5" opacity="0.4" />
+      </svg>
+    ),
+    // Check/complete — hand-painted checkmark
+    check: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M8 16 L14 22 L24 10" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+          style={{ filter: "url(#vg-paint)" }} />
+      </svg>
+    ),
+  };
+  return icons[type] || <span style={{ fontSize: size, ...style }}>{"\u2726"}</span>;
+};
+
+// Map engagement sectors to painted icon types
+const sectorIconMap = {
+  "Internal AI": "swirl",
+  "Entertainment": "frame",
+  "Consumer Tech": "lamp",
+  "Finance": "bridge",
+  "Government": "cypress",
+  "Healthcare": "wheat",
+  "Insurance": "bridge",
+  "Banking": "bridge",
+  "Commodities": "wheat",
+  "Utilities": "lamp",
+  "Energy": "swirl",
+  "GigScout": "sunflower",
+  "The AI Brief": "star",
+};
+
+// ─── VG Text Shadow (subtle dark halo behind text for readability) ───
+// Like how Van Gogh outlined forms with darker paint to make them pop
+const vgTextShadow = "0 1px 3px rgba(0,0,0,0.5), 0 0 8px rgba(0,0,0,0.25)";
+
+// ─── Impasto Panel Texture (visible paint surface on VG panels) ──────
+// When Van Gogh painted, the surface was never flat. You could feel
+// the ridges where the brush dragged, where the knife scraped.
+// This adds that physical texture to every gallery panel.
+const vgPanelTexture = {
+  backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 30 Q15 24 30 28 Q45 32 60 26' stroke='%23c8a850' stroke-width='1.5' fill='none' opacity='0.06' stroke-linecap='round'/%3E%3Cpath d='M0 15 Q20 10 40 16 Q55 20 60 14' stroke='%234878b8' stroke-width='1' fill='none' opacity='0.04' stroke-linecap='round'/%3E%3Cpath d='M0 48 Q12 42 28 46 Q44 50 60 44' stroke='%23d0b040' stroke-width='1.2' fill='none' opacity='0.05' stroke-linecap='round'/%3E%3C/svg%3E")`,
+  backgroundSize: "60px 60px",
+};
+
+// ─── Brushstroke Divider ─────────────────────────────────────────────
+const BrushDivider = ({ color = "rgba(180,150,80,0.3)", width = "100%", style = {} }) => (
+  <svg width={width} height="8" viewBox="0 0 200 8" preserveAspectRatio="none" style={{ display: "block", ...style }}>
+    <path d="M0 4 Q25 1 50 4 Q75 7 100 4 Q125 1 150 4 Q175 7 200 4"
+      stroke={color} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+  </svg>
+);
+
+// ─── Brush Frame (gilded gallery frame for panels) ──────────────────
+const BrushFrame = ({ children, color = "rgba(180,150,80,0.35)", style = {} }) => (
+  <div style={{ position: "relative", ...style }}>
+    {/* Top brushstroke border */}
+    <svg style={{ position: "absolute", top: -2, left: 8, right: 8, height: 6 }} viewBox="0 0 200 6" preserveAspectRatio="none">
+      <path d="M0 3 Q30 0.5 60 3 Q90 5.5 120 3 Q150 0.5 180 3 Q190 4 200 3" stroke={color} strokeWidth="2" fill="none" />
+    </svg>
+    {/* Bottom brushstroke border */}
+    <svg style={{ position: "absolute", bottom: -2, left: 8, right: 8, height: 6 }} viewBox="0 0 200 6" preserveAspectRatio="none">
+      <path d="M0 3 Q20 5 50 3 Q80 1 110 3 Q140 5 170 3 Q190 1.5 200 3" stroke={color} strokeWidth="2" fill="none" />
+    </svg>
+    {/* Left brushstroke border */}
+    <svg style={{ position: "absolute", top: 8, bottom: 8, left: -2, width: 6 }} viewBox="0 6 6 200" preserveAspectRatio="none">
+      <path d="M3 6 Q0.5 36 3 66 Q5.5 96 3 126 Q0.5 156 3 186 Q4 196 3 206" stroke={color} strokeWidth="2" fill="none" />
+    </svg>
+    {/* Right brushstroke border */}
+    <svg style={{ position: "absolute", top: 8, bottom: 8, right: -2, width: 6 }} viewBox="0 6 6 200" preserveAspectRatio="none">
+      <path d="M3 6 Q5 30 3 60 Q1 90 3 120 Q5 150 3 180 Q1.5 196 3 206" stroke={color} strokeWidth="2" fill="none" />
+    </svg>
+    {children}
+  </div>
+);
+
 // ─── Star Field ──────────────────────────────────────────────────────
+// In arcade mode: tiny drifting points of light.
+// In Van Gogh mode: the stars BURN. Concentric halos of chrome yellow
+// and Naples yellow radiate outward — each star a small sun painted
+// with visible rings of light, the way Vincent saw them through
+// tear-blurred eyes and absinthe-bright nights in Arles.
 const StarField = () => {
   const T = useTheme();
   const stars = useRef(Array.from({ length: 80 }, (_, i) => ({
@@ -224,6 +549,13 @@ const StarField = () => {
     delay: Math.random() * -15,
     colorIdx: i,
     opacityBase: Math.random(),
+    // VG-specific: each star has its own character
+    vgRings: 2 + Math.floor(Math.random() * 4),   // 2-5 concentric halos
+    vgCoreSize: 2 + Math.random() * 3,             // bright core
+    vgHaloSpread: 8 + Math.random() * 20,          // how far halos reach
+    vgWobble: Math.random() * 360,                 // rotation offset
+    vgPulseDur: 4 + Math.random() * 6,             // individual pulse speed
+    vgTint: i % 8,                                 // color variation
   }))).current;
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
@@ -233,18 +565,81 @@ const StarField = () => {
           ? (s.colorIdx % 5 === 0 ? "#f0c040" : s.colorIdx % 7 === 0 ? "#e8a020" : s.colorIdx % 3 === 0 ? "#ffe880" : "#ffd460")
           : (s.colorIdx % 12 === 0 ? T.cyan : s.colorIdx % 9 === 0 ? T.pink : s.colorIdx % 7 === 0 ? T.amber : (T.isDark ? "#fff" : "#333"));
         const opacity = T.starOpacity.min + s.opacityBase * (T.starOpacity.max - T.starOpacity.min);
-        const vgSize = isVG ? (2 + Math.random() * 6) : s.size;
-        return (
+
+        // ── Arcade mode: simple drifting dots ──
+        if (!isVG) return (
           <div key={s.id} style={{
             position: "absolute", left: `${s.x}%`, top: `${s.y}%`,
-            width: isVG ? vgSize : s.size, height: isVG ? vgSize : s.size, borderRadius: "50%",
-            background: isVG ? `radial-gradient(circle, ${color}, transparent)` : color, opacity,
-            animation: isVG
-              ? `vg-star-pulse ${3 + s.opacityBase * 4}s ease-in-out ${s.delay}s infinite`
-              : `star-drift ${s.speed}s linear ${s.delay}s infinite`,
-            boxShadow: isVG ? `0 0 ${vgSize * 3}px ${color}` : "none",
+            width: s.size, height: s.size, borderRadius: "50%",
+            background: color, opacity,
+            animation: `star-drift ${s.speed}s linear ${s.delay}s infinite`,
             transition: "all 0.6s ease",
           }} />
+        );
+
+        // ── Van Gogh mode: haloed stars like Starry Night ──
+        // "Looking at the stars always makes me dream."
+        const vgColors = [
+          ["#f5c832", "#ffd860", "#ffe890"],  // Chrome yellow — pure sunlight
+          ["#e8a020", "#f0b840", "#f8d060"],  // Naples yellow — warm gold
+          ["#ffe880", "#fff4b0", "#fffde0"],  // Zinc white tinted — moonlight
+          ["#f0c040", "#e0a028", "#d08820"],  // Deep gold — candlelight
+          ["#d0e8ff", "#a0c4f0", "#80a8e0"],  // Pale blue — cold distant stars
+          ["#f5c832", "#f0a818", "#e88810"],  // Amber fire — close and blazing
+          ["#e0d080", "#c8b860", "#f0e0a0"],  // Straw yellow — wheat field glow
+          ["#f8e0a0", "#f0c860", "#e8b040"],  // Lamplight — café terrace
+        ];
+        const tint = vgColors[s.vgTint % vgColors.length];
+        const totalSize = s.vgHaloSpread * 2 + s.vgCoreSize;
+
+        return (
+          <div key={s.id} style={{
+            position: "absolute",
+            left: `${s.x}%`, top: `${s.y}%`,
+            transform: "translate(-50%, -50%)",
+            opacity: opacity * 1.3,
+          }}>
+            <svg width={totalSize} height={totalSize} viewBox={`0 0 ${totalSize} ${totalSize}`}
+              style={{ overflow: "visible", filter: "url(#vg-paint)" }}>
+              {/* Concentric halo rings — painted with visible brushstroke weight */}
+              {Array.from({ length: s.vgRings }, (_, r) => {
+                const ringR = s.vgCoreSize + (s.vgHaloSpread / s.vgRings) * (r + 1);
+                const ringOpacity = 0.5 - (r / s.vgRings) * 0.4;
+                const strokeW = 2.5 - (r / s.vgRings) * 1.5;
+                const ringColor = r < s.vgRings / 2 ? tint[0] : (r < s.vgRings * 0.75 ? tint[1] : tint[2]);
+                return (
+                  <circle key={r}
+                    cx={totalSize / 2} cy={totalSize / 2} r={ringR}
+                    fill="none" stroke={ringColor} strokeWidth={strokeW}
+                    opacity={ringOpacity} strokeLinecap="round"
+                    strokeDasharray={r % 2 === 0 ? "none" : `${4 + r * 2} ${2 + r}`}
+                    transform={`rotate(${s.vgWobble + r * 30} ${totalSize/2} ${totalSize/2})`}
+                  />
+                );
+              })}
+              {/* Radial spokes — like painted rays of light */}
+              {s.vgRings >= 3 && [0, 60, 120, 180, 240, 300].map((angle, i) => {
+                const rad = (angle + s.vgWobble) * Math.PI / 180;
+                const innerR = s.vgCoreSize + 2;
+                const outerR = s.vgCoreSize + s.vgHaloSpread * 0.6;
+                return (
+                  <line key={`ray-${i}`}
+                    x1={totalSize/2 + Math.cos(rad) * innerR}
+                    y1={totalSize/2 + Math.sin(rad) * innerR}
+                    x2={totalSize/2 + Math.cos(rad) * outerR}
+                    y2={totalSize/2 + Math.sin(rad) * outerR}
+                    stroke={tint[0]} strokeWidth={1.2} opacity={0.2}
+                    strokeLinecap="round"
+                  />
+                );
+              })}
+              {/* Bright core — thick impasto dot of pure chrome yellow */}
+              <circle cx={totalSize / 2} cy={totalSize / 2} r={s.vgCoreSize}
+                fill={tint[0]} opacity="0.9" />
+              <circle cx={totalSize / 2} cy={totalSize / 2} r={s.vgCoreSize * 0.5}
+                fill="#fffde0" opacity="0.7" />
+            </svg>
+          </div>
         );
       })}
     </div>
@@ -512,11 +907,12 @@ const Landing = ({ onStart }) => {
           <p style={{
             fontSize: isVG ? 20 : 18, color: A.text, lineHeight: 1.65,
             fontFamily: A.bodyFont, marginBottom: 8,
-            ...(isVG ? { fontStyle: "italic" } : {}),
+            ...(isVG ? { fontStyle: "italic", textShadow: vgTextShadow } : {}),
           }}>I built this instead of a cover letter.</p>
           <p style={{
-            fontSize: isVG ? 15 : 14, color: A.textDim, lineHeight: 1.6,
+            fontSize: isVG ? 15 : 14, color: isVG ? A.text : A.textDim, lineHeight: 1.6,
             fontFamily: A.bodyFont,
+            ...(isVG ? { textShadow: vgTextShadow } : {}),
           }}>
             Startup founder turned McKinsey PM.
             <br />Chicago&#8209;built.
@@ -536,26 +932,31 @@ const Landing = ({ onStart }) => {
           ...(isVG ? {
             boxShadow: "0 4px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)",
             filter: "url(#vg-paint)",
+            ...vgPanelTexture,
           } : {}),
         }}>
+          {isVG && <BrushDivider color="rgba(180,150,80,0.25)" style={{ marginBottom: 16 }} />}
           <p style={{
             fontFamily: A.font, fontSize: isVG ? 10 : 8, color: A.pink,
             letterSpacing: isVG ? "0.15em" : "0.1em", marginBottom: isVG ? 18 : 14,
-            ...(isVG ? { fontStyle: "italic", borderBottom: `1px solid rgba(180,150,80,0.2)`, paddingBottom: 12 } : {}),
+            ...(isVG ? { fontStyle: "italic" } : {}),
           }}>{isVG ? "Exhibition Notes" : "MISSION BRIEFING"}</p>
           <div style={{ display: "flex", flexDirection: "column", gap: isVG ? 14 : 10 }}>
             {[
-              { icon: "\uD83D\uDE80", text: "Founded GigScout (live music) and led Matchist (dev marketplace) as CEO in Chicago\u2019s startup scene" },
-              { icon: "\uD83C\uDFDB\uFE0F", text: "12+ years in product \u2014 5 in Chicago startups, 8 at McKinsey (Analyst to Engagement Manager). 11+ engagements across energy, banking, government, AI, consumer tech" },
-              { icon: "\uD83E\uDD16", text: "Built Beacon, McKinsey\u2019s internal AI tool. Advised a global entertainment co on AI & IP strategy" },
-              { icon: "\u26A1", text: "This week: rebuilt GigScout in a day with AI, launched The AI Brief. Still shipping." },
+              { icon: "\uD83D\uDE80", vgIcon: "sunflower", text: "Founded GigScout (live music) and led Matchist (dev marketplace) as CEO in Chicago\u2019s startup scene" },
+              { icon: "\uD83C\uDFDB\uFE0F", vgIcon: "cypress", text: "12+ years in product \u2014 5 in Chicago startups, 8 at McKinsey (Analyst to Engagement Manager). 11+ engagements across energy, banking, government, AI, consumer tech" },
+              { icon: "\uD83E\uDD16", vgIcon: "swirl", text: "Built Beacon, McKinsey\u2019s internal AI tool. Advised a global entertainment co on AI & IP strategy" },
+              { icon: "\u26A1", vgIcon: "star", text: "This week: rebuilt GigScout in a day with AI, launched The AI Brief. Still shipping." },
             ].map((item, i) => (
               <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                <span style={{ fontSize: 16, lineHeight: 1.4, flexShrink: 0 }}>{item.icon}</span>
+                {isVG
+                  ? <div style={{ flexShrink: 0, marginTop: -2 }}><PaintIcon type={item.vgIcon} size={22} color={A.cyan} /></div>
+                  : <span style={{ fontSize: 16, lineHeight: 1.4, flexShrink: 0 }}>{item.icon}</span>
+                }
                 <p style={{
                   fontSize: isVG ? 15 : 14, color: A.text, lineHeight: isVG ? 1.65 : 1.55, margin: 0,
                   fontFamily: A.bodyFont,
-                  ...(isVG ? { fontStyle: "italic" } : {}),
+                  ...(isVG ? { fontStyle: "italic", textShadow: vgTextShadow } : {}),
                 }}>{item.text}</p>
               </div>
             ))}
@@ -619,7 +1020,7 @@ const Hub = ({ onNavigate, onHome, completed, score }) => {
 
   const missions = [
     {
-      key: "fleet", icon: "\uD83D\uDC7E", vgIcon: "\uD83C\uDFA8",
+      key: "fleet", icon: "\uD83D\uDC7E", vgIconType: "frame",
       title: "ENGAGEMENT FLEET", vgTitle: "The Portfolio Collection",
       subtitle: "11 TARGETS TO CLEAR", vgSubtitle: "11 Works on Display",
       color: A.cyan,
@@ -628,7 +1029,7 @@ const Hub = ({ onNavigate, onHome, completed, score }) => {
       time: "~2 min", done: completed.fleet,
     },
     {
-      key: "record", icon: "\uD83D\uDE80", vgIcon: "\uD83D\uDDBC\uFE0F",
+      key: "record", icon: "\uD83D\uDE80", vgIconType: "cypress",
       title: "THE MISSION LOG", vgTitle: "The Career Retrospective",
       subtitle: "4 CAREER ERAS", vgSubtitle: "4 Periods of Work",
       color: A.amber,
@@ -637,7 +1038,7 @@ const Hub = ({ onNavigate, onHome, completed, score }) => {
       time: "~1 min", done: completed.record,
     },
     {
-      key: "why", icon: "\u2726", vgIcon: "\u270E",
+      key: "why", icon: "\u2726", vgIconType: "quill",
       title: "INCOMING TRANSMISSION", vgTitle: "Artist\u2019s Statement",
       subtitle: "A MESSAGE FROM THE PILOT", vgSubtitle: "A Personal Letter",
       color: A.pink,
@@ -693,7 +1094,7 @@ const Hub = ({ onNavigate, onHome, completed, score }) => {
             ...(isVG ? { fontStyle: "italic" } : {}),
           }}>{isVG ? "You\u2019ve seen every wing. Shall we talk?" : "You explored all three dimensions. Let's talk."}</p>
           <ArcadeBtn large color={A.green} onClick={() => onNavigate("contact")}>
-            {isVG ? "Sign the Guestbook \u2605" : "SIGNAL HOME \u2605"}
+            {isVG ? "Sign the Guestbook" : "SIGNAL HOME \u2605"}
           </ArcadeBtn>
         </div>
       )}
@@ -739,7 +1140,7 @@ const MissionCard = ({ m, delay, ready, onClick }) => {
           : (hovered ? `0 0 30px ${m.color}15` : "none"),
         animation: "descend 0.4s ease-out",
         position: "relative", overflow: "hidden",
-        ...(isVG ? { filter: hovered ? "url(#vg-paint)" : "none" } : {}),
+        ...(isVG ? { filter: hovered ? "url(#vg-paint)" : "none", ...vgPanelTexture } : {}),
       }}
     >
       {/* Gilded top accent for VG mode */}
@@ -778,7 +1179,7 @@ const MissionCard = ({ m, delay, ready, onClick }) => {
           fontSize: isVG ? 34 : 30, lineHeight: 1, minWidth: 40, textAlign: "center",
           filter: hovered ? `drop-shadow(0 0 ${isVG ? 12 : 8}px ${m.color})` : "none",
           transition: "filter 0.3s ease",
-        }}>{isVG ? (m.vgIcon || m.icon) : m.icon}</div>
+        }}>{isVG ? <PaintIcon type={m.vgIconType} size={36} color={m.color} /> : m.icon}</div>
         <div style={{ flex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: isVG ? 6 : 4 }}>
             <h3 style={{
@@ -798,9 +1199,9 @@ const MissionCard = ({ m, delay, ready, onClick }) => {
             ...(isVG ? { fontStyle: "italic" } : {}),
           }}>{isVG ? (m.vgSubtitle || m.subtitle) : m.subtitle}</p>
           <p style={{
-            fontSize: isVG ? 15 : 14, color: A.textDim, margin: "0 0 6px 0",
+            fontSize: isVG ? 15 : 14, color: isVG ? A.text : A.textDim, margin: "0 0 6px 0",
             lineHeight: isVG ? 1.6 : 1.5, fontFamily: A.bodyFont,
-            ...(isVG ? { fontStyle: "italic" } : {}),
+            ...(isVG ? { fontStyle: "italic", textShadow: vgTextShadow } : {}),
           }}>{isVG ? (m.vgDesc || m.desc) : m.desc}</p>
           <span style={{
             fontFamily: A.font, fontSize: isVG ? 8 : 7, color: A.textDim,
@@ -899,13 +1300,18 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
             ...(isVG ? {
               boxShadow: "0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)",
               filter: "url(#vg-paint)",
+              ...vgPanelTexture,
             } : {}),
           }}>
             {/* Gilded top bar for VG */}
             {isVG && <div style={{ position: "absolute", top: 0, left: 20, right: 20, height: 2, background: `linear-gradient(90deg, transparent, ${eng.color}50, transparent)` }} />}
 
+            {isVG && <BrushDivider color={`${eng.color}40`} style={{ marginBottom: 14 }} />}
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
-              <span style={{ fontSize: 32, filter: `drop-shadow(0 0 8px ${eng.color})` }}>{eng.icon}</span>
+              {isVG
+                ? <PaintIcon type={sectorIconMap[eng.sector] || "star"} size={36} color={eng.color} />
+                : <span style={{ fontSize: 32, filter: `drop-shadow(0 0 8px ${eng.color})` }}>{eng.icon}</span>
+              }
               <div>
                 <div style={{
                   fontFamily: A.font, fontSize: isVG ? 12 : 10, color: eng.color, marginBottom: 4,
@@ -927,7 +1333,7 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
             <p style={{
               fontSize: isVG ? 16 : 15, color: A.text, lineHeight: 1.7,
               fontFamily: A.bodyFont, margin: "0 0 18px 0",
-              ...(isVG ? { fontStyle: "italic" } : {}),
+              ...(isVG ? { fontStyle: "italic", textShadow: vgTextShadow } : {}),
             }}>{eng.product}</p>
 
             <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
@@ -995,6 +1401,7 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
 
         {ready && (
           <div style={{ animation: "fade-in 0.4s ease-out" }}>
+            {isVG && <div style={{ textAlign: "center", marginBottom: 10 }}><PaintIcon type="frame" size={36} color={A.cyan} /></div>}
             <h2 style={{
               fontFamily: A.font, fontSize: isVG ? 18 : 14, color: A.cyan,
               textShadow: A.isDark ? `0 0 20px ${A.cyan}` : "none", marginBottom: 6, textAlign: "center",
@@ -1041,13 +1448,19 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
               display: "flex", alignItems: "center", gap: 12, marginBottom: 14,
               animation: "fade-in 0.4s ease-out 0.6s both",
             }}>
-              <div style={{ flex: 1, height: 1, background: A.border }} />
+              {isVG
+                ? <BrushDivider color={`${A.pink}50`} style={{ flex: 1 }} />
+                : <div style={{ flex: 1, height: 1, background: A.border }} />
+              }
               <span style={{
                 fontFamily: A.font, fontSize: isVG ? 9 : 7, color: A.pink,
                 letterSpacing: "0.15em",
                 ...(isVG ? { fontStyle: "italic" } : {}),
               }}>{isVG ? "Personal Works" : "BONUS ROUND"}</span>
-              <div style={{ flex: 1, height: 1, background: A.border }} />
+              {isVG
+                ? <BrushDivider color={`${A.pink}50`} style={{ flex: 1 }} />
+                : <div style={{ flex: 1, height: 1, background: A.border }} />
+              }
             </div>
             <div style={{
               display: "grid",
@@ -1180,8 +1593,14 @@ const InvaderTile = ({ eng, idx, cleared, isActive, isFiring, isExploding, score
           : cleared ? (isVG ? "none" : "grayscale(0.3) brightness(0.7)") : "none",
         transition: "all 0.3s ease",
         marginBottom: 6,
+        display: "flex", alignItems: "center", justifyContent: "center",
       }}>
-        {cleared ? (isVG ? "\uD83C\uDFA8" : "\u2713") : eng.icon}
+        {isVG
+          ? (cleared
+            ? <PaintIcon type="check" size={22} color={A.green} />
+            : <PaintIcon type={sectorIconMap[eng.sector] || "star"} size={30} color={eng.color} />)
+          : (cleared ? "\u2713" : eng.icon)
+        }
       </div>
 
       {/* Label */}
@@ -1241,6 +1660,7 @@ const MissionLog = ({ onBack, onComplete }) => {
 
       {ready && (
         <div style={{ animation: "fade-in 0.4s ease-out" }}>
+          {isVG && <div style={{ textAlign: "center", marginBottom: 12 }}><PaintIcon type="cypress" size={36} color={A.amber} /></div>}
           <h2 style={{
             fontFamily: A.font, fontSize: isVG ? 18 : 14, color: A.amber,
             textShadow: A.isDark ? `0 0 20px ${A.amber}` : "none", marginBottom: 6, textAlign: "center",
@@ -1269,7 +1689,11 @@ const MissionLog = ({ onBack, onComplete }) => {
                 textAlign: "center",
                 ...(isVG ? { fontStyle: "italic" } : {}),
               }}>
-                {t.icon}<br/>{t.era.split(":")[0].toUpperCase()}
+                {isVG
+                  ? <><PaintIcon type={["wheat","sunflower","cypress","star"][i]} size={20} color={activeEra === i ? t.color : A.textDim} /><br/></>
+                  : <>{t.icon}<br/></>
+                }
+                {t.era.split(":")[0].toUpperCase()}
               </button>
             ))}
           </div>
@@ -1283,10 +1707,15 @@ const MissionLog = ({ onBack, onComplete }) => {
             ...(isVG ? {
               boxShadow: "0 6px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)",
               filter: "url(#vg-paint)",
+              ...vgPanelTexture,
             } : {}),
           }}>
+            {isVG && <BrushDivider color={`${era.color}35`} style={{ marginBottom: 18 }} />}
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 22 }}>
-              <span style={{ fontSize: isVG ? 44 : 40, filter: `drop-shadow(0 0 10px ${era.color})` }}>{era.icon}</span>
+              {isVG
+                ? <PaintIcon type={["wheat","sunflower","cypress","star"][activeEra]} size={44} color={era.color} />
+                : <span style={{ fontSize: 40, filter: `drop-shadow(0 0 10px ${era.color})` }}>{era.icon}</span>
+              }
               <div>
                 <h3 style={{
                   fontFamily: A.font, fontSize: isVG ? 14 : 11, color: era.color, margin: 0,
@@ -1321,7 +1750,7 @@ const MissionLog = ({ onBack, onComplete }) => {
 
             <p style={{
               fontSize: isVG ? 16 : 15, color: A.text, lineHeight: 1.75, fontFamily: A.bodyFont,
-              ...(isVG ? { fontStyle: "italic" } : {}),
+              ...(isVG ? { fontStyle: "italic", textShadow: vgTextShadow } : {}),
             }}>{era.description}</p>
           </div>
         </div>
@@ -1385,8 +1814,8 @@ const WhyAnthropic = ({ onBack, onComplete }) => {
   ];
 
   const projects = [
-    { icon: "\uD83C\uDFB5", title: "GigScout \u2014 Rebuilt", desc: "Rebuilt my first startup in a single day using AI.", link: "https://gigscout.app", color: A.amber },
-    { icon: "\uD83D\uDCF0", title: "The AI Brief", desc: "AI news for non-techies \u2014 real context for real people.", link: "https://the-ai-brief-lilac.vercel.app", color: A.cyan },
+    { icon: "\uD83C\uDFB5", vgIcon: "sunflower", title: "GigScout \u2014 Rebuilt", desc: "Rebuilt my first startup in a single day using AI.", link: "https://gigscout.app", color: A.amber },
+    { icon: "\uD83D\uDCF0", vgIcon: "star", title: "The AI Brief", desc: "AI news for non-techies \u2014 real context for real people.", link: "https://the-ai-brief-lilac.vercel.app", color: A.cyan },
   ];
 
   const renderBlock = (b, i, isCrawl) => {
@@ -1395,7 +1824,7 @@ const WhyAnthropic = ({ onBack, onComplete }) => {
       color: isCrawl ? (A.isDark ? "#eee" : "#444") : A.text,
       lineHeight: isCrawl ? 2 : (isVG ? 1.9 : 1.85),
       fontFamily: A.bodyFont, textAlign: "center",
-      ...(isVG && !isCrawl ? { fontStyle: "italic", textAlign: "left" } : {}),
+      ...(isVG && !isCrawl ? { fontStyle: "italic", textAlign: "left", textShadow: vgTextShadow } : {}),
     };
     const mb = isCrawl ? 36 : 28;
     const animStyle = !isCrawl ? { animation: `fade-in 0.5s ease-out ${0.1 + i * 0.1}s both`, textAlign: "left" } : {};
@@ -1411,7 +1840,9 @@ const WhyAnthropic = ({ onBack, onComplete }) => {
               textDecoration: "none", transition: "all 0.25s ease",
               textAlign: "left",
             }}>
-              <div style={{ fontSize: isCrawl ? 22 : 24, marginBottom: isCrawl ? 8 : 10 }}>{proj.icon}</div>
+              <div style={{ fontSize: isCrawl ? 22 : 24, marginBottom: isCrawl ? 8 : 10 }}>
+                {isVG && !isCrawl ? <PaintIcon type={proj.vgIcon} size={26} color={proj.color} /> : proj.icon}
+              </div>
               <div style={{ fontFamily: A.font, fontSize: isCrawl ? 8 : 8, color: proj.color, marginBottom: isCrawl ? 6 : 8 }}>{proj.title.toUpperCase()}</div>
               <div style={{ fontSize: isCrawl ? 13 : 14, color: A.textDim, lineHeight: 1.55, fontFamily: A.bodyFont }}>{proj.desc}</div>
               <div style={{ fontFamily: A.font, fontSize: 6, color: proj.color, marginTop: isCrawl ? 10 : 12, letterSpacing: "0.08em" }}>BUILT THIS WEEK {"\u2192"}</div>
@@ -1559,10 +1990,11 @@ const WhyAnthropic = ({ onBack, onComplete }) => {
           maxWidth: 640, margin: "0 auto",
           padding: "100px 28px 80px",
           animation: "fade-in 0.6s ease-out",
-          ...(isVG ? { filter: "url(#vg-paint)" } : {}),
+          ...(isVG ? { filter: "url(#vg-paint)", ...vgPanelTexture } : {}),
         }}>
           {/* Title */}
           <div style={{ textAlign: "center", marginBottom: 48 }}>
+            {isVG && <PaintIcon type="quill" size={36} color={A.pink} style={{ margin: "0 auto 12px", display: "block" }} />}
             <div style={{
               fontFamily: A.font, fontSize: isVG ? 10 : 8, color: A.pink,
               letterSpacing: "0.15em", marginBottom: 12,
@@ -1573,7 +2005,10 @@ const WhyAnthropic = ({ onBack, onComplete }) => {
               textShadow: A.isDark ? `0 0 30px ${A.cyan}, 0 0 60px ${A.cyan}40` : "none", marginBottom: 6,
               ...(isVG ? { fontStyle: "italic", fontWeight: 600 } : {}),
             }}>{isVG ? "Why Anthropic" : "WHY ANTHROPIC"}</div>
-            <div style={{ width: isVG ? 80 : 60, height: 2, background: `linear-gradient(90deg, transparent, ${A.cyan}, transparent)`, margin: "16px auto 0" }} />
+            {isVG
+              ? <BrushDivider color={`${A.cyan}50`} width="80px" style={{ margin: "16px auto 0" }} />
+              : <div style={{ width: 60, height: 2, background: `linear-gradient(90deg, transparent, ${A.cyan}, transparent)`, margin: "16px auto 0" }} />
+            }
           </div>
 
           {/* All content blocks rendered in static style */}
@@ -1634,9 +2069,9 @@ const Contact = ({ onBack, score }) => {
               ...(isVG ? { fontStyle: "italic", textShadow: `0 0 30px rgba(240,192,64,0.2)` } : {}),
             }}>{isVG ? "Thank you for visiting." : "Thanks for playing."}</h2>
             <p style={{
-              fontSize: isVG ? 18 : 17, color: A.textDim, maxWidth: 480,
+              fontSize: isVG ? 18 : 17, color: isVG ? A.text : A.textDim, maxWidth: 480,
               lineHeight: 1.6, fontFamily: A.bodyFont, marginBottom: 36,
-              ...(isVG ? { fontStyle: "italic" } : {}),
+              ...(isVG ? { fontStyle: "italic", textShadow: vgTextShadow } : {}),
             }}>{isVG ? "I\u2019d love to continue this conversation in person." : "I'd love to continue this conversation in person."}</p>
           </div>
 
@@ -1651,6 +2086,7 @@ const Contact = ({ onBack, score }) => {
             ...(isVG ? {
               boxShadow: "0 6px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)",
               filter: "url(#vg-paint)",
+              ...vgPanelTexture,
             } : {}),
           }}>
             <div style={{
@@ -1707,7 +2143,7 @@ const Contact = ({ onBack, score }) => {
                 <p style={{
                   fontFamily: A.font, fontSize: isVG ? 8 : 7, color: A.cyan, marginBottom: 8,
                   ...(isVG ? { fontStyle: "italic" } : {}),
-                }}>{isVG ? "\uD83C\uDFA8 How This Was Made" : "\uD83D\uDEE0 HOW THIS WAS BUILT"}</p>
+                }}>{isVG ? "How This Was Made" : "\uD83D\uDEE0 HOW THIS WAS BUILT"}</p>
                 <p style={{
                   fontSize: 13, color: A.textDim, lineHeight: 1.65, fontFamily: A.bodyFont,
                   ...(isVG ? { fontStyle: "italic" } : {}),
@@ -1877,7 +2313,7 @@ function App() {
             display: "flex", alignItems: "center", gap: 12,
             boxShadow: "0 8px 40px rgba(0,0,0,0.5), 0 0 30px rgba(240,192,64,0.15)",
           }}>
-            <span style={{ fontSize: 24 }}>{"\uD83C\uDFA8"}</span>
+            <PaintIcon type="palette" size={28} color="#f0c040" />
             <div>
               <div style={{ fontFamily: '"Georgia", serif', fontSize: 13, color: "#f0c040", fontStyle: "italic", fontWeight: 600, marginBottom: 2 }}>Starry Night Mode Unlocked</div>
               <div style={{ fontFamily: '"Georgia", serif', fontSize: 11, color: "rgba(212,201,168,0.7)", fontStyle: "italic" }}>Use the theme toggle to explore</div>

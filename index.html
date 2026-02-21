@@ -90,26 +90,30 @@ const VANGOGH = {
   bg: "#0b1a3b",
   bgLight: "#102450",
   bgPanel: "rgba(255,200,50,0.06)",
-  border: "rgba(255,200,50,0.18)",
+  border: "rgba(180,150,80,0.25)",
   borderBright: "rgba(255,210,80,0.5)",
   text: "#d4c9a8",
-  textDim: "#7a7050",
+  textDim: "#8a7a58",
   textBright: "#fff5d4",
-  cyan: "#f0c040",        // Van Gogh's golden yellow replaces cyan
+  cyan: "#f0c040",        // Van Gogh's golden yellow
   pink: "#e85020",        // burnt orange
   green: "#5a9040",       // muted olive
   amber: "#f4a830",       // warm amber
   red: "#c03020",         // deep vermillion
-  cyanGlow: "0 0 24px rgba(240,192,64,0.4)",
-  pinkGlow: "0 0 20px rgba(232,80,32,0.35)",
-  greenGlow: "0 0 18px rgba(90,144,64,0.3)",
-  amberGlow: "0 0 22px rgba(244,168,48,0.35)",
-  font: "'Press Start 2P', monospace",
+  cyanGlow: "0 0 30px rgba(240,192,64,0.5)",
+  pinkGlow: "0 0 24px rgba(232,80,32,0.4)",
+  greenGlow: "0 0 20px rgba(90,144,64,0.35)",
+  amberGlow: "0 0 26px rgba(244,168,48,0.4)",
+  font: '"Georgia", "Times New Roman", serif',  // No pixel font — impressionist
   bodyFont: '"Georgia", "Times New Roman", serif',
   starOpacity: { min: 0.3, max: 0.9 },
   scanlineOpacity: 0,
   isDark: true,
   isVanGogh: true,
+  // Impressionist extras
+  panelBg: "linear-gradient(135deg, rgba(30,50,100,0.6) 0%, rgba(20,35,70,0.4) 50%, rgba(40,60,110,0.5) 100%)",
+  canvasTexture: true,
+  borderRadius: 12,
 };
 
 // Theme context — all components read A from here
@@ -145,7 +149,7 @@ const GlobalStyles = () => (
   `}</style>
 );
 
-// ─── Van Gogh Overlay (SVG turbulence + painted sky) ────────────────
+// ─── Van Gogh Overlay (SVG turbulence + painted sky + canvas) ────────
 const VanGoghOverlay = () => {
   const T = useTheme();
   if (!T.isVanGogh) return null;
@@ -155,31 +159,54 @@ const VanGoghOverlay = () => {
         <defs>
           <filter id="vg-turb">
             <feTurbulence type="turbulence" baseFrequency="0.015 0.012" numOctaves="4" seed="3" result="turb" />
-            <feDisplacementMap in="SourceGraphic" in2="turb" scale="6" xChannelSelector="R" yChannelSelector="G" />
+            <feDisplacementMap in="SourceGraphic" in2="turb" scale="8" xChannelSelector="R" yChannelSelector="G" />
           </filter>
           <filter id="vg-paint">
             <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" seed="7" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" />
+          </filter>
+          <filter id="vg-heavy">
+            <feTurbulence type="turbulence" baseFrequency="0.02 0.018" numOctaves="3" seed="11" result="turb" />
+            <feDisplacementMap in="SourceGraphic" in2="turb" scale="12" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+          <filter id="vg-canvas">
+            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="4" seed="2" result="grain" />
+            <feColorMatrix type="saturate" values="0" in="grain" result="bw" />
+            <feBlend in="SourceGraphic" in2="bw" mode="multiply" />
           </filter>
         </defs>
       </svg>
-      {/* Starry Night swirling sky gradient */}
+      {/* Deep Starry Night sky with dramatic swirls */}
       <div style={{
         position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
-        background: "radial-gradient(ellipse at 70% 20%, #1a3a6a 0%, transparent 50%), radial-gradient(ellipse at 30% 60%, #0d2a5a 0%, transparent 50%), radial-gradient(ellipse at 50% 80%, #0a1530 0%, transparent 60%)",
-        opacity: 0.7,
+        background: `
+          radial-gradient(ellipse 600px 300px at 70% 15%, #1a4a8a 0%, transparent 60%),
+          radial-gradient(ellipse 500px 250px at 25% 30%, #162e6a 0%, transparent 55%),
+          radial-gradient(ellipse 400px 200px at 55% 55%, #0d2a5a 0%, transparent 50%),
+          radial-gradient(ellipse 700px 350px at 40% 80%, #0a1530 0%, transparent 60%)
+        `,
+        opacity: 0.85,
       }} />
-      {/* Swirling brush texture overlay */}
+      {/* Swirling brushstroke luminance — like visible paint */}
       <div style={{
         position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
         backgroundImage: `
-          radial-gradient(ellipse 200px 80px at 25% 15%, rgba(240,192,64,0.12) 0%, transparent 100%),
-          radial-gradient(ellipse 300px 100px at 65% 25%, rgba(100,160,220,0.10) 0%, transparent 100%),
-          radial-gradient(ellipse 150px 60px at 80% 45%, rgba(240,192,64,0.08) 0%, transparent 100%),
-          radial-gradient(ellipse 250px 90px at 15% 70%, rgba(80,120,200,0.10) 0%, transparent 100%)
+          radial-gradient(ellipse 280px 100px at 20% 12%, rgba(240,192,64,0.18) 0%, transparent 100%),
+          radial-gradient(ellipse 350px 120px at 68% 20%, rgba(80,140,220,0.15) 0%, transparent 100%),
+          radial-gradient(ellipse 200px 80px at 82% 40%, rgba(240,192,64,0.12) 0%, transparent 100%),
+          radial-gradient(ellipse 320px 110px at 12% 65%, rgba(60,110,200,0.14) 0%, transparent 100%),
+          radial-gradient(ellipse 260px 90px at 50% 85%, rgba(240,180,48,0.10) 0%, transparent 100%),
+          radial-gradient(ellipse 180px 70px at 90% 70%, rgba(100,80,180,0.10) 0%, transparent 100%)
         `,
-        animation: "vg-bg-shift 30s ease-in-out infinite",
+        animation: "vg-bg-shift 25s ease-in-out infinite",
         backgroundSize: "200% 200%",
+      }} />
+      {/* Canvas grain texture — subtle linen/burlap feel */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none",
+        opacity: 0.06,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='6' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='1' height='1' x='0' y='0' fill='%23fff' opacity='0.5'/%3E%3Crect width='1' height='1' x='3' y='3' fill='%23fff' opacity='0.3'/%3E%3Crect width='1' height='1' x='1' y='4' fill='%23fff' opacity='0.2'/%3E%3C/svg%3E")`,
+        backgroundSize: "6px 6px",
       }} />
     </>
   );
@@ -262,40 +289,56 @@ const Confetti = ({ active }) => {
 };
 
 // ─── Arcade HUD ──────────────────────────────────────────────────────
-const HUD = ({ score, cleared, total }) => (
+const HUD = ({ score, cleared, total }) => {
+  const isVG = A.isVanGogh;
+  return (
   <div style={{
     position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
     display: "flex", justifyContent: "space-between", alignItems: "center",
-    padding: "10px 20px",
-    background: A.isDark
-      ? "linear-gradient(180deg, rgba(6,6,15,0.95) 0%, rgba(6,6,15,0.7) 80%, transparent 100%)"
-      : "linear-gradient(180deg, rgba(244,242,239,0.95) 0%, rgba(244,242,239,0.7) 80%, transparent 100%)",
-    fontFamily: A.font, fontSize: 9,
-    borderBottom: `1px solid ${A.border}`,
+    padding: isVG ? "12px 24px" : "10px 20px",
+    background: isVG
+      ? "linear-gradient(180deg, rgba(11,26,59,0.92) 0%, rgba(11,26,59,0.6) 80%, transparent 100%)"
+      : A.isDark
+        ? "linear-gradient(180deg, rgba(6,6,15,0.95) 0%, rgba(6,6,15,0.7) 80%, transparent 100%)"
+        : "linear-gradient(180deg, rgba(244,242,239,0.95) 0%, rgba(244,242,239,0.7) 80%, transparent 100%)",
+    fontFamily: A.font, fontSize: isVG ? 11 : 9,
+    borderBottom: isVG ? `2px solid rgba(180,150,80,0.3)` : `1px solid ${A.border}`,
+    ...(isVG ? { fontStyle: "italic", letterSpacing: "0.04em" } : {}),
   }}>
-    <div><span style={{ color: A.textDim }}>SCORE </span><span style={{ color: A.cyan }}>{String(score).padStart(6, "0")}</span></div>
-    <div><span style={{ color: A.textDim }}>TARGETS </span><span style={{ color: A.green }}>{cleared}</span><span style={{ color: A.textDim }}>/{total}</span></div>
-    <div><span style={{ color: A.textDim }}>PLAYER 1 </span><span style={{ color: A.amber }}>JC</span></div>
+    <div><span style={{ color: A.textDim }}>{isVG ? "Points " : "SCORE "}</span><span style={{ color: A.cyan }}>{String(score).padStart(6, "0")}</span></div>
+    <div><span style={{ color: A.textDim }}>{isVG ? "Galerie " : "TARGETS "}</span><span style={{ color: A.green }}>{cleared}</span><span style={{ color: A.textDim }}>/{total}</span></div>
+    <div><span style={{ color: A.textDim }}>{isVG ? "L'artiste " : "PLAYER 1 "}</span><span style={{ color: A.amber }}>JC</span></div>
   </div>
-);
+  );
+};
 
-// ─── Shared: Arcade Button ───────────────────────────────────────────
+// ─── Shared: Arcade Button (impressionist in VG mode) ────────────────
 const ArcadeBtn = ({ children, onClick, color = A.cyan, large = false, style = {} }) => {
   const [h, setH] = useState(false);
+  const isVG = A.isVanGogh;
   return (
     <button onClick={onClick} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{
-      background: h ? `${color}${A.isDark ? "1a" : "14"}` : "transparent",
-      border: `2px solid ${color}`,
+      background: isVG
+        ? (h ? `linear-gradient(135deg, ${color}30, ${color}18)` : `linear-gradient(135deg, ${color}15, transparent)`)
+        : (h ? `${color}${A.isDark ? "1a" : "14"}` : "transparent"),
+      border: isVG ? `2px solid ${color}50` : `2px solid ${color}`,
       color: color,
       fontFamily: A.font,
-      fontSize: large ? 11 : 8,
-      padding: large ? "16px 36px" : "10px 20px",
+      fontSize: large ? (isVG ? 14 : 11) : (isVG ? 10 : 8),
+      fontStyle: isVG ? "italic" : "normal",
+      fontWeight: isVG ? "600" : "normal",
+      padding: large ? (isVG ? "18px 40px" : "16px 36px") : (isVG ? "12px 24px" : "10px 20px"),
       cursor: "pointer",
-      borderRadius: 2,
-      transition: "all 0.2s",
-      textShadow: h ? `0 0 12px ${color}` : "none",
-      boxShadow: h ? `0 0 20px ${color}40, inset 0 0 20px ${color}10` : "none",
-      letterSpacing: "0.05em",
+      borderRadius: isVG ? 20 : 2,
+      transition: "all 0.3s ease",
+      textShadow: isVG
+        ? `0 0 20px ${color}60, 0 2px 4px rgba(0,0,0,0.3)`
+        : (h ? `0 0 12px ${color}` : "none"),
+      boxShadow: isVG
+        ? (h ? `0 4px 24px ${color}40, inset 0 1px 0 ${color}20` : `0 2px 12px ${color}20`)
+        : (h ? `0 0 20px ${color}40, inset 0 0 20px ${color}10` : "none"),
+      letterSpacing: isVG ? "0.08em" : "0.05em",
+      ...(isVG ? { filter: "url(#vg-paint)" } : {}),
       ...style,
     }}>
       {children}
@@ -375,11 +418,12 @@ const engagements = [
   { icon: "\uD83D\uDCF0", sector: "The AI Brief", headline: "The AI Brief \u2014 AI News for Real People", product: "A newsletter and web experience that translates AI developments into plain language for non-technical readers. No hype, no jargon \u2014 just real context about what\u2019s happening and why it matters. Built and launched in a week as a personal project to make AI accessible to everyone.", team: "Solo (AI-assisted)", timeline: "1 week", tag: "BONUS ROUND", color: A.cyan, bonus: true, link: "https://the-ai-brief-lilac.vercel.app" },
 ];
 
-// ─── Screen: Landing (Arcade Boot) ───────────────────────────────────
+// ─── Screen: Landing (Arcade Boot / Impressionist Gallery Entrance) ──
 const Landing = ({ onStart }) => {
   const [phase, setPhase] = useState(0);
   const [eggIdx, setEggIdx] = useState(-1);
   const [eggShow, setEggShow] = useState(false);
+  const isVG = A.isVanGogh;
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase(1), 400);
@@ -401,23 +445,34 @@ const Landing = ({ onStart }) => {
       alignItems: "center", justifyContent: "center", padding: 32,
       textAlign: "center", position: "relative", zIndex: 1,
     }}>
-      {/* Glowing JC avatar */}
+      {/* JC avatar — painted portrait in gilded frame (VG) or glowing orb (arcade) */}
       {phase >= 1 && (
         <div style={{
-          animation: "warp-in 0.6s ease-out",
+          animation: isVG ? "fade-in 1.2s ease-out" : "warp-in 0.6s ease-out",
           marginBottom: 20,
         }}>
           <div onClick={handleEgg} style={{
-            width: 100, height: 100, borderRadius: "50%",
-            border: `3px solid ${A.cyan}`,
-            background: A.isDark ? "radial-gradient(circle at 30% 30%, #1a2a3a, #06060f)" : "radial-gradient(circle at 30% 30%, #e8f0f2, #d0dfe3)",
+            width: isVG ? 120 : 100, height: isVG ? 120 : 100,
+            borderRadius: isVG ? 16 : "50%",
+            border: isVG ? `4px solid rgba(180,150,80,0.6)` : `3px solid ${A.cyan}`,
+            background: isVG
+              ? "linear-gradient(145deg, #1a3060 0%, #0d1f45 40%, #1a3570 70%, #0b1530 100%)"
+              : A.isDark ? "radial-gradient(circle at 30% 30%, #1a2a3a, #06060f)" : "radial-gradient(circle at 30% 30%, #e8f0f2, #d0dfe3)",
             display: "flex", alignItems: "center", justifyContent: "center",
             cursor: "pointer",
-            boxShadow: A.cyanGlow,
-            animation: "glow-pulse 3s ease-in-out infinite",
+            boxShadow: isVG
+              ? "0 4px 30px rgba(240,192,64,0.3), inset 0 2px 20px rgba(240,192,64,0.1), 0 0 0 2px rgba(120,90,40,0.4), 0 0 0 6px rgba(60,45,20,0.2)"
+              : A.cyanGlow,
+            animation: isVG ? "vg-float 6s ease-in-out infinite" : "glow-pulse 3s ease-in-out infinite",
             transition: "background 0.4s, box-shadow 0.4s",
+            ...(isVG ? { filter: "url(#vg-paint)" } : {}),
           }}>
-            <span style={{ fontFamily: A.font, fontSize: 24, color: A.cyan, textShadow: A.isDark ? `0 0 20px ${A.cyan}` : "none" }}>JC</span>
+            <span style={{
+              fontFamily: A.font, fontSize: isVG ? 28 : 24,
+              color: A.cyan,
+              textShadow: isVG ? `0 0 24px rgba(240,192,64,0.6), 0 2px 8px rgba(0,0,0,0.4)` : (A.isDark ? `0 0 20px ${A.cyan}` : "none"),
+              ...(isVG ? { fontStyle: "italic", fontWeight: 700 } : {}),
+            }}>JC</span>
           </div>
           {eggShow && (
             <div style={{
@@ -430,19 +485,24 @@ const Landing = ({ onStart }) => {
         </div>
       )}
 
-      {/* Title */}
+      {/* Title — impressionist lettering (VG) or arcade heading */}
       {phase >= 2 && (
         <div style={{ animation: "fade-in 0.6s ease-out" }}>
           <h1 style={{
-            fontFamily: A.bodyFont, fontSize: 48, fontWeight: 700,
+            fontFamily: isVG ? A.font : A.bodyFont,
+            fontSize: isVG ? 44 : 48, fontWeight: 700,
             color: A.textBright, margin: "0 0 8px 0", lineHeight: 1.1,
-            letterSpacing: "-0.02em",
-            textShadow: A.isDark ? `0 0 40px rgba(0,255,255,0.15)` : "none",
+            letterSpacing: isVG ? "0.02em" : "-0.02em",
+            textShadow: isVG
+              ? `0 0 40px rgba(240,192,64,0.25), 0 2px 8px rgba(0,0,0,0.4)`
+              : A.isDark ? `0 0 40px rgba(0,255,255,0.15)` : "none",
+            ...(isVG ? { fontStyle: "italic" } : {}),
           }}>Hi, I'm John.</h1>
           <p style={{
-            fontFamily: A.font, fontSize: 9, color: A.cyan,
-            letterSpacing: "0.1em", marginBottom: 8,
-          }}>PRODUCT MANAGER // BUILDER // APPLICANT</p>
+            fontFamily: A.font, fontSize: isVG ? 11 : 9, color: A.cyan,
+            letterSpacing: isVG ? "0.15em" : "0.1em", marginBottom: 8,
+            ...(isVG ? { fontStyle: "italic", fontWeight: 400 } : {}),
+          }}>{isVG ? "Product Manager \u00B7 Builder \u00B7 Applicant" : "PRODUCT MANAGER // BUILDER // APPLICANT"}</p>
         </div>
       )}
 
@@ -450,11 +510,12 @@ const Landing = ({ onStart }) => {
       {phase >= 3 && (
         <div style={{ animation: "fade-in 0.6s ease-out", maxWidth: 520, marginTop: 16 }}>
           <p style={{
-            fontSize: 18, color: A.text, lineHeight: 1.65,
+            fontSize: isVG ? 20 : 18, color: A.text, lineHeight: 1.65,
             fontFamily: A.bodyFont, marginBottom: 8,
+            ...(isVG ? { fontStyle: "italic" } : {}),
           }}>I built this instead of a cover letter.</p>
           <p style={{
-            fontSize: 14, color: A.textDim, lineHeight: 1.6,
+            fontSize: isVG ? 15 : 14, color: A.textDim, lineHeight: 1.6,
             fontFamily: A.bodyFont,
           }}>
             Startup founder turned McKinsey PM.
@@ -463,16 +524,26 @@ const Landing = ({ onStart }) => {
         </div>
       )}
 
-      {/* TL;DR Panel */}
+      {/* TL;DR Panel — Gallery placard (VG) or Mission Briefing (arcade) */}
       {phase >= 3 && (
         <div style={{
           animation: "fade-in 0.6s ease-out 0.3s both",
           maxWidth: 540, width: "100%", marginTop: 32,
-          background: A.bgPanel, border: `1px solid ${A.border}`,
-          borderRadius: 4, padding: "22px 26px", textAlign: "left",
+          background: isVG ? A.panelBg : A.bgPanel,
+          border: isVG ? `2px solid rgba(180,150,80,0.3)` : `1px solid ${A.border}`,
+          borderRadius: isVG ? A.borderRadius : 4,
+          padding: isVG ? "28px 30px" : "22px 26px", textAlign: "left",
+          ...(isVG ? {
+            boxShadow: "0 4px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)",
+            filter: "url(#vg-paint)",
+          } : {}),
         }}>
-          <p style={{ fontFamily: A.font, fontSize: 8, color: A.pink, letterSpacing: "0.1em", marginBottom: 14 }}>MISSION BRIEFING</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <p style={{
+            fontFamily: A.font, fontSize: isVG ? 10 : 8, color: A.pink,
+            letterSpacing: isVG ? "0.15em" : "0.1em", marginBottom: isVG ? 18 : 14,
+            ...(isVG ? { fontStyle: "italic", borderBottom: `1px solid rgba(180,150,80,0.2)`, paddingBottom: 12 } : {}),
+          }}>{isVG ? "Exhibition Notes" : "MISSION BRIEFING"}</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: isVG ? 14 : 10 }}>
             {[
               { icon: "\uD83D\uDE80", text: "Founded GigScout (live music) and led Matchist (dev marketplace) as CEO in Chicago\u2019s startup scene" },
               { icon: "\uD83C\uDFDB\uFE0F", text: "12+ years in product \u2014 5 in Chicago startups, 8 at McKinsey (Analyst to Engagement Manager). 11+ engagements across energy, banking, government, AI, consumer tech" },
@@ -481,21 +552,28 @@ const Landing = ({ onStart }) => {
             ].map((item, i) => (
               <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
                 <span style={{ fontSize: 16, lineHeight: 1.4, flexShrink: 0 }}>{item.icon}</span>
-                <p style={{ fontSize: 14, color: A.text, lineHeight: 1.55, margin: 0, fontFamily: A.bodyFont }}>{item.text}</p>
+                <p style={{
+                  fontSize: isVG ? 15 : 14, color: A.text, lineHeight: isVG ? 1.65 : 1.55, margin: 0,
+                  fontFamily: A.bodyFont,
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{item.text}</p>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Start button */}
+      {/* Start button — "Enter the Gallery" (VG) or "Insert Coin" (arcade) */}
       {phase >= 4 && (
         <div style={{ animation: "fade-in 0.5s ease-out", marginTop: 36 }}>
           <ArcadeBtn large color={A.cyan} onClick={onStart}>
-            INSERT COIN TO BEGIN {"\u25B6"}
+            {isVG ? "Enter the Gallery \u2192" : "INSERT COIN TO BEGIN \u25B6"}
           </ArcadeBtn>
-          <p style={{ fontFamily: A.font, fontSize: 7, color: A.textDim, marginTop: 16 }}>
-            ~4 MIN {"\u00B7"} INTERACTIVE {"\u00B7"} NO LOGIN REQUIRED
+          <p style={{
+            fontFamily: A.font, fontSize: isVG ? 9 : 7, color: A.textDim, marginTop: 16,
+            ...(isVG ? { fontStyle: "italic", letterSpacing: "0.08em" } : {}),
+          }}>
+            {isVG ? "~4 min \u00B7 Interactive \u00B7 No login required" : "~4 MIN \u00B7 INTERACTIVE \u00B7 NO LOGIN REQUIRED"}
           </p>
           <div style={{
             marginTop: 32, display: "flex", gap: 10, justifyContent: "center",
@@ -507,13 +585,20 @@ const Landing = ({ onStart }) => {
             ].map((dl, i) => (
               <a key={i} href={dl.href} target="_blank" rel="noopener noreferrer" style={{
                 display: "flex", alignItems: "center", gap: 8,
-                padding: "8px 16px", borderRadius: 4,
-                background: A.bgPanel, border: `1px solid ${A.border}`,
+                padding: isVG ? "10px 18px" : "8px 16px",
+                borderRadius: isVG ? 12 : 4,
+                background: isVG ? A.panelBg : A.bgPanel,
+                border: isVG ? `1.5px solid rgba(180,150,80,0.3)` : `1px solid ${A.border}`,
                 textDecoration: "none", transition: "all 0.2s",
                 cursor: "pointer",
+                ...(isVG ? { boxShadow: "0 2px 12px rgba(0,0,0,0.2)" } : {}),
               }}>
                 <span style={{ fontSize: 14 }}>{dl.icon}</span>
-                <span style={{ fontFamily: A.font, fontSize: 7, color: A.textDim, letterSpacing: "0.06em" }}>{dl.label.toUpperCase()}</span>
+                <span style={{
+                  fontFamily: A.font, fontSize: isVG ? 8 : 7, color: A.textDim,
+                  letterSpacing: "0.06em",
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{isVG ? dl.label : dl.label.toUpperCase()}</span>
                 <span style={{ fontSize: 10, color: A.textDim }}>{"\u2197"}</span>
               </a>
             ))}
@@ -524,30 +609,40 @@ const Landing = ({ onStart }) => {
   );
 };
 
-// ─── Screen: Hub (Arcade Menu) ───────────────────────────────────────
+// ─── Screen: Hub (Arcade Menu / Gallery Hall) ────────────────────────
 const Hub = ({ onNavigate, onHome, completed, score }) => {
   const [ready, setReady] = useState(false);
   useEffect(() => { setTimeout(() => setReady(true), 100); }, []);
+  const isVG = A.isVanGogh;
 
   const allDone = completed.fleet && completed.record && completed.why;
 
   const missions = [
     {
-      key: "fleet", icon: "\uD83D\uDC7E", title: "ENGAGEMENT FLEET",
-      subtitle: "11 TARGETS TO CLEAR", color: A.cyan,
+      key: "fleet", icon: "\uD83D\uDC7E", vgIcon: "\uD83C\uDFA8",
+      title: "ENGAGEMENT FLEET", vgTitle: "The Portfolio Collection",
+      subtitle: "11 TARGETS TO CLEAR", vgSubtitle: "11 Works on Display",
+      color: A.cyan,
       desc: "Destroy the invaders to reveal my McKinsey & startup portfolio. Each tile is a real engagement.",
+      vgDesc: "Each painting reveals a McKinsey or startup engagement. Tap to unveil the collection.",
       time: "~2 min", done: completed.fleet,
     },
     {
-      key: "record", icon: "\uD83D\uDE80", title: "THE MISSION LOG",
-      subtitle: "4 CAREER ERAS", color: A.amber,
+      key: "record", icon: "\uD83D\uDE80", vgIcon: "\uD83D\uDDBC\uFE0F",
+      title: "THE MISSION LOG", vgTitle: "The Career Retrospective",
+      subtitle: "4 CAREER ERAS", vgSubtitle: "4 Periods of Work",
+      color: A.amber,
       desc: "UIUC \u2192 Chicago startups \u2192 McKinsey Product Guild \u2192 Anthropic. The full career arc with real milestones.",
+      vgDesc: "From university to startups to McKinsey to what\u2019s next. A retrospective in four movements.",
       time: "~1 min", done: completed.record,
     },
     {
-      key: "why", icon: "\u2726", title: "INCOMING TRANSMISSION",
-      subtitle: "A MESSAGE FROM THE PILOT", color: A.pink,
+      key: "why", icon: "\u2726", vgIcon: "\u270E",
+      title: "INCOMING TRANSMISSION", vgTitle: "Artist\u2019s Statement",
+      subtitle: "A MESSAGE FROM THE PILOT", vgSubtitle: "A Personal Letter",
+      color: A.pink,
       desc: "Why Anthropic. The genuine version \u2014 no buzzwords, just conviction.",
+      vgDesc: "Why Anthropic. Written with conviction, not corporate polish.",
       time: "~1 min", done: completed.why,
     },
   ];
@@ -560,29 +655,45 @@ const Hub = ({ onNavigate, onHome, completed, score }) => {
     }}>
       {ready && (
         <div style={{ textAlign: "center", marginBottom: 40, animation: "fade-in 0.5s ease-out" }}>
-          <p style={{ fontFamily: A.font, fontSize: 8, color: A.pink, letterSpacing: "0.1em", marginBottom: 10 }}>PRODUCT MANAGER APPLICATION</p>
+          <p style={{
+            fontFamily: A.font, fontSize: isVG ? 10 : 8, color: A.pink,
+            letterSpacing: isVG ? "0.15em" : "0.1em", marginBottom: 10,
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>{isVG ? "Product Manager Application" : "PRODUCT MANAGER APPLICATION"}</p>
           <h2 style={{
-            fontFamily: A.bodyFont, fontSize: 34, fontWeight: 700,
-            color: A.textBright, margin: "0 0 8px 0", letterSpacing: "-0.01em",
-          }}>Select your mission</h2>
-          <p style={{ fontSize: 15, color: A.textDim, fontFamily: A.bodyFont }}>Explore in any order. Each reveals a different dimension.</p>
+            fontFamily: isVG ? A.font : A.bodyFont, fontSize: isVG ? 30 : 34, fontWeight: 700,
+            color: A.textBright, margin: "0 0 8px 0",
+            letterSpacing: isVG ? "0.02em" : "-0.01em",
+            ...(isVG ? { fontStyle: "italic", textShadow: `0 0 30px rgba(240,192,64,0.2)` } : {}),
+          }}>{isVG ? "Choose Your Gallery Wing" : "Select your mission"}</h2>
+          <p style={{
+            fontSize: 15, color: A.textDim, fontFamily: A.bodyFont,
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>{isVG ? "Wander freely. Each wing reveals a different dimension." : "Explore in any order. Each reveals a different dimension."}</p>
         </div>
       )}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 14, width: "100%" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: isVG ? 18 : 14, width: "100%" }}>
         {missions.map((m, i) => (
           <MissionCard key={m.key} m={m} delay={200 + i * 120} ready={ready} onClick={() => onNavigate(m.key)} />
         ))}
       </div>
 
       {allDone && (
-        <div style={{ textAlign: "center", marginTop: 40, animation: "warp-in 0.6s ease-out" }}>
-          <p style={{ fontFamily: A.font, fontSize: 10, color: A.green, marginBottom: 16, textShadow: A.isDark ? `0 0 20px ${A.green}` : "none" }}>
-            ALL MISSIONS COMPLETE
+        <div style={{ textAlign: "center", marginTop: 40, animation: isVG ? "fade-in 0.8s ease-out" : "warp-in 0.6s ease-out" }}>
+          <p style={{
+            fontFamily: A.font, fontSize: isVG ? 12 : 10, color: A.green, marginBottom: 16,
+            textShadow: A.isDark ? `0 0 20px ${A.green}` : "none",
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>
+            {isVG ? "The Collection Is Complete" : "ALL MISSIONS COMPLETE"}
           </p>
-          <p style={{ fontSize: 16, color: A.text, fontFamily: A.bodyFont, marginBottom: 20 }}>You explored all three dimensions. Let's talk.</p>
+          <p style={{
+            fontSize: 16, color: A.text, fontFamily: A.bodyFont, marginBottom: 20,
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>{isVG ? "You\u2019ve seen every wing. Shall we talk?" : "You explored all three dimensions. Let's talk."}</p>
           <ArcadeBtn large color={A.green} onClick={() => onNavigate("contact")}>
-            SIGNAL HOME {"\u2605"}
+            {isVG ? "Sign the Guestbook \u2605" : "SIGNAL HOME \u2605"}
           </ArcadeBtn>
         </div>
       )}
@@ -591,11 +702,12 @@ const Hub = ({ onNavigate, onHome, completed, score }) => {
       <div style={{ marginTop: 40, textAlign: "center" }}>
         <button onClick={onHome} style={{
           background: "transparent", border: "none",
-          fontFamily: A.font, fontSize: 7, color: A.textDim,
+          fontFamily: A.font, fontSize: isVG ? 9 : 7, color: A.textDim,
           cursor: "pointer", letterSpacing: "0.08em",
           padding: "8px 16px", transition: "color 0.2s",
           opacity: 0.6,
-        }}>{"\u25C0"} BACK TO START</button>
+          ...(isVG ? { fontStyle: "italic" } : {}),
+        }}>{isVG ? "\u2190 Return to Entrance" : "\u25C0 BACK TO START"}</button>
       </div>
     </div>
   );
@@ -604,6 +716,7 @@ const Hub = ({ onNavigate, onHome, completed, score }) => {
 const MissionCard = ({ m, delay, ready, onClick }) => {
   const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(false);
+  const isVG = A.isVanGogh;
   useEffect(() => { if (ready) { const t = setTimeout(() => setVisible(true), delay); return () => clearTimeout(t); } }, [ready]);
 
   if (!visible) return <div style={{ height: 110 }} />;
@@ -611,18 +724,34 @@ const MissionCard = ({ m, delay, ready, onClick }) => {
   return (
     <div onClick={onClick} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
       style={{
-        background: hovered ? (A.isDark ? "rgba(0,255,255,0.04)" : "rgba(0,100,120,0.04)") : A.bgPanel,
-        border: `1px solid ${hovered ? m.color : A.border}`,
-        borderLeft: `4px solid ${m.done ? A.green : m.color}`,
-        borderRadius: 4, padding: "22px 24px",
-        cursor: "pointer", transition: "all 0.25s ease",
-        boxShadow: hovered ? `0 0 30px ${m.color}15` : "none",
+        background: isVG
+          ? (hovered ? "linear-gradient(135deg, rgba(40,60,120,0.5), rgba(25,40,80,0.4))" : A.panelBg)
+          : (hovered ? (A.isDark ? "rgba(0,255,255,0.04)" : "rgba(0,100,120,0.04)") : A.bgPanel),
+        border: isVG
+          ? `2px solid ${hovered ? `${m.color}60` : "rgba(180,150,80,0.25)"}`
+          : `1px solid ${hovered ? m.color : A.border}`,
+        borderLeft: isVG ? undefined : `4px solid ${m.done ? A.green : m.color}`,
+        borderRadius: isVG ? A.borderRadius : 4,
+        padding: isVG ? "26px 28px" : "22px 24px",
+        cursor: "pointer", transition: "all 0.35s ease",
+        boxShadow: isVG
+          ? (hovered ? `0 8px 40px rgba(0,0,0,0.4), 0 0 30px ${m.color}15, inset 0 1px 0 rgba(255,255,255,0.06)` : "0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04)")
+          : (hovered ? `0 0 30px ${m.color}15` : "none"),
         animation: "descend 0.4s ease-out",
         position: "relative", overflow: "hidden",
+        ...(isVG ? { filter: hovered ? "url(#vg-paint)" : "none" } : {}),
       }}
     >
-      {/* Targeting reticle on hover */}
-      {hovered && !m.done && (
+      {/* Gilded top accent for VG mode */}
+      {isVG && (
+        <div style={{
+          position: "absolute", top: 0, left: 0, right: 0, height: 3,
+          background: `linear-gradient(90deg, transparent, ${m.done ? A.green : m.color}60, transparent)`,
+        }} />
+      )}
+
+      {/* Targeting reticle (arcade) / swirling paint ring (VG) on hover */}
+      {hovered && !m.done && !isVG && (
         <div style={{
           position: "absolute", top: 14, right: 16,
           width: 28, height: 28, borderRadius: "50%",
@@ -633,28 +762,57 @@ const MissionCard = ({ m, delay, ready, onClick }) => {
           <div style={{ position: "absolute", left: "50%", top: -4, bottom: -4, width: 1, background: m.color }} />
         </div>
       )}
+      {hovered && !m.done && isVG && (
+        <div style={{
+          position: "absolute", top: 12, right: 14,
+          width: 32, height: 32, borderRadius: "50%",
+          border: `2px solid ${m.color}40`,
+          animation: "vg-float 3s ease-in-out infinite",
+          opacity: 0.6,
+          background: `radial-gradient(circle, ${m.color}15, transparent 70%)`,
+        }} />
+      )}
 
       <div style={{ display: "flex", alignItems: "flex-start", gap: 18 }}>
         <div style={{
-          fontSize: 30, lineHeight: 1, minWidth: 40, textAlign: "center",
-          filter: hovered ? `drop-shadow(0 0 8px ${m.color})` : "none",
+          fontSize: isVG ? 34 : 30, lineHeight: 1, minWidth: 40, textAlign: "center",
+          filter: hovered ? `drop-shadow(0 0 ${isVG ? 12 : 8}px ${m.color})` : "none",
           transition: "filter 0.3s ease",
-        }}>{m.icon}</div>
+        }}>{isVG ? (m.vgIcon || m.icon) : m.icon}</div>
         <div style={{ flex: 1 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-            <h3 style={{ fontFamily: A.font, fontSize: 11, color: m.done ? A.green : A.textBright, margin: 0 }}>{m.title}</h3>
-            {m.done && <span style={{ fontFamily: A.font, fontSize: 8, color: A.green, animation: "pulse-glow 2s infinite" }}>CLEAR</span>}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: isVG ? 6 : 4 }}>
+            <h3 style={{
+              fontFamily: A.font, fontSize: isVG ? 14 : 11,
+              color: m.done ? A.green : A.textBright, margin: 0,
+              ...(isVG ? { fontStyle: "italic", fontWeight: 600, letterSpacing: "0.02em" } : {}),
+            }}>{isVG ? (m.vgTitle || m.title) : m.title}</h3>
+            {m.done && <span style={{
+              fontFamily: A.font, fontSize: isVG ? 9 : 8, color: A.green,
+              animation: "pulse-glow 2s infinite",
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>{isVG ? "Viewed" : "CLEAR"}</span>}
           </div>
-          <p style={{ fontFamily: A.font, fontSize: 7, color: m.color, margin: "0 0 8px 0", letterSpacing: "0.08em" }}>{m.subtitle}</p>
-          <p style={{ fontSize: 14, color: A.textDim, margin: "0 0 6px 0", lineHeight: 1.5, fontFamily: A.bodyFont }}>{m.desc}</p>
-          <span style={{ fontFamily: A.font, fontSize: 7, color: A.textDim }}>{m.time}</span>
+          <p style={{
+            fontFamily: A.font, fontSize: isVG ? 9 : 7, color: m.color,
+            margin: "0 0 8px 0", letterSpacing: isVG ? "0.1em" : "0.08em",
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>{isVG ? (m.vgSubtitle || m.subtitle) : m.subtitle}</p>
+          <p style={{
+            fontSize: isVG ? 15 : 14, color: A.textDim, margin: "0 0 6px 0",
+            lineHeight: isVG ? 1.6 : 1.5, fontFamily: A.bodyFont,
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>{isVG ? (m.vgDesc || m.desc) : m.desc}</p>
+          <span style={{
+            fontFamily: A.font, fontSize: isVG ? 8 : 7, color: A.textDim,
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>{m.time}</span>
         </div>
       </div>
     </div>
   );
 };
 
-// ─── Screen: Engagement Fleet (Shootable Grid) ──────────────────────
+// ─── Screen: Engagement Fleet (Shootable Grid / Gallery Wall) ────────
 const Fleet = ({ onBack, onComplete, score, setScore }) => {
   const [cleared, setCleared] = useState({});
   const [active, setActive] = useState(null);
@@ -663,10 +821,10 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
   const [scorePop, setScorePop] = useState(null);
   const [ready, setReady] = useState(false);
   const detailRef = useRef(null);
+  const isVG = A.isVanGogh;
 
   useEffect(() => { setTimeout(() => setReady(true), 200); }, []);
 
-  // On mobile, scroll the detail panel into view when an engagement is selected
   useEffect(() => {
     if (active !== null && detailRef.current) {
       setTimeout(() => {
@@ -687,19 +845,28 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
 
   const handleShoot = (idx) => {
     if (cleared[idx] || firing !== null) return;
-    setFiring(idx);
-    setTimeout(() => {
-      setExploding(idx);
-      setFiring(null);
+    if (isVG) {
+      // In VG mode: gentle "unveil" — no laser, just a soft reveal
+      setCleared(prev => ({ ...prev, [idx]: true }));
+      setActive(idx);
+      setScore(prev => prev + 500);
+      setScorePop(idx);
+      setTimeout(() => setScorePop(null), 1000);
+    } else {
+      setFiring(idx);
       setTimeout(() => {
-        setExploding(null);
-        setCleared(prev => ({ ...prev, [idx]: true }));
-        setActive(idx);
-        setScore(prev => prev + 500);
-        setScorePop(idx);
-        setTimeout(() => setScorePop(null), 1000);
-      }, 400);
-    }, 300);
+        setExploding(idx);
+        setFiring(null);
+        setTimeout(() => {
+          setExploding(null);
+          setCleared(prev => ({ ...prev, [idx]: true }));
+          setActive(idx);
+          setScore(prev => prev + 500);
+          setScorePop(idx);
+          setTimeout(() => setScorePop(null), 1000);
+        }, 400);
+      }, 300);
+    }
   };
 
   const eng = active !== null ? engagements[active] : null;
@@ -710,79 +877,102 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
       <div style={{ maxWidth: 800, margin: "0 auto" }}>
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-          <ArcadeBtn onClick={onBack}>ESC</ArcadeBtn>
-          <div style={{ fontFamily: A.font, fontSize: 8, color: A.textDim }}>
-            CLEARED: <span style={{ color: A.green }}>{clearedCount}</span>/{engagements.length}
+          <ArcadeBtn onClick={onBack}>{isVG ? "\u2190 Back" : "ESC"}</ArcadeBtn>
+          <div style={{
+            fontFamily: A.font, fontSize: isVG ? 9 : 8, color: A.textDim,
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>
+            {isVG ? "Unveiled: " : "CLEARED: "}<span style={{ color: A.green }}>{clearedCount}</span>/{engagements.length}
           </div>
         </div>
 
-        {/* Detail Panel — rendered above grid so it's visible on mobile */}
+        {/* Detail Panel */}
         {eng && (
           <div key={active} ref={detailRef} style={{
-            animation: "warp-in 0.4s ease-out",
-            background: A.bgPanel,
-            border: `1px solid ${A.border}`,
-            borderLeft: `4px solid ${eng.color}`,
-            borderRadius: 4, padding: "28px 24px",
+            animation: isVG ? "fade-in 0.5s ease-out" : "warp-in 0.4s ease-out",
+            background: isVG ? A.panelBg : A.bgPanel,
+            border: isVG ? `2px solid rgba(180,150,80,0.3)` : `1px solid ${A.border}`,
+            borderLeft: isVG ? undefined : `4px solid ${eng.color}`,
+            borderRadius: isVG ? A.borderRadius : 4,
+            padding: isVG ? "32px 28px" : "28px 24px",
             marginBottom: 24,
+            ...(isVG ? {
+              boxShadow: "0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)",
+              filter: "url(#vg-paint)",
+            } : {}),
           }}>
-            {/* Header: icon + sector + tag */}
+            {/* Gilded top bar for VG */}
+            {isVG && <div style={{ position: "absolute", top: 0, left: 20, right: 20, height: 2, background: `linear-gradient(90deg, transparent, ${eng.color}50, transparent)` }} />}
+
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
               <span style={{ fontSize: 32, filter: `drop-shadow(0 0 8px ${eng.color})` }}>{eng.icon}</span>
               <div>
-                <div style={{ fontFamily: A.font, fontSize: 10, color: eng.color, marginBottom: 4 }}>{eng.sector.toUpperCase()}</div>
-                <div style={{ fontFamily: A.font, fontSize: 7, color: A.textDim, letterSpacing: "0.05em" }}>{eng.tag}</div>
+                <div style={{
+                  fontFamily: A.font, fontSize: isVG ? 12 : 10, color: eng.color, marginBottom: 4,
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{eng.sector.toUpperCase()}</div>
+                <div style={{
+                  fontFamily: A.font, fontSize: isVG ? 8 : 7, color: A.textDim, letterSpacing: "0.05em",
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{eng.tag}</div>
               </div>
             </div>
 
-            {/* Headline */}
             <h3 style={{
-              fontFamily: A.bodyFont, fontSize: 20, fontWeight: 700,
+              fontFamily: A.bodyFont, fontSize: isVG ? 22 : 20, fontWeight: 700,
               color: A.textBright, margin: "0 0 14px 0", lineHeight: 1.3,
+              ...(isVG ? { fontStyle: "italic" } : {}),
             }}>{eng.headline}</h3>
 
-            {/* Product description */}
-            <p style={{ fontSize: 15, color: A.text, lineHeight: 1.7, fontFamily: A.bodyFont, margin: "0 0 18px 0" }}>{eng.product}</p>
+            <p style={{
+              fontSize: isVG ? 16 : 15, color: A.text, lineHeight: 1.7,
+              fontFamily: A.bodyFont, margin: "0 0 18px 0",
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>{eng.product}</p>
 
-            {/* Team & Timeline stats */}
-            <div style={{
-              display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap",
-            }}>
+            <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
               <div style={{
                 flex: 1, minWidth: 180,
-                background: A.isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                background: isVG ? "rgba(255,255,255,0.03)" : (A.isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)"),
                 border: `1px solid ${A.border}`,
-                borderRadius: 4, padding: "12px 14px",
+                borderRadius: isVG ? 8 : 4, padding: isVG ? "14px 16px" : "12px 14px",
               }}>
-                <div style={{ fontFamily: A.font, fontSize: 7, color: eng.color, letterSpacing: "0.1em", marginBottom: 6 }}>TEAM</div>
+                <div style={{
+                  fontFamily: A.font, fontSize: isVG ? 8 : 7, color: eng.color,
+                  letterSpacing: "0.1em", marginBottom: 6,
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{isVG ? "Collaborators" : "TEAM"}</div>
                 <div style={{ fontSize: 13, color: A.text, lineHeight: 1.5, fontFamily: A.bodyFont }}>{eng.team}</div>
               </div>
               <div style={{
                 minWidth: 100,
-                background: A.isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                background: isVG ? "rgba(255,255,255,0.03)" : (A.isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)"),
                 border: `1px solid ${A.border}`,
-                borderRadius: 4, padding: "12px 14px",
+                borderRadius: isVG ? 8 : 4, padding: isVG ? "14px 16px" : "12px 14px",
               }}>
-                <div style={{ fontFamily: A.font, fontSize: 7, color: eng.color, letterSpacing: "0.1em", marginBottom: 6 }}>DURATION</div>
+                <div style={{
+                  fontFamily: A.font, fontSize: isVG ? 8 : 7, color: eng.color,
+                  letterSpacing: "0.1em", marginBottom: 6,
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{isVG ? "Period" : "DURATION"}</div>
                 <div style={{ fontFamily: A.bodyFont, fontSize: 18, fontWeight: 700, color: A.textBright }}>{eng.timeline}</div>
               </div>
             </div>
 
-            {/* Visit link for bonus items */}
             {eng.link && (
               <a href={eng.link} target="_blank" rel="noopener noreferrer" style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
                 background: `${eng.color}15`, border: `1px solid ${eng.color}40`,
-                borderRadius: 4, padding: "10px 18px", marginBottom: 16,
+                borderRadius: isVG ? 12 : 4, padding: "10px 18px", marginBottom: 16,
                 textDecoration: "none", transition: "all 0.2s",
-                fontFamily: A.font, fontSize: 8, color: eng.color,
+                fontFamily: A.font, fontSize: isVG ? 9 : 8, color: eng.color,
                 letterSpacing: "0.08em",
+                ...(isVG ? { fontStyle: "italic" } : {}),
               }}>
-                VISIT LIVE {"\u2192"}
+                {isVG ? "View Live \u2192" : "VISIT LIVE \u2192"}
               </a>
             )}
 
-            {/* Easter egg fact */}
             {fact && (
               <div style={{
                 borderTop: `1px solid ${A.border}`, paddingTop: 12,
@@ -793,44 +983,48 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
               </div>
             )}
             <button onClick={() => setActive(null)} style={{
-              marginTop: 14, background: "transparent", border: `1px solid ${A.border}`,
-              color: A.textDim, fontFamily: A.font, fontSize: 7, padding: "6px 14px",
-              cursor: "pointer", borderRadius: 2,
-            }}>CLOSE</button>
+              marginTop: 14, background: "transparent",
+              border: `1px solid ${A.border}`,
+              color: A.textDim, fontFamily: A.font,
+              fontSize: isVG ? 8 : 7, padding: isVG ? "8px 16px" : "6px 14px",
+              cursor: "pointer", borderRadius: isVG ? 10 : 2,
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>{isVG ? "Close" : "CLOSE"}</button>
           </div>
         )}
 
         {ready && (
           <div style={{ animation: "fade-in 0.4s ease-out" }}>
             <h2 style={{
-              fontFamily: A.font, fontSize: 14, color: A.cyan,
+              fontFamily: A.font, fontSize: isVG ? 18 : 14, color: A.cyan,
               textShadow: A.isDark ? `0 0 20px ${A.cyan}` : "none", marginBottom: 6, textAlign: "center",
-            }}>ENGAGEMENT FLEET</h2>
-            <p style={{ fontFamily: A.font, fontSize: 7, color: A.pink, textAlign: "center", marginBottom: 28, letterSpacing: "0.1em" }}>
-              {"\u25BC"} DESTROY TARGETS TO REVEAL PORTFOLIO {"\u25BC"}
+              ...(isVG ? { fontStyle: "italic", fontWeight: 600 } : {}),
+            }}>{isVG ? "The Portfolio Collection" : "ENGAGEMENT FLEET"}</h2>
+            <p style={{
+              fontFamily: A.font, fontSize: isVG ? 9 : 7, color: A.pink,
+              textAlign: "center", marginBottom: 28, letterSpacing: "0.1em",
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>
+              {isVG ? "Tap each painting to unveil the work beneath" : "\u25BC DESTROY TARGETS TO REVEAL PORTFOLIO \u25BC"}
             </p>
           </div>
         )}
 
-        {/* Invader Grid — Main engagements */}
+        {/* Grid */}
         {ready && (
           <div style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-            gap: 10,
+            gap: isVG ? 14 : 10,
             marginBottom: 20,
           }}>
             {engagements.filter(e => !e.bonus).map((eng, _) => {
               const idx = engagements.indexOf(eng);
               return (
               <InvaderTile
-                key={idx}
-                eng={eng}
-                idx={idx}
-                cleared={!!cleared[idx]}
-                isActive={active === idx}
-                isFiring={firing === idx}
-                isExploding={exploding === idx}
+                key={idx} eng={eng} idx={idx}
+                cleared={!!cleared[idx]} isActive={active === idx}
+                isFiring={firing === idx} isExploding={exploding === idx}
                 scorePop={scorePop === idx}
                 onShoot={() => handleShoot(idx)}
                 onSelect={() => cleared[idx] && setActive(idx)}
@@ -840,7 +1034,7 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
           </div>
         )}
 
-        {/* Bonus Round divider + tiles */}
+        {/* Bonus Round */}
         {ready && (
           <>
             <div style={{
@@ -848,13 +1042,17 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
               animation: "fade-in 0.4s ease-out 0.6s both",
             }}>
               <div style={{ flex: 1, height: 1, background: A.border }} />
-              <span style={{ fontFamily: A.font, fontSize: 7, color: A.pink, letterSpacing: "0.15em" }}>BONUS ROUND</span>
+              <span style={{
+                fontFamily: A.font, fontSize: isVG ? 9 : 7, color: A.pink,
+                letterSpacing: "0.15em",
+                ...(isVG ? { fontStyle: "italic" } : {}),
+              }}>{isVG ? "Personal Works" : "BONUS ROUND"}</span>
               <div style={{ flex: 1, height: 1, background: A.border }} />
             </div>
             <div style={{
               display: "grid",
               gridTemplateColumns: "repeat(2, minmax(140px, 1fr))",
-              gap: 10, marginBottom: 28,
+              gap: isVG ? 14 : 10, marginBottom: 28,
               maxWidth: 300, margin: "0 auto 28px",
               animation: "fade-in 0.4s ease-out 0.7s both",
             }}>
@@ -862,13 +1060,9 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
                 const idx = engagements.indexOf(eng);
                 return (
                 <InvaderTile
-                  key={idx}
-                  eng={eng}
-                  idx={idx}
-                  cleared={!!cleared[idx]}
-                  isActive={active === idx}
-                  isFiring={firing === idx}
-                  isExploding={exploding === idx}
+                  key={idx} eng={eng} idx={idx}
+                  cleared={!!cleared[idx]} isActive={active === idx}
+                  isFiring={firing === idx} isExploding={exploding === idx}
                   scorePop={scorePop === idx}
                   onShoot={() => handleShoot(idx)}
                   onSelect={() => cleared[idx] && setActive(idx)}
@@ -881,14 +1075,21 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
 
         {/* Completion */}
         {clearedCount === engagements.length && (
-          <div style={{ textAlign: "center", marginTop: 20, animation: "warp-in 0.5s ease-out" }}>
-            <div style={{ fontFamily: A.font, fontSize: 14, color: A.green, textShadow: A.isDark ? `0 0 30px ${A.green}` : "none", marginBottom: 12 }}>
-              FLEET DESTROYED
+          <div style={{ textAlign: "center", marginTop: 20, animation: isVG ? "fade-in 0.6s ease-out" : "warp-in 0.5s ease-out" }}>
+            <div style={{
+              fontFamily: A.font, fontSize: isVG ? 16 : 14, color: A.green,
+              textShadow: A.isDark ? `0 0 30px ${A.green}` : "none", marginBottom: 12,
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>
+              {isVG ? "The Full Collection, Unveiled" : "FLEET DESTROYED"}
             </div>
-            <p style={{ fontSize: 15, color: A.text, fontFamily: A.bodyFont, marginBottom: 20 }}>
-              11 engagements. 4 industries. One relentless builder.
+            <p style={{
+              fontSize: 15, color: A.text, fontFamily: A.bodyFont, marginBottom: 20,
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>
+              {isVG ? "11 engagements. 4 industries. One relentless builder." : "11 engagements. 4 industries. One relentless builder."}
             </p>
-            <ArcadeBtn color={A.green} onClick={onBack}>RETURN TO BASE {"\u25C0"}</ArcadeBtn>
+            <ArcadeBtn color={A.green} onClick={onBack}>{isVG ? "\u2190 Return to Gallery" : "RETURN TO BASE \u25C0"}</ArcadeBtn>
           </div>
         )}
       </div>
@@ -898,6 +1099,7 @@ const Fleet = ({ onBack, onComplete, score, setScore }) => {
 
 const InvaderTile = ({ eng, idx, cleared, isActive, isFiring, isExploding, scorePop, onShoot, onSelect }) => {
   const [hovered, setHovered] = useState(false);
+  const isVG = A.isVanGogh;
 
   return (
     <div
@@ -907,30 +1109,47 @@ const InvaderTile = ({ eng, idx, cleared, isActive, isFiring, isExploding, score
       style={{
         position: "relative",
         aspectRatio: "1",
-        border: `2px solid ${isActive ? eng.color : cleared ? `${A.green}40` : hovered ? eng.color : A.border}`,
-        borderRadius: 4,
-        background: isActive ? `${eng.color}12` : cleared ? (A.isDark ? "rgba(0,255,0,0.03)" : "rgba(21,112,21,0.05)") : hovered ? `${eng.color}08` : A.bgPanel,
+        border: isVG
+          ? `2px solid ${isActive ? `${eng.color}70` : cleared ? `${A.green}30` : hovered ? `${eng.color}50` : "rgba(180,150,80,0.2)"}`
+          : `2px solid ${isActive ? eng.color : cleared ? `${A.green}40` : hovered ? eng.color : A.border}`,
+        borderRadius: isVG ? A.borderRadius : 4,
+        background: isVG
+          ? (isActive ? `linear-gradient(145deg, ${eng.color}18, ${eng.color}08)` : cleared ? "rgba(90,144,64,0.06)" : hovered ? `linear-gradient(145deg, ${eng.color}10, transparent)` : A.panelBg)
+          : (isActive ? `${eng.color}12` : cleared ? (A.isDark ? "rgba(0,255,0,0.03)" : "rgba(21,112,21,0.05)") : hovered ? `${eng.color}08` : A.bgPanel),
         display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
-        cursor: "pointer", transition: "all 0.2s ease",
-        animation: isExploding ? "explode 0.4s ease-out forwards"
-          : `descend 0.3s ease-out ${0.05 * idx}s both`,
-        boxShadow: hovered && !cleared ? `0 0 20px ${eng.color}30` : isActive ? `0 0 20px ${eng.color}25` : "none",
+        cursor: "pointer", transition: "all 0.3s ease",
+        animation: isVG
+          ? (cleared ? "fade-in 0.4s ease-out" : `descend 0.3s ease-out ${0.05 * idx}s both`)
+          : (isExploding ? "explode 0.4s ease-out forwards" : `descend 0.3s ease-out ${0.05 * idx}s both`),
+        boxShadow: isVG
+          ? (hovered && !cleared ? `0 6px 24px rgba(0,0,0,0.4), 0 0 20px ${eng.color}20` : isActive ? `0 6px 30px rgba(0,0,0,0.4), 0 0 20px ${eng.color}15` : "0 2px 12px rgba(0,0,0,0.25)")
+          : (hovered && !cleared ? `0 0 20px ${eng.color}30` : isActive ? `0 0 20px ${eng.color}25` : "none"),
         overflow: "hidden",
+        ...(isVG && hovered && !cleared ? { filter: "url(#vg-paint)", transform: "translateY(-2px)" } : {}),
       }}
     >
+      {/* VG: Gilded frame top accent */}
+      {isVG && !cleared && (
+        <div style={{
+          position: "absolute", top: 0, left: 0, right: 0, height: 2,
+          background: `linear-gradient(90deg, transparent, ${eng.color}40, transparent)`,
+        }} />
+      )}
+
       {/* Bonus badge */}
       {eng.bonus && !cleared && (
         <div style={{
           position: "absolute", top: 4, right: 4,
-          fontFamily: A.font, fontSize: 5, color: A.pink,
+          fontFamily: A.font, fontSize: isVG ? 6 : 5, color: A.pink,
           letterSpacing: "0.1em", opacity: 0.8,
           animation: "pulse-glow 2s infinite",
-        }}>BONUS</div>
+          ...(isVG ? { fontStyle: "italic" } : {}),
+        }}>{isVG ? "Extra" : "BONUS"}</div>
       )}
 
-      {/* Laser beam */}
-      {isFiring && (
+      {/* Laser beam (arcade only) */}
+      {isFiring && !isVG && (
         <div style={{
           position: "absolute", bottom: "50%", left: "50%",
           width: 3, transform: "translateX(-50%)",
@@ -944,39 +1163,43 @@ const InvaderTile = ({ eng, idx, cleared, isActive, isFiring, isExploding, score
       {scorePop && (
         <div style={{
           position: "absolute", top: "30%", left: "50%", transform: "translateX(-50%)",
-          fontFamily: A.font, fontSize: 8, color: A.green,
+          fontFamily: A.font, fontSize: isVG ? 9 : 8, color: A.green,
           textShadow: A.isDark ? `0 0 10px ${A.green}` : "none",
           animation: "score-pop 1s ease-out forwards",
           zIndex: 10,
+          ...(isVG ? { fontStyle: "italic" } : {}),
         }}>+500</div>
       )}
 
       {/* Icon */}
       <div style={{
-        fontSize: cleared ? 20 : 28,
+        fontSize: cleared ? (isVG ? 22 : 20) : (isVG ? 32 : 28),
         lineHeight: 1,
-        filter: hovered && !cleared ? `drop-shadow(0 0 10px ${eng.color})` : cleared ? "grayscale(0.3) brightness(0.7)" : "none",
-        transition: "all 0.2s ease",
+        filter: hovered && !cleared
+          ? `drop-shadow(0 0 ${isVG ? 14 : 10}px ${eng.color})`
+          : cleared ? (isVG ? "none" : "grayscale(0.3) brightness(0.7)") : "none",
+        transition: "all 0.3s ease",
         marginBottom: 6,
       }}>
-        {cleared ? "\u2713" : eng.icon}
+        {cleared ? (isVG ? "\uD83C\uDFA8" : "\u2713") : eng.icon}
       </div>
 
       {/* Label */}
       <div style={{
         fontFamily: A.font,
-        fontSize: 6,
+        fontSize: isVG ? 7 : 6,
         color: cleared ? A.green : hovered ? eng.color : A.textDim,
         textAlign: "center",
         letterSpacing: "0.05em",
         transition: "color 0.2s ease",
         padding: "0 4px",
+        ...(isVG ? { fontStyle: "italic" } : {}),
       }}>
         {eng.sector.toUpperCase()}
       </div>
 
-      {/* Targeting reticle */}
-      {hovered && !cleared && (
+      {/* Targeting reticle (arcade) */}
+      {hovered && !cleared && !isVG && (
         <div style={{
           position: "absolute", inset: 8,
           border: `1px solid ${eng.color}60`,
@@ -988,45 +1211,63 @@ const InvaderTile = ({ eng, idx, cleared, isActive, isFiring, isExploding, score
           <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: `${eng.color}40` }} />
         </div>
       )}
+
+      {/* Swirling paint glow (VG hover) */}
+      {hovered && !cleared && isVG && (
+        <div style={{
+          position: "absolute", inset: 6,
+          borderRadius: 10,
+          background: `radial-gradient(circle at 50% 50%, ${eng.color}12, transparent 70%)`,
+          animation: "vg-float 2s ease-in-out infinite",
+          pointerEvents: "none",
+        }} />
+      )}
     </div>
   );
 };
 
-// ─── Screen: Mission Log (Track Record) ─────────────────────────────
+// ─── Screen: Mission Log (Track Record / Career Retrospective) ──────
 const MissionLog = ({ onBack, onComplete }) => {
   const [activeEra, setActiveEra] = useState(0);
   const [ready, setReady] = useState(false);
+  const isVG = A.isVanGogh;
   useEffect(() => { setTimeout(() => setReady(true), 150); }, []);
 
   const era = timeline[activeEra];
 
   return (
     <div style={{ minHeight: "100vh", position: "relative", zIndex: 1, padding: "70px 24px 40px", maxWidth: 720, margin: "0 auto" }}>
-      <div style={{ marginBottom: 28 }}><ArcadeBtn onClick={onBack}>ESC</ArcadeBtn></div>
+      <div style={{ marginBottom: 28 }}><ArcadeBtn onClick={onBack}>{isVG ? "\u2190 Back" : "ESC"}</ArcadeBtn></div>
 
       {ready && (
         <div style={{ animation: "fade-in 0.4s ease-out" }}>
           <h2 style={{
-            fontFamily: A.font, fontSize: 14, color: A.amber,
+            fontFamily: A.font, fontSize: isVG ? 18 : 14, color: A.amber,
             textShadow: A.isDark ? `0 0 20px ${A.amber}` : "none", marginBottom: 6, textAlign: "center",
-          }}>THE MISSION LOG</h2>
+            ...(isVG ? { fontStyle: "italic", fontWeight: 600 } : {}),
+          }}>{isVG ? "The Career Retrospective" : "THE MISSION LOG"}</h2>
           <p style={{
-            fontFamily: A.font, fontSize: 7, color: A.textDim,
+            fontFamily: A.font, fontSize: isVG ? 9 : 7, color: A.textDim,
             textAlign: "center", marginBottom: 28, letterSpacing: "0.1em",
-          }}>CAREER TRAJECTORY // 2012\u2013PRESENT</p>
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>{isVG ? "Four Periods \u00B7 2012\u2013Present" : "CAREER TRAJECTORY // 2012\u2013PRESENT"}</p>
 
           {/* Era Tabs */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 28 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: isVG ? 10 : 8, marginBottom: 28 }}>
             {timeline.map((t, i) => (
               <button key={i} onClick={() => setActiveEra(i)} style={{
-                padding: "10px 8px", borderRadius: 2,
+                padding: isVG ? "12px 10px" : "10px 8px",
+                borderRadius: isVG ? 10 : 2,
                 border: `2px solid ${activeEra === i ? t.color : A.border}`,
-                background: activeEra === i ? (A.isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)") : "transparent",
+                background: activeEra === i
+                  ? (isVG ? `linear-gradient(135deg, ${t.color}18, ${t.color}08)` : (A.isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"))
+                  : "transparent",
                 color: activeEra === i ? t.color : A.textDim,
-                fontFamily: A.font, fontSize: 7, cursor: "pointer",
+                fontFamily: A.font, fontSize: isVG ? 8 : 7, cursor: "pointer",
                 transition: "all 0.2s ease",
-                boxShadow: "none",
+                boxShadow: isVG && activeEra === i ? `0 2px 12px ${t.color}20` : "none",
                 textAlign: "center",
+                ...(isVG ? { fontStyle: "italic" } : {}),
               }}>
                 {t.icon}<br/>{t.era.split(":")[0].toUpperCase()}
               </button>
@@ -1035,15 +1276,26 @@ const MissionLog = ({ onBack, onComplete }) => {
 
           {/* Era Card */}
           <div key={activeEra} style={{
-            animation: "warp-in 0.4s ease-out",
-            background: A.bgPanel, border: `1px solid ${A.border}`,
-            borderRadius: 4, padding: 28,
+            animation: isVG ? "fade-in 0.5s ease-out" : "warp-in 0.4s ease-out",
+            background: isVG ? A.panelBg : A.bgPanel,
+            border: isVG ? `2px solid rgba(180,150,80,0.25)` : `1px solid ${A.border}`,
+            borderRadius: isVG ? A.borderRadius : 4, padding: isVG ? 32 : 28,
+            ...(isVG ? {
+              boxShadow: "0 6px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)",
+              filter: "url(#vg-paint)",
+            } : {}),
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 22 }}>
-              <span style={{ fontSize: 40, filter: `drop-shadow(0 0 10px ${era.color})` }}>{era.icon}</span>
+              <span style={{ fontSize: isVG ? 44 : 40, filter: `drop-shadow(0 0 10px ${era.color})` }}>{era.icon}</span>
               <div>
-                <h3 style={{ fontFamily: A.font, fontSize: 11, color: era.color, margin: 0 }}>{era.era.toUpperCase()}</h3>
-                <span style={{ fontFamily: A.font, fontSize: 8, color: A.textDim }}>{era.years}</span>
+                <h3 style={{
+                  fontFamily: A.font, fontSize: isVG ? 14 : 11, color: era.color, margin: 0,
+                  ...(isVG ? { fontStyle: "italic", fontWeight: 600 } : {}),
+                }}>{era.era.toUpperCase()}</h3>
+                <span style={{
+                  fontFamily: A.font, fontSize: isVG ? 9 : 8, color: A.textDim,
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{era.years}</span>
               </div>
             </div>
 
@@ -1051,31 +1303,43 @@ const MissionLog = ({ onBack, onComplete }) => {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 22 }}>
               {era.highlights.map((h, i) => (
                 <div key={i} style={{
-                  background: A.isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
+                  background: isVG ? "rgba(255,255,255,0.03)" : (A.isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)"),
                   border: `1px solid ${A.border}`,
-                  borderRadius: 4, padding: 14, textAlign: "center",
+                  borderRadius: isVG ? 8 : 4, padding: isVG ? 16 : 14, textAlign: "center",
                 }}>
-                  <div style={{ fontFamily: A.font, fontSize: 18, color: era.color, lineHeight: 1, marginBottom: 6 }}>{h.metric}</div>
-                  <div style={{ fontFamily: A.font, fontSize: 6, color: A.textDim, letterSpacing: "0.05em" }}>{h.label.toUpperCase()}</div>
+                  <div style={{
+                    fontFamily: A.font, fontSize: isVG ? 20 : 18, color: era.color, lineHeight: 1, marginBottom: 6,
+                    ...(isVG ? { fontWeight: 700 } : {}),
+                  }}>{h.metric}</div>
+                  <div style={{
+                    fontFamily: A.font, fontSize: isVG ? 7 : 6, color: A.textDim, letterSpacing: "0.05em",
+                    ...(isVG ? { fontStyle: "italic" } : {}),
+                  }}>{h.label.toUpperCase()}</div>
                 </div>
               ))}
             </div>
 
-            <p style={{ fontSize: 15, color: A.text, lineHeight: 1.75, fontFamily: A.bodyFont }}>{era.description}</p>
+            <p style={{
+              fontSize: isVG ? 16 : 15, color: A.text, lineHeight: 1.75, fontFamily: A.bodyFont,
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>{era.description}</p>
           </div>
         </div>
       )}
 
       <div style={{ textAlign: "center", marginTop: 32 }}>
-        <ArcadeBtn color={A.amber} onClick={() => { onComplete(); onBack(); }}>MISSION LOGGED {"\u2713"}</ArcadeBtn>
+        <ArcadeBtn color={A.amber} onClick={() => { onComplete(); onBack(); }}>
+          {isVG ? "Period Reviewed \u2713" : "MISSION LOGGED \u2713"}
+        </ArcadeBtn>
       </div>
     </div>
   );
 };
 
-// ─── Screen: Why Anthropic (Star Wars Crawl + Static Toggle) ─────────
+// ─── Screen: Why Anthropic (Star Wars Crawl + Static / Artist's Statement) ──
 const WhyAnthropic = ({ onBack, onComplete }) => {
-  const [mode, setMode] = useState("crawl"); // "crawl" | "static"
+  const isVG = A.isVanGogh;
+  const [mode, setMode] = useState(isVG ? "static" : "crawl"); // VG skips crawl
   const [crawlKey, setCrawlKey] = useState(0); // bump to restart animation
   const [crawlDone, setCrawlDone] = useState(false);
   const [ready, setReady] = useState(false);
@@ -1126,7 +1390,13 @@ const WhyAnthropic = ({ onBack, onComplete }) => {
   ];
 
   const renderBlock = (b, i, isCrawl) => {
-    const baseText = { fontSize: isCrawl ? 20 : 17, color: isCrawl ? (A.isDark ? "#eee" : "#444") : A.text, lineHeight: isCrawl ? 2 : 1.85, fontFamily: A.bodyFont, textAlign: "center" };
+    const baseText = {
+      fontSize: isCrawl ? 20 : (isVG ? 18 : 17),
+      color: isCrawl ? (A.isDark ? "#eee" : "#444") : A.text,
+      lineHeight: isCrawl ? 2 : (isVG ? 1.9 : 1.85),
+      fontFamily: A.bodyFont, textAlign: "center",
+      ...(isVG && !isCrawl ? { fontStyle: "italic", textAlign: "left" } : {}),
+    };
     const mb = isCrawl ? 36 : 28;
     const animStyle = !isCrawl ? { animation: `fade-in 0.5s ease-out ${0.1 + i * 0.1}s both`, textAlign: "left" } : {};
 
@@ -1203,12 +1473,12 @@ const WhyAnthropic = ({ onBack, onComplete }) => {
         display: "flex", justifyContent: "space-between", alignItems: "center",
         padding: "10px 20px",
       }}>
-        <ArcadeBtn onClick={onBack}>ESC</ArcadeBtn>
+        <ArcadeBtn onClick={onBack}>{isVG ? "\u2190 Back" : "ESC"}</ArcadeBtn>
         <div style={{ display: "flex", gap: 8 }}>
-          {mode === "crawl" && (
+          {mode === "crawl" && !isVG && (
             <ArcadeBtn color={A.textDim} onClick={goStatic}>SKIP TO TEXT</ArcadeBtn>
           )}
-          {mode === "static" && (
+          {mode === "static" && !isVG && (
             <ArcadeBtn color={A.pink} onClick={replayCrawl}>{"\u25B6"} REPLAY CRAWL</ArcadeBtn>
           )}
         </div>
@@ -1289,12 +1559,21 @@ const WhyAnthropic = ({ onBack, onComplete }) => {
           maxWidth: 640, margin: "0 auto",
           padding: "100px 28px 80px",
           animation: "fade-in 0.6s ease-out",
+          ...(isVG ? { filter: "url(#vg-paint)" } : {}),
         }}>
           {/* Title */}
           <div style={{ textAlign: "center", marginBottom: 48 }}>
-            <div style={{ fontFamily: A.font, fontSize: 8, color: A.pink, letterSpacing: "0.15em", marginBottom: 12 }}>INCOMING TRANSMISSION</div>
-            <div style={{ fontFamily: A.font, fontSize: 20, color: A.cyan, textShadow: A.isDark ? `0 0 30px ${A.cyan}, 0 0 60px ${A.cyan}40` : "none", marginBottom: 6 }}>WHY ANTHROPIC</div>
-            <div style={{ width: 60, height: 2, background: `linear-gradient(90deg, transparent, ${A.cyan}, transparent)`, margin: "16px auto 0" }} />
+            <div style={{
+              fontFamily: A.font, fontSize: isVG ? 10 : 8, color: A.pink,
+              letterSpacing: "0.15em", marginBottom: 12,
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>{isVG ? "Artist\u2019s Statement" : "INCOMING TRANSMISSION"}</div>
+            <div style={{
+              fontFamily: A.font, fontSize: isVG ? 24 : 20, color: A.cyan,
+              textShadow: A.isDark ? `0 0 30px ${A.cyan}, 0 0 60px ${A.cyan}40` : "none", marginBottom: 6,
+              ...(isVG ? { fontStyle: "italic", fontWeight: 600 } : {}),
+            }}>{isVG ? "Why Anthropic" : "WHY ANTHROPIC"}</div>
+            <div style={{ width: isVG ? 80 : 60, height: 2, background: `linear-gradient(90deg, transparent, ${A.cyan}, transparent)`, margin: "16px auto 0" }} />
           </div>
 
           {/* All content blocks rendered in static style */}
@@ -1303,7 +1582,7 @@ const WhyAnthropic = ({ onBack, onComplete }) => {
           {/* Complete button */}
           <div style={{ textAlign: "center", paddingBottom: 40 }}>
             <ArcadeBtn color={A.pink} onClick={() => { onComplete(); onBack(); }}>
-              TRANSMISSION RECEIVED {"\u2713"}
+              {isVG ? "Statement Read \u2713" : "TRANSMISSION RECEIVED \u2713"}
             </ArcadeBtn>
           </div>
         </div>
@@ -1312,13 +1591,14 @@ const WhyAnthropic = ({ onBack, onComplete }) => {
   );
 };
 
-// ─── Screen: Contact (Game Credits) ──────────────────────────────────
+// ─── Screen: Contact (Game Credits / Gallery Guestbook) ─────────────
 const Contact = ({ onBack, score }) => {
   const [ready, setReady] = useState(false);
   const [showBuild, setShowBuild] = useState(false);
+  const isVG = A.isVanGogh;
   useEffect(() => { setTimeout(() => setReady(true), 100); }, []);
 
-  const rank = score >= 7000 ? "PM LEGEND" : score >= 5000 ? "STRATEGIC THINKER" : score >= 3000 ? "SOLID OPERATOR" : "RECRUIT";
+  const rank = score >= 7000 ? (isVG ? "Maître" : "PM LEGEND") : score >= 5000 ? (isVG ? "Artisan" : "STRATEGIC THINKER") : score >= 3000 ? (isVG ? "Apprenti" : "SOLID OPERATOR") : (isVG ? "Visiteur" : "RECRUIT");
 
   return (
     <div style={{
@@ -1329,80 +1609,110 @@ const Contact = ({ onBack, score }) => {
     }}>
       {ready && (
         <>
-          <div style={{ animation: "warp-in 0.6s ease-out", marginBottom: 24 }}>
+          <div style={{ animation: isVG ? "fade-in 0.8s ease-out" : "warp-in 0.6s ease-out", marginBottom: 24 }}>
             <div style={{
-              fontFamily: A.font, fontSize: 8, color: A.textDim, marginBottom: 12,
-            }}>FINAL SCORE</div>
+              fontFamily: A.font, fontSize: isVG ? 10 : 8, color: A.textDim, marginBottom: 12,
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>{isVG ? "Final Impression" : "FINAL SCORE"}</div>
             <div style={{
-              fontFamily: A.font, fontSize: 28, color: A.cyan,
+              fontFamily: A.font, fontSize: isVG ? 32 : 28, color: A.cyan,
               textShadow: A.isDark ? `0 0 30px ${A.cyan}, 0 0 60px ${A.cyan}40` : "none",
               marginBottom: 8,
+              ...(isVG ? { fontWeight: 700 } : {}),
             }}>{String(score).padStart(6, "0")}</div>
             <div style={{
-              fontFamily: A.font, fontSize: 10, color: A.amber,
+              fontFamily: A.font, fontSize: isVG ? 12 : 10, color: A.amber,
               textShadow: A.isDark ? `0 0 15px ${A.amber}` : "none",
-            }}>RANK: {rank}</div>
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>{isVG ? `Titre: ${rank}` : `RANK: ${rank}`}</div>
           </div>
 
           <div style={{ animation: "fade-in 0.5s ease-out 0.3s both" }}>
             <h2 style={{
-              fontFamily: A.bodyFont, fontSize: 36, fontWeight: 700,
+              fontFamily: isVG ? A.font : A.bodyFont, fontSize: isVG ? 32 : 36, fontWeight: 700,
               color: A.textBright, margin: "0 0 10px 0",
-            }}>Thanks for playing.</h2>
+              ...(isVG ? { fontStyle: "italic", textShadow: `0 0 30px rgba(240,192,64,0.2)` } : {}),
+            }}>{isVG ? "Thank you for visiting." : "Thanks for playing."}</h2>
             <p style={{
-              fontSize: 17, color: A.textDim, maxWidth: 480,
+              fontSize: isVG ? 18 : 17, color: A.textDim, maxWidth: 480,
               lineHeight: 1.6, fontFamily: A.bodyFont, marginBottom: 36,
-            }}>I'd love to continue this conversation in person.</p>
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>{isVG ? "I\u2019d love to continue this conversation in person." : "I'd love to continue this conversation in person."}</p>
           </div>
 
           {/* Contact Card */}
           <div style={{
             animation: "fade-in 0.5s ease-out 0.5s both",
             maxWidth: 400, width: "100%",
-            background: A.bgPanel, border: `1px solid ${A.border}`,
-            borderRadius: 4, padding: "28px 24px", textAlign: "left",
+            background: isVG ? A.panelBg : A.bgPanel,
+            border: isVG ? `2px solid rgba(180,150,80,0.3)` : `1px solid ${A.border}`,
+            borderRadius: isVG ? A.borderRadius : 4,
+            padding: isVG ? "32px 28px" : "28px 24px", textAlign: "left",
+            ...(isVG ? {
+              boxShadow: "0 6px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)",
+              filter: "url(#vg-paint)",
+            } : {}),
           }}>
-            <div style={{ fontFamily: A.font, fontSize: 12, color: A.cyan, marginBottom: 20 }}>JOHN CIFELLI</div>
+            <div style={{
+              fontFamily: A.font, fontSize: isVG ? 14 : 12, color: A.cyan, marginBottom: 20,
+              ...(isVG ? { fontStyle: "italic", fontWeight: 600, borderBottom: `1px solid rgba(180,150,80,0.2)`, paddingBottom: 14 } : {}),
+            }}>{isVG ? "John Cifelli" : "JOHN CIFELLI"}</div>
             {[
-              { label: "EMAIL", value: "cifelli89@gmail.com", href: "mailto:cifelli89@gmail.com", color: A.amber },
-              { label: "LINKEDIN", value: "linkedin.com/in/johnlcifelli", href: "https://linkedin.com/in/johnlcifelli", color: A.cyan },
-              { label: "LOCATION", value: "Chicago, IL", color: A.green },
+              { label: isVG ? "Correspondence" : "EMAIL", value: "cifelli89@gmail.com", href: "mailto:cifelli89@gmail.com", color: A.amber },
+              { label: isVG ? "Profile" : "LINKEDIN", value: "linkedin.com/in/johnlcifelli", href: "https://linkedin.com/in/johnlcifelli", color: A.cyan },
+              { label: isVG ? "Atelier" : "LOCATION", value: "Chicago, IL", color: A.green },
             ].map((item, i) => (
               <div key={i} style={{ marginBottom: 16 }}>
-                <div style={{ fontFamily: A.font, fontSize: 7, color: A.textDim, letterSpacing: "0.1em", marginBottom: 4 }}>{item.label}</div>
+                <div style={{
+                  fontFamily: A.font, fontSize: isVG ? 8 : 7, color: A.textDim,
+                  letterSpacing: "0.1em", marginBottom: 4,
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{item.label}</div>
                 {item.href ? (
                   <a href={item.href} target="_blank" rel="noopener noreferrer" style={{
-                    fontSize: 15, color: item.color, textDecoration: "none",
+                    fontSize: isVG ? 16 : 15, color: item.color, textDecoration: "none",
                     fontFamily: A.bodyFont, fontWeight: 500,
+                    ...(isVG ? { fontStyle: "italic" } : {}),
                   }}>{item.value}</a>
                 ) : (
-                  <div style={{ fontSize: 15, color: A.text, fontFamily: A.bodyFont }}>{item.value}</div>
+                  <div style={{
+                    fontSize: isVG ? 16 : 15, color: A.text, fontFamily: A.bodyFont,
+                    ...(isVG ? { fontStyle: "italic" } : {}),
+                  }}>{item.value}</div>
                 )}
               </div>
             ))}
           </div>
 
           <div style={{ animation: "fade-in 0.5s ease-out 0.7s both", marginTop: 32 }}>
-            <ArcadeBtn onClick={onBack}>{"\u25C0"} PLAY AGAIN</ArcadeBtn>
+            <ArcadeBtn onClick={onBack}>{isVG ? "\u2190 Visit Again" : "\u25C0 PLAY AGAIN"}</ArcadeBtn>
           </div>
 
           <div style={{ animation: "fade-in 0.5s ease-out 1s both", marginTop: 48 }}>
             <p onClick={() => setShowBuild(!showBuild)} style={{
-              fontFamily: A.font, fontSize: 7, color: A.textDim,
+              fontFamily: A.font, fontSize: isVG ? 8 : 7, color: A.textDim,
               cursor: "pointer", transition: "color 0.3s",
+              ...(isVG ? { fontStyle: "italic" } : {}),
             }}>
-              BUILT WITH CARE FOR ANTHROPIC {"\u00B7"} 2026
+              {isVG ? "Crafted with care for Anthropic \u00B7 2026" : "BUILT WITH CARE FOR ANTHROPIC \u00B7 2026"}
             </p>
             {showBuild && (
               <div style={{
-                marginTop: 14, padding: "16px 20px",
-                background: A.bgPanel, border: `1px solid ${A.border}`,
-                borderRadius: 4, maxWidth: 420, textAlign: "left",
+                marginTop: 14, padding: isVG ? "20px 22px" : "16px 20px",
+                background: isVG ? A.panelBg : A.bgPanel,
+                border: isVG ? `1.5px solid rgba(180,150,80,0.25)` : `1px solid ${A.border}`,
+                borderRadius: isVG ? A.borderRadius : 4, maxWidth: 420, textAlign: "left",
                 animation: "fade-in 0.3s ease-out",
               }}>
-                <p style={{ fontFamily: A.font, fontSize: 7, color: A.cyan, marginBottom: 8 }}>{"\uD83D\uDEE0"} HOW THIS WAS BUILT</p>
-                <p style={{ fontSize: 13, color: A.textDim, lineHeight: 1.65, fontFamily: A.bodyFont }}>
-                  React, zero dependencies, single-file deployment. No templates. Space Invaders meets PM portfolio. The engagements are real \u2014 pulled from my actual McKinsey and startup work. Even the easter eggs are intentional product decisions: they reward curiosity, which is exactly the kind of user behavior I'd optimize for at Anthropic.
+                <p style={{
+                  fontFamily: A.font, fontSize: isVG ? 8 : 7, color: A.cyan, marginBottom: 8,
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{isVG ? "\uD83C\uDFA8 How This Was Made" : "\uD83D\uDEE0 HOW THIS WAS BUILT"}</p>
+                <p style={{
+                  fontSize: 13, color: A.textDim, lineHeight: 1.65, fontFamily: A.bodyFont,
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>
+                  React, zero dependencies, single-file deployment. No templates. {isVG ? "An impressionist gallery meets PM portfolio." : "Space Invaders meets PM portfolio."} The engagements are real \u2014 pulled from my actual McKinsey and startup work. Even the easter eggs are intentional product decisions: they reward curiosity, which is exactly the kind of user behavior I'd optimize for at Anthropic.
                 </p>
               </div>
             )}
@@ -1414,23 +1724,31 @@ const Contact = ({ onBack, score }) => {
 };
 
 // ─── Theme Toggle Button ────────────────────────────────────────────
-const ThemeToggle = ({ themeMode, onToggle }) => {
-  const icons = { dark: "\u2600", light: "\u263E", vangogh: "\u2600" };
-  const titles = { dark: "Switch to light mode", light: "Switch to dark mode", vangogh: "Switch to dark mode" };
+const ThemeToggle = ({ themeMode, onToggle, vanGoghUnlocked }) => {
   const isDark = themeMode === "dark";
   const isVG = themeMode === "vangogh";
+  const isLight = themeMode === "light";
+  const titles = {
+    dark: vanGoghUnlocked ? "Switch to light mode (Starry Night available!)" : "Switch to light mode",
+    light: vanGoghUnlocked ? "Switch to Starry Night mode" : "Switch to dark mode",
+    vangogh: "Switch to dark mode",
+  };
+  const icons = { dark: "\u2600", light: vanGoghUnlocked ? "\uD83C\uDFA8" : "\u263E", vangogh: "\u263E" };
   return (
     <button onClick={onToggle} style={{
       position: "fixed", bottom: 16, right: 16, zIndex: 9998,
-      width: 40, height: 40, borderRadius: "50%",
+      width: isVG ? 44 : 40, height: isVG ? 44 : 40,
+      borderRadius: isVG ? 14 : "50%",
       background: isVG ? "rgba(240,192,64,0.15)" : isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
       border: `1.5px solid ${isVG ? "rgba(240,192,64,0.4)" : isDark ? "rgba(0,255,255,0.25)" : "rgba(0,122,138,0.2)"}`,
       color: isVG ? "#f0c040" : isDark ? "#0ff" : "#007a8a",
-      fontSize: 16, cursor: "pointer",
+      fontSize: isVG ? 18 : 16, cursor: "pointer",
       display: "flex", alignItems: "center", justifyContent: "center",
       transition: "all 0.3s ease",
-      boxShadow: isVG ? "0 0 16px rgba(240,192,64,0.3)" : isDark ? "0 0 12px rgba(0,255,255,0.15)" : "0 2px 8px rgba(0,0,0,0.08)",
-      ...(isVG ? { filter: "url(#vg-paint)" } : {}),
+      boxShadow: isVG
+        ? "0 0 20px rgba(240,192,64,0.3), 0 4px 16px rgba(0,0,0,0.3)"
+        : isDark ? "0 0 12px rgba(0,255,255,0.15)" : "0 2px 8px rgba(0,0,0,0.08)",
+      ...(isVG ? { filter: "url(#vg-paint)", animation: "vg-float 6s ease-in-out infinite" } : {}),
     }}
     title={titles[themeMode]}
     >{isVG ? "\uD83C\uDFA8" : icons[themeMode]}</button>
@@ -1502,9 +1820,20 @@ function App() {
     }
   };
 
+  const [vgAnnounce, setVgAnnounce] = useState(false);
+
   const markComplete = (key) => {
     setCompleted(prev => {
       const next = { ...prev, [key]: true };
+      const wasAnyDone = prev.fleet || prev.record || prev.why;
+      const isAnyDone = next.fleet || next.record || next.why;
+      // Unlock Van Gogh mode on first mission completion — announce, don't auto-switch
+      if (isAnyDone && !wasAnyDone && !vanGoghUnlocked) {
+        setVanGoghUnlocked(true);
+        setVgAnnounce(true);
+        setTimeout(() => setVgAnnounce(false), 4000);
+        setScore(s => s + 5000);
+      }
       const wasAllDone = prev.fleet && prev.record && prev.why;
       const isAllDone = next.fleet && next.record && next.why;
       if (isAllDone && !wasAllDone) {
@@ -1533,9 +1862,30 @@ function App() {
         <StarField />
         <Scanlines />
         <Confetti active={showConfetti} />
-        <ThemeToggle themeMode={themeMode} onToggle={toggleTheme} />
+        <ThemeToggle themeMode={themeMode} onToggle={toggleTheme} vanGoghUnlocked={vanGoghUnlocked} />
 
-        {/* Van Gogh activation flash */}
+        {/* Van Gogh unlock announcement — subtle toast */}
+        {vgAnnounce && (
+          <div style={{
+            position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)",
+            zIndex: 10000,
+            background: "linear-gradient(135deg, rgba(30,50,100,0.95), rgba(20,35,70,0.95))",
+            border: "2px solid rgba(240,192,64,0.4)",
+            borderRadius: 16, padding: "16px 28px",
+            animation: "fade-in 0.4s ease-out",
+            pointerEvents: "none",
+            display: "flex", alignItems: "center", gap: 12,
+            boxShadow: "0 8px 40px rgba(0,0,0,0.5), 0 0 30px rgba(240,192,64,0.15)",
+          }}>
+            <span style={{ fontSize: 24 }}>{"\uD83C\uDFA8"}</span>
+            <div>
+              <div style={{ fontFamily: '"Georgia", serif', fontSize: 13, color: "#f0c040", fontStyle: "italic", fontWeight: 600, marginBottom: 2 }}>Starry Night Mode Unlocked</div>
+              <div style={{ fontFamily: '"Georgia", serif', fontSize: 11, color: "rgba(212,201,168,0.7)", fontStyle: "italic" }}>Use the theme toggle to explore</div>
+            </div>
+          </div>
+        )}
+
+        {/* Van Gogh activation flash (Konami code toggle) */}
         {vgFlash && (
           <div style={{
             position: "fixed", inset: 0, zIndex: 10000,

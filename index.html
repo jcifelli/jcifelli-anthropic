@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>John Cifelli — Product Manager Application | Anthropic</title>
-  <meta name="description" content="An interactive product manager application for Anthropic by John Cifelli. Startup founder turned McKinsey PM. Chicago-built." />
+  <title>John Cifelli — Product Manager</title>
+  <meta name="description" content="An interactive product manager portfolio by John Cifelli. Startup founder turned McKinsey PM. Chicago-built." />
   <meta property="og:title" content="John Cifelli — Product Manager" />
   <meta property="og:description" content="I built this instead of a cover letter. Startup founder turned McKinsey PM. Chicago-built." />
   <meta property="og:type" content="website" />
@@ -86,6 +86,32 @@ const LIGHT = {
   isDark: false,
 };
 
+const VANGOGH = {
+  bg: "#0b1a3b",
+  bgLight: "#102450",
+  bgPanel: "rgba(255,200,50,0.06)",
+  border: "rgba(255,200,50,0.18)",
+  borderBright: "rgba(255,210,80,0.5)",
+  text: "#d4c9a8",
+  textDim: "#7a7050",
+  textBright: "#fff5d4",
+  cyan: "#f0c040",        // Van Gogh's golden yellow replaces cyan
+  pink: "#e85020",        // burnt orange
+  green: "#5a9040",       // muted olive
+  amber: "#f4a830",       // warm amber
+  red: "#c03020",         // deep vermillion
+  cyanGlow: "0 0 24px rgba(240,192,64,0.4)",
+  pinkGlow: "0 0 20px rgba(232,80,32,0.35)",
+  greenGlow: "0 0 18px rgba(90,144,64,0.3)",
+  amberGlow: "0 0 22px rgba(244,168,48,0.35)",
+  font: "'Press Start 2P', monospace",
+  bodyFont: '"Georgia", "Times New Roman", serif',
+  starOpacity: { min: 0.3, max: 0.9 },
+  scanlineOpacity: 0,
+  isDark: true,
+  isVanGogh: true,
+};
+
 // Theme context — all components read A from here
 const ThemeCtx = createContext(DARK);
 const useTheme = () => useContext(ThemeCtx);
@@ -111,8 +137,53 @@ const GlobalStyles = () => (
     @keyframes glow-pulse { 0%,100% { box-shadow: 0 0 8px rgba(0,255,255,0.15); } 50% { box-shadow: 0 0 24px rgba(0,255,255,0.35); } }
     @keyframes target-lock { 0% { border-color: rgba(0,255,255,0.2); } 50% { border-color: rgba(0,255,255,0.8); } 100% { border-color: rgba(0,255,255,0.2); } }
     @keyframes confetti-fall { 0% { transform: translateY(-10px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+    @keyframes vg-swirl { 0% { filter: url(#vg-turb); transform: rotate(0deg); } 50% { filter: url(#vg-turb); transform: rotate(0.3deg); } 100% { filter: url(#vg-turb); transform: rotate(0deg); } }
+    @keyframes vg-star-pulse { 0%,100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.8); filter: brightness(1.6); } }
+    @keyframes vg-bg-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    @keyframes vg-brushstroke { 0% { clip-path: inset(0 100% 0 0); } 100% { clip-path: inset(0 0 0 0); } }
+    @keyframes vg-float { 0%,100% { transform: translateY(0) rotate(-1deg); } 33% { transform: translateY(-6px) rotate(0.5deg); } 66% { transform: translateY(3px) rotate(-0.5deg); } }
   `}</style>
 );
+
+// ─── Van Gogh Overlay (SVG turbulence + painted sky) ────────────────
+const VanGoghOverlay = () => {
+  const T = useTheme();
+  if (!T.isVanGogh) return null;
+  return (
+    <>
+      <svg style={{ position: "absolute", width: 0, height: 0 }}>
+        <defs>
+          <filter id="vg-turb">
+            <feTurbulence type="turbulence" baseFrequency="0.015 0.012" numOctaves="4" seed="3" result="turb" />
+            <feDisplacementMap in="SourceGraphic" in2="turb" scale="6" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+          <filter id="vg-paint">
+            <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" seed="7" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" />
+          </filter>
+        </defs>
+      </svg>
+      {/* Starry Night swirling sky gradient */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        background: "radial-gradient(ellipse at 70% 20%, #1a3a6a 0%, transparent 50%), radial-gradient(ellipse at 30% 60%, #0d2a5a 0%, transparent 50%), radial-gradient(ellipse at 50% 80%, #0a1530 0%, transparent 60%)",
+        opacity: 0.7,
+      }} />
+      {/* Swirling brush texture overlay */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        backgroundImage: `
+          radial-gradient(ellipse 200px 80px at 25% 15%, rgba(240,192,64,0.12) 0%, transparent 100%),
+          radial-gradient(ellipse 300px 100px at 65% 25%, rgba(100,160,220,0.10) 0%, transparent 100%),
+          radial-gradient(ellipse 150px 60px at 80% 45%, rgba(240,192,64,0.08) 0%, transparent 100%),
+          radial-gradient(ellipse 250px 90px at 15% 70%, rgba(80,120,200,0.10) 0%, transparent 100%)
+        `,
+        animation: "vg-bg-shift 30s ease-in-out infinite",
+        backgroundSize: "200% 200%",
+      }} />
+    </>
+  );
+};
 
 // ─── Star Field ──────────────────────────────────────────────────────
 const StarField = () => {
@@ -130,15 +201,22 @@ const StarField = () => {
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
       {stars.map(s => {
-        const color = s.colorIdx % 12 === 0 ? T.cyan : s.colorIdx % 9 === 0 ? T.pink : s.colorIdx % 7 === 0 ? T.amber : (T.isDark ? "#fff" : "#333");
+        const isVG = T.isVanGogh;
+        const color = isVG
+          ? (s.colorIdx % 5 === 0 ? "#f0c040" : s.colorIdx % 7 === 0 ? "#e8a020" : s.colorIdx % 3 === 0 ? "#ffe880" : "#ffd460")
+          : (s.colorIdx % 12 === 0 ? T.cyan : s.colorIdx % 9 === 0 ? T.pink : s.colorIdx % 7 === 0 ? T.amber : (T.isDark ? "#fff" : "#333"));
         const opacity = T.starOpacity.min + s.opacityBase * (T.starOpacity.max - T.starOpacity.min);
+        const vgSize = isVG ? (2 + Math.random() * 6) : s.size;
         return (
           <div key={s.id} style={{
             position: "absolute", left: `${s.x}%`, top: `${s.y}%`,
-            width: s.size, height: s.size, borderRadius: "50%",
-            background: color, opacity,
-            animation: `star-drift ${s.speed}s linear ${s.delay}s infinite`,
-            transition: "background 0.4s, opacity 0.4s",
+            width: isVG ? vgSize : s.size, height: isVG ? vgSize : s.size, borderRadius: "50%",
+            background: isVG ? `radial-gradient(circle, ${color}, transparent)` : color, opacity,
+            animation: isVG
+              ? `vg-star-pulse ${3 + s.opacityBase * 4}s ease-in-out ${s.delay}s infinite`
+              : `star-drift ${s.speed}s linear ${s.delay}s infinite`,
+            boxShadow: isVG ? `0 0 ${vgSize * 3}px ${color}` : "none",
+            transition: "all 0.6s ease",
           }} />
         );
       })}
@@ -267,12 +345,13 @@ const timeline = [
   },
   {
     era: "What\u2019s Next: Anthropic", years: "2026\u2013", icon: "\u2726",
-    color: A.cyan, highlights: [
+    highlights: [
       { metric: "\uD83D\uDD25", label: "mission passion" },
       { metric: "12yr+", label: "PM experience" },
       { metric: "1", label: "app you\u2019re reading" },
     ],
     description: "I want to build products that make AI safe and beneficial for everyone. Anthropic isn\u2019t just a company I admire \u2014 it\u2019s the company building the future I want to live in. 12+ years of product experience, from founding startups to leading McKinsey engagements \u2014 strategic rigor meets shipping velocity.",
+    color: A.cyan,
   },
 ];
 
@@ -1030,11 +1109,11 @@ const WhyAnthropic = ({ onBack, onComplete }) => {
 
   // Shared content for both modes
   const contentBlocks = [
-    { type: "text", text: "As a PM and a human, I am both excited and anxious about this new AI-powered world." },
+    { type: "text", text: "As a PM, and more importantly a human, I am both excited and nervous about this new world." },
     { type: "text", text: "Just this week I rebuilt GigScout, piloted an AI newsletter for friends and family who are curious but not technical, and built a portfolio tour for you in the theme of Space Invaders meets Star Wars. The barrier to building has collapsed\u2026 What a world, indeed." },
     { type: "projects" },
     { type: "text", text: "I can prototype in hours what used to take weeks. I can test ideas at a pace that would have seemed absurd even two months ago. The velocity alone changes how you think \u2014 you stop self-censoring ideas before they even leave your head." },
-    { type: "text", text: "But in parallel \u2014 does it mean anything to make creative things when everyone else can just as easily too? What happens to craft when the barrier to creation drops to zero? I don\u2019t think there are clean answers yet, and I\u2019m suspicious of anyone who claims otherwise." },
+    { type: "text", text: "But in parallel \u2014 does it mean anything to make creative things when everyone else can just as easily too? What happens to craft when the barrier to creation drops to zero? These aren\u2019t rhetorical questions for me. They keep me up at night. I don\u2019t think there are clean answers yet, and I\u2019m suspicious of anyone who claims otherwise." },
     { type: "quote", text: "What I appreciate about Anthropic is that you\u2019re taking these questions seriously \u2014 even when you don\u2019t have the answers yet. That kind of intellectual honesty inspires me." },
     { type: "text", text: "Most companies in this space are either moving too fast to ask the hard questions, or too paralyzed by them to ship anything meaningful. Anthropic is doing both \u2014 building best-in-class products while genuinely wrestling with what it all means for people and for the world." },
     { type: "text", text: "I\u2019m hungry to make the best of this new technology with people who are optimistic, aware, and willing to be scrappy to figure it out. That\u2019s the energy I\u2019ve felt in every interaction with Anthropic\u2019s work and what I aspire to incorporate in my own explorations." },
@@ -1335,21 +1414,28 @@ const Contact = ({ onBack, score }) => {
 };
 
 // ─── Theme Toggle Button ────────────────────────────────────────────
-const ThemeToggle = ({ isDark, onToggle }) => (
-  <button onClick={onToggle} style={{
-    position: "fixed", bottom: 16, right: 16, zIndex: 9998,
-    width: 40, height: 40, borderRadius: "50%",
-    background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
-    border: `1.5px solid ${isDark ? "rgba(0,255,255,0.25)" : "rgba(0,122,138,0.2)"}`,
-    color: isDark ? "#0ff" : "#007a8a",
-    fontSize: 16, cursor: "pointer",
-    display: "flex", alignItems: "center", justifyContent: "center",
-    transition: "all 0.3s ease",
-    boxShadow: isDark ? "0 0 12px rgba(0,255,255,0.15)" : "0 2px 8px rgba(0,0,0,0.08)",
-  }}
-  title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-  >{isDark ? "\u2600" : "\u263E"}</button>
-);
+const ThemeToggle = ({ themeMode, onToggle }) => {
+  const icons = { dark: "\u2600", light: "\u263E", vangogh: "\u2600" };
+  const titles = { dark: "Switch to light mode", light: "Switch to dark mode", vangogh: "Switch to dark mode" };
+  const isDark = themeMode === "dark";
+  const isVG = themeMode === "vangogh";
+  return (
+    <button onClick={onToggle} style={{
+      position: "fixed", bottom: 16, right: 16, zIndex: 9998,
+      width: 40, height: 40, borderRadius: "50%",
+      background: isVG ? "rgba(240,192,64,0.15)" : isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+      border: `1.5px solid ${isVG ? "rgba(240,192,64,0.4)" : isDark ? "rgba(0,255,255,0.25)" : "rgba(0,122,138,0.2)"}`,
+      color: isVG ? "#f0c040" : isDark ? "#0ff" : "#007a8a",
+      fontSize: 16, cursor: "pointer",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      transition: "all 0.3s ease",
+      boxShadow: isVG ? "0 0 16px rgba(240,192,64,0.3)" : isDark ? "0 0 12px rgba(0,255,255,0.15)" : "0 2px 8px rgba(0,0,0,0.08)",
+      ...(isVG ? { filter: "url(#vg-paint)" } : {}),
+    }}
+    title={titles[themeMode]}
+    >{isVG ? "\uD83C\uDFA8" : icons[themeMode]}</button>
+  );
+};
 
 // ─── App ─────────────────────────────────────────────────────────────
 function App() {
@@ -1357,27 +1443,64 @@ function App() {
   const [completed, setCompleted] = useState({ fleet: false, record: false, why: false });
   const [score, setScore] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [isDark, setIsDark] = useState(true);
+  const [themeMode, setThemeMode] = useState("dark"); // "dark" | "light" | "vangogh"
+  const [vanGoghUnlocked, setVanGoghUnlocked] = useState(false);
+  const [vgFlash, setVgFlash] = useState(false);
 
-  // Swap the global A palette SYNCHRONOUSLY during render (not in useEffect)
-  // This fixes the double-click bug — A is correct before children render
-  A = isDark ? DARK : LIGHT;
+  // ─── Konami Code Easter Egg ───────────────────────────────────────
+  const konamiRef = useRef([]);
+  const KONAMI = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+  useEffect(() => {
+    const handler = (e) => {
+      konamiRef.current.push(e.key);
+      konamiRef.current = konamiRef.current.slice(-10);
+      if (KONAMI.every((k, i) => konamiRef.current[i] === k)) {
+        if (!vanGoghUnlocked) {
+          setVanGoghUnlocked(true);
+          setThemeMode("vangogh");
+          setVgFlash(true);
+          setTimeout(() => setVgFlash(false), 1500);
+          setScore(s => s + 5000);
+        } else {
+          setThemeMode(m => m === "vangogh" ? "dark" : "vangogh");
+          setVgFlash(true);
+          setTimeout(() => setVgFlash(false), 1500);
+        }
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [vanGoghUnlocked]);
+
+  // Swap the global A palette SYNCHRONOUSLY during render
+  const THEMES = { dark: DARK, light: LIGHT, vangogh: VANGOGH };
+  A = THEMES[themeMode] || DARK;
 
   // Update body + scrollbar/selection styles via effect (DOM side-effect)
   useEffect(() => {
     document.body.style.background = A.bg;
-    document.body.style.transition = "background 0.4s ease";
-    // Update dynamic stylesheet for scrollbar/selection
+    document.body.style.transition = "background 0.6s ease";
     let dynStyle = document.getElementById("theme-dynamic");
     if (!dynStyle) { dynStyle = document.createElement("style"); dynStyle.id = "theme-dynamic"; document.head.appendChild(dynStyle); }
+    const isVG = themeMode === "vangogh";
     dynStyle.textContent = `
       ::-webkit-scrollbar-track { background: ${A.bgLight}; }
-      ::-webkit-scrollbar-thumb { background: ${A.isDark ? "rgba(0,255,255,0.2)" : "rgba(0,100,120,0.2)"}; border-radius: 3px; }
-      ::selection { background: ${A.isDark ? "rgba(0,255,255,0.3)" : "rgba(0,100,120,0.2)"}; color: ${A.textBright}; }
+      ::-webkit-scrollbar-thumb { background: ${isVG ? "rgba(240,192,64,0.3)" : A.isDark ? "rgba(0,255,255,0.2)" : "rgba(0,100,120,0.2)"}; border-radius: 3px; }
+      ::selection { background: ${isVG ? "rgba(240,192,64,0.3)" : A.isDark ? "rgba(0,255,255,0.3)" : "rgba(0,100,120,0.2)"}; color: ${A.textBright}; }
+      ${isVG ? `
+        .vg-painted { filter: url(#vg-paint); }
+        .vg-swirl { animation: vg-float 8s ease-in-out infinite; }
+      ` : ""}
     `;
-  }, [isDark]);
+  }, [themeMode]);
 
-  const toggleTheme = () => setIsDark(d => !d);
+  const toggleTheme = () => {
+    if (vanGoghUnlocked) {
+      setThemeMode(m => m === "dark" ? "light" : m === "light" ? "vangogh" : "dark");
+    } else {
+      setThemeMode(m => m === "dark" ? "light" : "dark");
+    }
+  };
 
   const markComplete = (key) => {
     setCompleted(prev => {
@@ -1403,13 +1526,34 @@ function App() {
         background: A.bg, minHeight: "100vh",
         fontFamily: A.bodyFont, WebkitFontSmoothing: "antialiased",
         position: "relative",
-        transition: "background 0.4s ease",
+        transition: "background 0.6s ease",
       }}>
         <GlobalStyles />
+        <VanGoghOverlay />
         <StarField />
         <Scanlines />
         <Confetti active={showConfetti} />
-        <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
+        <ThemeToggle themeMode={themeMode} onToggle={toggleTheme} />
+
+        {/* Van Gogh activation flash */}
+        {vgFlash && (
+          <div style={{
+            position: "fixed", inset: 0, zIndex: 10000,
+            background: "radial-gradient(circle at 50% 40%, rgba(240,192,64,0.6), rgba(11,26,59,0.9))",
+            animation: "fade-in 0.3s ease-out",
+            pointerEvents: "none",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <div style={{
+              fontFamily: "'Press Start 2P', monospace",
+              fontSize: 14, color: "#f0c040", textAlign: "center",
+              textShadow: "0 0 30px rgba(240,192,64,0.8), 0 0 60px rgba(240,192,64,0.4)",
+              animation: "vg-float 2s ease-in-out infinite",
+            }}>
+              {themeMode === "vangogh" ? "\u2728 STARRY NIGHT MODE UNLOCKED \u2728" : "\u263E RETURNING TO NORMAL \u263E"}
+            </div>
+          </div>
+        )}
 
         {screen !== "landing" && (
           <HUD score={score} cleared={totalCleared} total={3} />

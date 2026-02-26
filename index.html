@@ -1,0 +1,2363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>John Cifelli — Product Manager</title>
+  <meta name="description" content="An interactive product manager portfolio by John Cifelli. Startup founder turned McKinsey PM. Chicago-built." />
+  <meta property="og:title" content="John Cifelli — Product Manager" />
+  <meta property="og:description" content="An interactive portfolio walkthrough. Startup founder turned McKinsey PM. Chicago-built." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://jcifelli.dev" />
+  <meta property="og:image" content="https://jcifelli.dev/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="John Cifelli — Product Manager" />
+  <meta name="twitter:description" content="An interactive portfolio walkthrough. Startup founder turned McKinsey PM. Chicago-built." />
+  <meta name="twitter:image" content="https://jcifelli.dev/og-image.png" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%2306060f'/><text x='50' y='68' font-family='system-ui' font-size='52' font-weight='900' fill='%2300ffff' text-anchor='middle'>JC</text></svg>" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #06060f; color: #e0e0e0; }
+    #root { min-height: 100vh; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0a14; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,255,255,0.2); border-radius: 3px; }
+    ::selection { background: rgba(0,255,255,0.3); color: #fff; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel" data-type="module">
+    const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
+
+// ─── Theme Palettes ──────────────────────────────────────────────────
+const DARK = {
+  bg: "#06060f",
+  bgLight: "#0a0a14",
+  bgPanel: "rgba(0,255,255,0.03)",
+  border: "rgba(0,255,255,0.12)",
+  borderBright: "rgba(0,255,255,0.4)",
+  text: "#e0e0e0",
+  textDim: "#555",
+  textBright: "#fff",
+  cyan: "#0ff",
+  pink: "#f0f",
+  green: "#0f0",
+  amber: "#ffaa00",
+  red: "#f44",
+  cyanGlow: "0 0 20px rgba(0,255,255,0.3)",
+  pinkGlow: "0 0 20px rgba(255,0,255,0.3)",
+  greenGlow: "0 0 20px rgba(0,255,0,0.3)",
+  amberGlow: "0 0 20px rgba(255,170,0,0.3)",
+  font: "'Press Start 2P', monospace",
+  bodyFont: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  starOpacity: { min: 0.15, max: 0.5 },
+  scanlineOpacity: 0.5,
+  isDark: true,
+};
+const LIGHT = {
+  bg: "#f4f2ef",
+  bgLight: "#eae7e2",
+  bgPanel: "rgba(0,80,100,0.05)",
+  border: "rgba(0,80,100,0.14)",
+  borderBright: "rgba(0,100,120,0.4)",
+  text: "#333",
+  textDim: "#777",
+  textBright: "#111",
+  cyan: "#006878",
+  pink: "#8a1a8a",
+  green: "#157015",
+  amber: "#9a6800",
+  red: "#b02020",
+  cyanGlow: "0 0 8px rgba(0,104,120,0.15)",
+  pinkGlow: "0 0 8px rgba(138,26,138,0.15)",
+  greenGlow: "0 0 8px rgba(21,112,21,0.15)",
+  amberGlow: "0 0 8px rgba(154,104,0,0.15)",
+  font: "'Press Start 2P', monospace",
+  bodyFont: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  starOpacity: { min: 0.05, max: 0.15 },
+  scanlineOpacity: 0.08,
+  isDark: false,
+};
+
+const VANGOGH = {
+  bg: "#0a1628",           // The deep night — not black, but the blue-black of a Provence sky
+  bgLight: "#0e1e3a",
+  bgPanel: "rgba(14,24,50,0.75)",   // More opaque — panels need solid backing for readability
+  border: "rgba(200,170,60,0.28)",
+  borderBright: "rgba(255,210,40,0.55)",
+  text: "#e8e2cc",         // Brighter warm parchment — readable against deep blue
+  textDim: "#b8a878",      // Warmer, brighter dim text — was too muddy before
+  textBright: "#fff8e0",    // Chrome yellow white
+  cyan: "#f5c832",          // Chrome yellow No. 1 — straight from the tube
+  pink: "#e06020",          // Red ochre — the Arles rooftops
+  green: "#4a8830",         // Viridian — the cypresses
+  amber: "#f0a818",         // Naples yellow — sunflower hearts
+  red: "#c42818",           // Vermillion — his chair, his anguish
+  cyanGlow: "0 0 40px rgba(245,200,50,0.55), 0 0 80px rgba(245,200,50,0.2)",
+  pinkGlow: "0 0 30px rgba(224,96,32,0.45), 0 0 60px rgba(224,96,32,0.15)",
+  greenGlow: "0 0 25px rgba(74,136,48,0.4)",
+  amberGlow: "0 0 35px rgba(240,168,24,0.5), 0 0 70px rgba(240,168,24,0.15)",
+  font: '"Georgia", "Times New Roman", serif',
+  bodyFont: '"Georgia", "Times New Roman", serif',
+  starOpacity: { min: 0.4, max: 1.0 },
+  scanlineOpacity: 0,
+  isDark: true,
+  isVanGogh: true,
+  panelBg: "linear-gradient(135deg, rgba(14,24,56,0.82) 0%, rgba(10,20,48,0.78) 40%, rgba(18,30,64,0.80) 70%, rgba(12,22,52,0.82) 100%)",
+  canvasTexture: true,
+  borderRadius: 12,
+};
+
+// Theme context — all components read A from here
+const ThemeCtx = createContext(DARK);
+const useTheme = () => useContext(ThemeCtx);
+
+// Mutable ref for components that read A at module level (backwards compat)
+let A = DARK;
+
+// ─── Global Styles (injected once) ───────────────────────────────────
+const GlobalStyles = () => (
+  <style>{`
+    @keyframes star-drift { 0% { transform: translateY(0); opacity: 0.6; } 100% { transform: translateY(100vh); opacity: 0; } }
+    @keyframes blink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+    @keyframes pulse-glow { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+    @keyframes warp-in { 0% { transform: scale(0) rotate(-180deg); opacity: 0; } 60% { transform: scale(1.05) rotate(5deg); opacity: 1; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+    @keyframes descend { 0% { transform: translateY(-30px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+    @keyframes laser-down { 0% { height: 0; opacity: 1; } 50% { height: 80px; opacity: 1; } 100% { height: 0; opacity: 0; } }
+    @keyframes explode { 0% { transform: scale(1); opacity: 1; filter: brightness(1); } 40% { transform: scale(1.4); opacity: 1; filter: brightness(4) hue-rotate(60deg); } 100% { transform: scale(0.5); opacity: 0; filter: brightness(0); } }
+    @keyframes score-pop { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-40px) scale(1.3); opacity: 0; } }
+    @keyframes ship-hover { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } }
+    @keyframes crawl-full { 0% { transform: translateX(-50%) rotateX(22deg) translateY(100%); } 100% { transform: translateX(-50%) rotateX(22deg) translateY(-200%); } }
+    @keyframes fade-in { 0% { opacity: 0; transform: translateY(12px); } 100% { opacity: 1; transform: translateY(0); } }
+    @keyframes glow-pulse { 0%,100% { box-shadow: 0 0 8px rgba(0,255,255,0.15); } 50% { box-shadow: 0 0 24px rgba(0,255,255,0.35); } }
+    @keyframes target-lock { 0% { border-color: rgba(0,255,255,0.2); } 50% { border-color: rgba(0,255,255,0.8); } 100% { border-color: rgba(0,255,255,0.2); } }
+    @keyframes confetti-fall { 0% { transform: translateY(-10px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+    @keyframes vg-swirl { 0% { filter: url(#vg-turb); transform: rotate(0deg); } 50% { filter: url(#vg-turb); transform: rotate(0.3deg); } 100% { filter: url(#vg-turb); transform: rotate(0deg); } }
+    @keyframes vg-star-pulse { 0%,100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.8); filter: brightness(1.6); } }
+    @keyframes vg-bg-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    @keyframes vg-brushstroke { 0% { clip-path: inset(0 100% 0 0); } 100% { clip-path: inset(0 0 0 0); } }
+    @keyframes vg-float { 0%,100% { transform: translateY(0) rotate(-1deg); } 33% { transform: translateY(-6px) rotate(0.5deg); } 66% { transform: translateY(3px) rotate(-0.5deg); } }
+  `}</style>
+);
+
+// ─── Van Gogh Overlay ────────────────────────────────────────────────
+// "I dream of painting and then I paint my dream."
+// The sky is not a backdrop — it is the subject. Every brushstroke carries
+// the weight of a man who saw the world vibrating with color and feeling.
+const VanGoghOverlay = () => {
+  const T = useTheme();
+  if (!T.isVanGogh) return null;
+  return (
+    <>
+      <svg style={{ position: "absolute", width: 0, height: 0 }}>
+        <defs>
+          <filter id="vg-turb">
+            <feTurbulence type="turbulence" baseFrequency="0.012 0.01" numOctaves="5" seed="3" result="turb" />
+            <feDisplacementMap in="SourceGraphic" in2="turb" scale="10" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+          <filter id="vg-paint">
+            <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="6" seed="7" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" />
+          </filter>
+          <filter id="vg-heavy">
+            <feTurbulence type="turbulence" baseFrequency="0.018 0.015" numOctaves="4" seed="11" result="turb" />
+            <feDisplacementMap in="SourceGraphic" in2="turb" scale="14" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+          <filter id="vg-canvas">
+            <feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="5" seed="2" result="grain" />
+            <feColorMatrix type="saturate" values="0" in="grain" result="bw" />
+            <feBlend in="SourceGraphic" in2="bw" mode="multiply" />
+          </filter>
+          {/* Swirl distortion — static, like dried paint on canvas */}
+          <filter id="vg-swirl-filter">
+            <feTurbulence type="turbulence" baseFrequency="0.008 0.006" numOctaves="3" seed="42" result="turb" />
+            <feDisplacementMap in="SourceGraphic" in2="turb" scale="18" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </defs>
+      </svg>
+
+      {/* ═══ LAYER 1: The Deep Night Sky ═══
+          Not black. Never black. Van Gogh's night was alive —
+          Prussian blue bleeding into ultramarine, cobalt into violet.
+          "The night is more alive and more richly coloured than the day." */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        background: `
+          linear-gradient(175deg,
+            #0c1a38 0%,
+            #0e2248 15%,
+            #142e5c 30%,
+            #1a3a70 45%,
+            #163264 60%,
+            #122850 75%,
+            #0e1e3c 90%,
+            #0a1628 100%
+          )`,
+      }} />
+
+      {/* ═══ LAYER 2: The Great Swirls ═══
+          The churning sky of Saint-Rémy — not decoration, but
+          the visible movement of air, of anguish, of wonder.
+          Bold cobalt and cerulean swirling against the dark. */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        filter: "url(#vg-swirl-filter)",
+        background: `
+          radial-gradient(ellipse 800px 250px at 55% 12%, rgba(30,80,180,0.45) 0%, transparent 70%),
+          radial-gradient(ellipse 600px 200px at 20% 22%, rgba(40,90,190,0.35) 0%, transparent 65%),
+          radial-gradient(ellipse 700px 220px at 78% 28%, rgba(25,65,160,0.40) 0%, transparent 68%),
+          radial-gradient(ellipse 500px 180px at 40% 40%, rgba(50,100,200,0.25) 0%, transparent 60%),
+          radial-gradient(ellipse 650px 200px at 65% 55%, rgba(30,70,170,0.20) 0%, transparent 65%)
+        `,
+      }} />
+
+      {/* ═══ LAYER 3: The Golden Light ═══
+          Chrome yellow — the color he was obsessed with.
+          It bleeds through the sky like lamplight through a window,
+          like the halo around every star he ever painted. */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        background: `
+          radial-gradient(ellipse 400px 150px at 25% 10%, rgba(245,200,50,0.22) 0%, transparent 100%),
+          radial-gradient(ellipse 300px 100px at 72% 18%, rgba(240,180,30,0.18) 0%, transparent 100%),
+          radial-gradient(ellipse 250px 90px at 85% 35%, rgba(255,210,60,0.14) 0%, transparent 100%),
+          radial-gradient(ellipse 350px 120px at 10% 55%, rgba(245,190,40,0.12) 0%, transparent 100%),
+          radial-gradient(ellipse 200px 80px at 50% 75%, rgba(240,170,30,0.10) 0%, transparent 100%),
+          radial-gradient(ellipse 280px 100px at 90% 65%, rgba(220,160,40,0.08) 0%, transparent 100%)
+        `,
+      }} />
+
+      {/* ═══ LAYER 4: The Violet Undertow ═══
+          Beneath the blues — the purples and mauves he mixed
+          when the sadness crept in. "I put my heart and my soul
+          into my work, and have lost my mind in the process." */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        background: `
+          radial-gradient(ellipse 500px 200px at 35% 70%, rgba(80,50,140,0.18) 0%, transparent 70%),
+          radial-gradient(ellipse 400px 160px at 70% 80%, rgba(90,60,150,0.12) 0%, transparent 65%),
+          radial-gradient(ellipse 350px 130px at 15% 85%, rgba(70,40,120,0.15) 0%, transparent 60%)
+        `,
+      }} />
+
+      {/* ═══ LAYER 5: Visible Brushstrokes — the hand of the painter ═══
+          These aren't textures. They're the physical evidence of a man
+          dragging paint across canvas with fury and tenderness.
+          Horizontal and swirling strokes, like the sky is being BUILT. */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        opacity: 0.08,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='120' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 Q10 12 25 18 Q40 24 55 16 Q70 8 85 18 Q100 28 120 20' stroke='%234880c8' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M0 30 Q15 22 35 28 Q55 34 75 24 Q95 14 120 26' stroke='%23f5c832' stroke-width='2' fill='none' stroke-linecap='round' opacity='0.7'/%3E%3Cpath d='M0 10 Q20 4 40 12 Q60 20 80 10 Q100 2 120 14' stroke='%233060a0' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='0.5'/%3E%3C/svg%3E")`,
+        backgroundSize: "120px 40px",
+      }} />
+
+      {/* ═══ LAYER 6: Thick Impasto — the paint has BODY ═══
+          You can almost feel the ridges where the palette knife
+          dragged through cadmium yellow. The paint sits above
+          the canvas, casting tiny shadows. */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        opacity: 0.06,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 25 C20 18 40 30 60 22 C70 18 80 24 80 24' stroke='%23d4a830' stroke-width='4' fill='none' stroke-linecap='round' opacity='0.5'/%3E%3Cpath d='M10 55 C25 48 45 58 65 50 C75 46 80 52 80 52' stroke='%232858a0' stroke-width='3.5' fill='none' stroke-linecap='round' opacity='0.4'/%3E%3Cpath d='M0 70 C15 64 30 72 50 66 C65 62 80 68 80 68' stroke='%235030a0' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='0.3'/%3E%3Cpath d='M5 10 C20 5 35 14 55 8 C70 4 80 10 80 10' stroke='%23e0a020' stroke-width='3' fill='none' stroke-linecap='round' opacity='0.35'/%3E%3C/svg%3E")`,
+        backgroundSize: "80px 80px",
+        filter: "url(#vg-turb)",
+      }} />
+
+      {/* ═══ LAYER 7: Canvas Weave ═══
+          The linen shows through — you can see the texture of the
+          support beneath the paint. Rough, real, physical. */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none",
+        opacity: 0.1,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='10' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='2' height='1' x='0' y='0' fill='%23c8b070' opacity='0.5'/%3E%3Crect width='1' height='2' x='5' y='5' fill='%23b8a060' opacity='0.4'/%3E%3Crect width='2' height='1' x='3' y='7' fill='%23c8b070' opacity='0.3'/%3E%3Crect width='1' height='2' x='8' y='2' fill='%23a89050' opacity='0.35'/%3E%3Crect width='1' height='1' x='1' y='4' fill='%23d0b878' opacity='0.2'/%3E%3C/svg%3E")`,
+        backgroundSize: "10px 10px",
+      }} />
+
+      {/* ═══ LAYER 8: Cypress Silhouettes ═══
+          The dark flames reaching up from the bottom of the canvas.
+          Van Gogh painted cypresses like tongues of green-black fire
+          licking at the swirling sky. They anchor the composition. */}
+      <div style={{
+        position: "fixed", bottom: 0, left: 0, right: 0, height: "35vh",
+        zIndex: 0, pointerEvents: "none",
+        opacity: 0.15,
+      }}>
+        <svg width="100%" height="100%" viewBox="0 0 1200 300" preserveAspectRatio="none" style={{ display: "block" }}>
+          {/* Rolling hills */}
+          <path d="M0 280 Q150 240 300 260 Q450 280 600 250 Q750 220 900 260 Q1050 290 1200 260 L1200 300 L0 300Z"
+            fill="#0c1a2c" opacity="0.8" />
+          <path d="M0 290 Q200 260 400 275 Q600 290 800 265 Q1000 240 1200 270 L1200 300 L0 300Z"
+            fill="#081420" opacity="0.9" />
+          {/* Cypress trees — dark flames */}
+          <path d="M80 300 C80 240 65 180 72 140 C78 100 82 80 80 60 C78 80 75 100 70 140 C64 180 60 240 60 300Z"
+            fill="#0a1820" opacity="0.7" />
+          <path d="M180 300 C180 250 170 200 175 160 C180 120 178 90 176 70 C174 90 168 120 165 160 C160 200 158 250 158 300Z"
+            fill="#0c1c28" opacity="0.5" />
+          <path d="M1050 300 C1050 230 1038 170 1044 120 C1050 80 1048 50 1046 30 C1044 50 1038 80 1034 120 C1028 170 1020 230 1020 300Z"
+            fill="#0a1820" opacity="0.6" />
+          <path d="M1130 300 C1130 260 1122 210 1126 180 C1130 150 1128 130 1126 115 C1124 130 1120 150 1118 180 C1114 210 1110 260 1110 300Z"
+            fill="#0c1c28" opacity="0.45" />
+          {/* Small village church spire hint — like Starry Night */}
+          <path d="M600 270 L604 230 L608 270Z" fill="#0e1e30" opacity="0.35" />
+          <path d="M580 275 L580 255 L620 255 L620 275Z" fill="#0c1a28" opacity="0.25" />
+        </svg>
+      </div>
+
+      {/* ═══ LAYER 9: Swirling sky forms ═══
+          The great spirals — frozen in paint, as they are on canvas.
+          A painting doesn't move. It holds its breath forever. */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+        opacity: 0.12,
+      }}>
+        <svg width="100%" height="100%" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+          {/* Great swirl — upper right, like Starry Night */}
+          <ellipse cx="800" cy="150" rx="180" ry="60"
+            fill="none" stroke="rgba(60,120,210,0.4)" strokeWidth="8" strokeLinecap="round" />
+          <ellipse cx="800" cy="150" rx="130" ry="42"
+            fill="none" stroke="rgba(80,140,230,0.3)" strokeWidth="6" strokeLinecap="round" />
+          <ellipse cx="800" cy="150" rx="80" ry="26"
+            fill="none" stroke="rgba(245,200,50,0.25)" strokeWidth="4" strokeLinecap="round" />
+          {/* Second swirl — upper left */}
+          <ellipse cx="300" cy="200" rx="140" ry="50"
+            fill="none" stroke="rgba(50,100,190,0.3)" strokeWidth="7" strokeLinecap="round" />
+          <ellipse cx="300" cy="200" rx="90" ry="32"
+            fill="none" stroke="rgba(70,120,210,0.25)" strokeWidth="5" strokeLinecap="round" />
+          {/* Third swirl — middle */}
+          <ellipse cx="550" cy="350" rx="120" ry="40"
+            fill="none" stroke="rgba(40,80,170,0.2)" strokeWidth="6" strokeLinecap="round" />
+        </svg>
+      </div>
+    </>
+  );
+};
+
+// ─── Painted SVG Icons (replace emojis in VG mode) ──────────────────
+// Each icon is a tiny hand-painted SVG — organic, imperfect, brushstroke-style
+const PaintIcon = ({ type, size = 28, color = "#f0c040", style = {} }) => {
+  const s = size;
+  const icons = {
+    // Swirling star — like Starry Night
+    star: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M16 3 C17 8 20 10 26 11 C20 13 17 16 16 22 C15 16 11 13 5 11 C11 10 15 8 16 3Z"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+          style={{ filter: "url(#vg-paint)" }} />
+        <circle cx="16" cy="12" r="2" fill={color} opacity="0.6" />
+      </svg>
+    ),
+    // Palette — art/gallery
+    palette: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M6 16 C6 8 12 4 18 4 C26 4 28 10 24 14 C22 16 18 15 18 18 C18 22 14 26 10 26 C6 26 4 22 6 16Z"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"
+          style={{ filter: "url(#vg-paint)" }} />
+        <circle cx="11" cy="12" r="2" fill="#e85020" opacity="0.8" />
+        <circle cx="16" cy="9" r="1.8" fill="#5a9040" opacity="0.8" />
+        <circle cx="21" cy="11" r="1.8" fill="#508cdc" opacity="0.8" />
+        <circle cx="12" cy="18" r="1.5" fill="#f4a830" opacity="0.8" />
+      </svg>
+    ),
+    // Quill pen — writing/statement
+    quill: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M8 28 C10 20 14 14 24 4 C22 10 20 16 12 24Z"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+          style={{ filter: "url(#vg-paint)" }} />
+        <path d="M8 28 L6 26 C10 22 12 24 8 28Z" fill={color} opacity="0.4" />
+        <line x1="14" y1="18" x2="22" y2="8" stroke={color} strokeWidth="1" opacity="0.3" />
+      </svg>
+    ),
+    // Gallery frame — collection/portfolio
+    frame: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <rect x="4" y="6" width="24" height="20" rx="2"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"
+          style={{ filter: "url(#vg-paint)" }} />
+        <rect x="8" y="10" width="16" height="12" rx="1"
+          fill="none" stroke={color} strokeWidth="1" opacity="0.35" />
+        <path d="M10 18 L14 14 L18 17 L22 13 L24 16" stroke={color} strokeWidth="1.5" fill="none" opacity="0.5" />
+      </svg>
+    ),
+    // Sunflower — Van Gogh signature motif
+    sunflower: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <circle cx="16" cy="14" r="4" fill={color} opacity="0.5" />
+        {[0,45,90,135,180,225,270,315].map((angle, i) => {
+          const rad = angle * Math.PI / 180;
+          const px = 16 + Math.cos(rad) * 9;
+          const py = 14 + Math.sin(rad) * 9;
+          return <ellipse key={i} cx={px} cy={py} rx="3.5" ry="2"
+            transform={`rotate(${angle} ${px} ${py})`}
+            fill="none" stroke={color} strokeWidth="1.8" opacity="0.6" />;
+        })}
+        <path d="M16 19 C16 24 15 28 16 28 C17 28 16 24 16 19" stroke="#5a9040" strokeWidth="2" fill="none" opacity="0.5" />
+      </svg>
+    ),
+    // Cypress tree — landscape motif
+    cypress: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M16 4 C12 8 10 14 11 22 C12 26 14 28 16 28 C18 28 20 26 21 22 C22 14 20 8 16 4Z"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"
+          style={{ filter: "url(#vg-paint)" }} />
+        <path d="M13 12 Q16 10 19 12" stroke={color} strokeWidth="1" fill="none" opacity="0.3" />
+        <path d="M12 18 Q16 15 20 18" stroke={color} strokeWidth="1" fill="none" opacity="0.3" />
+      </svg>
+    ),
+    // Moon crescent — night sky
+    moon: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M20 6 C14 8 10 13 10 19 C10 25 15 28 20 26 C15 25 12 21 12 16 C12 11 15 7 20 6Z"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"
+          style={{ filter: "url(#vg-paint)" }} />
+      </svg>
+    ),
+    // Wheat/field — agriculture/harvest
+    wheat: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M16 28 L16 10" stroke={color} strokeWidth="2" strokeLinecap="round" />
+        <path d="M12 12 Q14 8 16 10" stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" />
+        <path d="M20 12 Q18 8 16 10" stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" />
+        <path d="M13 16 Q15 13 16 15" stroke={color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M19 16 Q17 13 16 15" stroke={color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M14 20 Q15 18 16 19" stroke={color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M18 20 Q17 18 16 19" stroke={color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+      </svg>
+    ),
+    // Swirl — movement/energy
+    swirl: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M16 8 C22 8 26 12 26 16 C26 22 20 24 16 22 C12 20 12 16 16 16 C18 16 20 18 18 20"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"
+          style={{ filter: "url(#vg-paint)" }} />
+      </svg>
+    ),
+    // Candle/lamp — light/illumination
+    lamp: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M16 6 C14 10 12 12 12 16 C12 20 14 22 16 22 C18 22 20 20 20 16 C20 12 18 10 16 6Z"
+          fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"
+          style={{ filter: "url(#vg-paint)" }} />
+        <path d="M14 22 L14 26 L18 26 L18 22" stroke={color} strokeWidth="1.5" fill="none" opacity="0.5" />
+        <circle cx="16" cy="14" r="2" fill={color} opacity="0.4" />
+      </svg>
+    ),
+    // Bridge/arch — connections
+    bridge: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M4 24 Q10 8 16 8 Q22 8 28 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"
+          style={{ filter: "url(#vg-paint)" }} />
+        <line x1="10" y1="16" x2="10" y2="24" stroke={color} strokeWidth="1.5" opacity="0.4" />
+        <line x1="16" y1="8" x2="16" y2="24" stroke={color} strokeWidth="1.5" opacity="0.4" />
+        <line x1="22" y1="16" x2="22" y2="24" stroke={color} strokeWidth="1.5" opacity="0.4" />
+      </svg>
+    ),
+    // Check/complete — hand-painted checkmark
+    check: (
+      <svg width={s} height={s} viewBox="0 0 32 32" style={style}>
+        <path d="M8 16 L14 22 L24 10" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+          style={{ filter: "url(#vg-paint)" }} />
+      </svg>
+    ),
+  };
+  return icons[type] || <span style={{ fontSize: size, ...style }}>{"\u2726"}</span>;
+};
+
+// Map engagement sectors to painted icon types
+const sectorIconMap = {
+  "Internal AI": "swirl",
+  "Entertainment": "frame",
+  "Consumer Tech": "lamp",
+  "Finance": "bridge",
+  "Government": "cypress",
+  "Healthcare": "wheat",
+  "Insurance": "bridge",
+  "Banking": "bridge",
+  "Commodities": "wheat",
+  "Utilities": "lamp",
+  "Energy": "swirl",
+  "GigScout": "sunflower",
+  "The AI Brief": "star",
+};
+
+// ─── VG Text Shadow (subtle dark halo behind text for readability) ───
+// Like how Van Gogh outlined forms with darker paint to make them pop
+const vgTextShadow = "0 1px 3px rgba(0,0,0,0.5), 0 0 8px rgba(0,0,0,0.25)";
+
+// ─── Impasto Panel Texture (visible paint surface on VG panels) ──────
+// When Van Gogh painted, the surface was never flat. You could feel
+// the ridges where the brush dragged, where the knife scraped.
+// This adds that physical texture to every gallery panel.
+const vgPanelTexture = {
+  backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 30 Q15 24 30 28 Q45 32 60 26' stroke='%23c8a850' stroke-width='1.5' fill='none' opacity='0.06' stroke-linecap='round'/%3E%3Cpath d='M0 15 Q20 10 40 16 Q55 20 60 14' stroke='%234878b8' stroke-width='1' fill='none' opacity='0.04' stroke-linecap='round'/%3E%3Cpath d='M0 48 Q12 42 28 46 Q44 50 60 44' stroke='%23d0b040' stroke-width='1.2' fill='none' opacity='0.05' stroke-linecap='round'/%3E%3C/svg%3E")`,
+  backgroundSize: "60px 60px",
+};
+
+// ─── Brushstroke Divider ─────────────────────────────────────────────
+const BrushDivider = ({ color = "rgba(180,150,80,0.3)", width = "100%", style = {} }) => (
+  <svg width={width} height="8" viewBox="0 0 200 8" preserveAspectRatio="none" style={{ display: "block", ...style }}>
+    <path d="M0 4 Q25 1 50 4 Q75 7 100 4 Q125 1 150 4 Q175 7 200 4"
+      stroke={color} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+  </svg>
+);
+
+// ─── Brush Frame (gilded gallery frame for panels) ──────────────────
+const BrushFrame = ({ children, color = "rgba(180,150,80,0.35)", style = {} }) => (
+  <div style={{ position: "relative", ...style }}>
+    {/* Top brushstroke border */}
+    <svg style={{ position: "absolute", top: -2, left: 8, right: 8, height: 6 }} viewBox="0 0 200 6" preserveAspectRatio="none">
+      <path d="M0 3 Q30 0.5 60 3 Q90 5.5 120 3 Q150 0.5 180 3 Q190 4 200 3" stroke={color} strokeWidth="2" fill="none" />
+    </svg>
+    {/* Bottom brushstroke border */}
+    <svg style={{ position: "absolute", bottom: -2, left: 8, right: 8, height: 6 }} viewBox="0 0 200 6" preserveAspectRatio="none">
+      <path d="M0 3 Q20 5 50 3 Q80 1 110 3 Q140 5 170 3 Q190 1.5 200 3" stroke={color} strokeWidth="2" fill="none" />
+    </svg>
+    {/* Left brushstroke border */}
+    <svg style={{ position: "absolute", top: 8, bottom: 8, left: -2, width: 6 }} viewBox="0 6 6 200" preserveAspectRatio="none">
+      <path d="M3 6 Q0.5 36 3 66 Q5.5 96 3 126 Q0.5 156 3 186 Q4 196 3 206" stroke={color} strokeWidth="2" fill="none" />
+    </svg>
+    {/* Right brushstroke border */}
+    <svg style={{ position: "absolute", top: 8, bottom: 8, right: -2, width: 6 }} viewBox="0 6 6 200" preserveAspectRatio="none">
+      <path d="M3 6 Q5 30 3 60 Q1 90 3 120 Q5 150 3 180 Q1.5 196 3 206" stroke={color} strokeWidth="2" fill="none" />
+    </svg>
+    {children}
+  </div>
+);
+
+// ─── Star Field ──────────────────────────────────────────────────────
+// In arcade mode: tiny drifting points of light.
+// In Van Gogh mode: the stars BURN. Concentric halos of chrome yellow
+// and Naples yellow radiate outward — each star a small sun painted
+// with visible rings of light, the way Vincent saw them through
+// tear-blurred eyes and absinthe-bright nights in Arles.
+const StarField = () => {
+  const T = useTheme();
+  const stars = useRef(Array.from({ length: 80 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: 0.5 + Math.random() * 2,
+    speed: 8 + Math.random() * 20,
+    delay: Math.random() * -15,
+    colorIdx: i,
+    opacityBase: Math.random(),
+    // VG-specific: each star has its own character
+    vgRings: 2 + Math.floor(Math.random() * 4),   // 2-5 concentric halos
+    vgCoreSize: 2 + Math.random() * 3,             // bright core
+    vgHaloSpread: 8 + Math.random() * 20,          // how far halos reach
+    vgWobble: Math.random() * 360,                 // rotation offset
+    vgPulseDur: 4 + Math.random() * 6,             // individual pulse speed
+    vgTint: i % 8,                                 // color variation
+  }))).current;
+  return (
+    <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
+      {stars.map(s => {
+        const isVG = T.isVanGogh;
+        const color = isVG
+          ? (s.colorIdx % 5 === 0 ? "#f0c040" : s.colorIdx % 7 === 0 ? "#e8a020" : s.colorIdx % 3 === 0 ? "#ffe880" : "#ffd460")
+          : (s.colorIdx % 12 === 0 ? T.cyan : s.colorIdx % 9 === 0 ? T.pink : s.colorIdx % 7 === 0 ? T.amber : (T.isDark ? "#fff" : "#333"));
+        const opacity = T.starOpacity.min + s.opacityBase * (T.starOpacity.max - T.starOpacity.min);
+
+        // ── Arcade mode: simple drifting dots ──
+        if (!isVG) return (
+          <div key={s.id} style={{
+            position: "absolute", left: `${s.x}%`, top: `${s.y}%`,
+            width: s.size, height: s.size, borderRadius: "50%",
+            background: color, opacity,
+            animation: `star-drift ${s.speed}s linear ${s.delay}s infinite`,
+            transition: "all 0.6s ease",
+          }} />
+        );
+
+        // ── Van Gogh mode: haloed stars like Starry Night ──
+        // "Looking at the stars always makes me dream."
+        const vgColors = [
+          ["#f5c832", "#ffd860", "#ffe890"],  // Chrome yellow — pure sunlight
+          ["#e8a020", "#f0b840", "#f8d060"],  // Naples yellow — warm gold
+          ["#ffe880", "#fff4b0", "#fffde0"],  // Zinc white tinted — moonlight
+          ["#f0c040", "#e0a028", "#d08820"],  // Deep gold — candlelight
+          ["#d0e8ff", "#a0c4f0", "#80a8e0"],  // Pale blue — cold distant stars
+          ["#f5c832", "#f0a818", "#e88810"],  // Amber fire — close and blazing
+          ["#e0d080", "#c8b860", "#f0e0a0"],  // Straw yellow — wheat field glow
+          ["#f8e0a0", "#f0c860", "#e8b040"],  // Lamplight — café terrace
+        ];
+        const tint = vgColors[s.vgTint % vgColors.length];
+        const totalSize = s.vgHaloSpread * 2 + s.vgCoreSize;
+
+        return (
+          <div key={s.id} style={{
+            position: "absolute",
+            left: `${s.x}%`, top: `${s.y}%`,
+            transform: "translate(-50%, -50%)",
+            opacity: opacity * 1.3,
+          }}>
+            <svg width={totalSize} height={totalSize} viewBox={`0 0 ${totalSize} ${totalSize}`}
+              style={{ overflow: "visible", filter: "url(#vg-paint)" }}>
+              {/* Concentric halo rings — painted with visible brushstroke weight */}
+              {Array.from({ length: s.vgRings }, (_, r) => {
+                const ringR = s.vgCoreSize + (s.vgHaloSpread / s.vgRings) * (r + 1);
+                const ringOpacity = 0.5 - (r / s.vgRings) * 0.4;
+                const strokeW = 2.5 - (r / s.vgRings) * 1.5;
+                const ringColor = r < s.vgRings / 2 ? tint[0] : (r < s.vgRings * 0.75 ? tint[1] : tint[2]);
+                return (
+                  <circle key={r}
+                    cx={totalSize / 2} cy={totalSize / 2} r={ringR}
+                    fill="none" stroke={ringColor} strokeWidth={strokeW}
+                    opacity={ringOpacity} strokeLinecap="round"
+                    strokeDasharray={r % 2 === 0 ? "none" : `${4 + r * 2} ${2 + r}`}
+                    transform={`rotate(${s.vgWobble + r * 30} ${totalSize/2} ${totalSize/2})`}
+                  />
+                );
+              })}
+              {/* Radial spokes — like painted rays of light */}
+              {s.vgRings >= 3 && [0, 60, 120, 180, 240, 300].map((angle, i) => {
+                const rad = (angle + s.vgWobble) * Math.PI / 180;
+                const innerR = s.vgCoreSize + 2;
+                const outerR = s.vgCoreSize + s.vgHaloSpread * 0.6;
+                return (
+                  <line key={`ray-${i}`}
+                    x1={totalSize/2 + Math.cos(rad) * innerR}
+                    y1={totalSize/2 + Math.sin(rad) * innerR}
+                    x2={totalSize/2 + Math.cos(rad) * outerR}
+                    y2={totalSize/2 + Math.sin(rad) * outerR}
+                    stroke={tint[0]} strokeWidth={1.2} opacity={0.2}
+                    strokeLinecap="round"
+                  />
+                );
+              })}
+              {/* Bright core — thick impasto dot of pure chrome yellow */}
+              <circle cx={totalSize / 2} cy={totalSize / 2} r={s.vgCoreSize}
+                fill={tint[0]} opacity="0.9" />
+              <circle cx={totalSize / 2} cy={totalSize / 2} r={s.vgCoreSize * 0.5}
+                fill="#fffde0" opacity="0.7" />
+            </svg>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// ─── Scanlines ───────────────────────────────────────────────────────
+const Scanlines = () => {
+  const T = useTheme();
+  return (
+  <div style={{
+    position: "fixed", inset: 0, pointerEvents: "none", zIndex: 9999,
+    background: "repeating-linear-gradient(0deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 3px)",
+    opacity: T.scanlineOpacity,
+    transition: "opacity 0.4s",
+  }} />
+  );
+};
+
+// ─── Confetti ────────────────────────────────────────────────────────
+const Confetti = ({ active }) => {
+  if (!active) return null;
+  const pieces = Array.from({ length: 50 }, (_, i) => ({
+    id: i, x: 5 + Math.random() * 90,
+    color: [A.cyan, A.pink, A.green, A.amber, A.textBright, A.red][i % 6],
+    size: 3 + Math.random() * 7, duration: 1.5 + Math.random() * 2,
+    delay: Math.random() * 0.8, shape: i % 3,
+  }));
+  return (
+    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 10000 }}>
+      {pieces.map(p => (
+        <div key={p.id} style={{
+          position: "absolute", left: `${p.x}%`, top: -10,
+          width: p.size, height: p.shape === 1 ? p.size : p.size * 1.5,
+          borderRadius: p.shape === 0 ? "50%" : p.shape === 1 ? "2px" : "0",
+          background: p.color,
+          animation: `confetti-fall ${p.duration}s ease-in ${p.delay}s forwards`,
+        }} />
+      ))}
+    </div>
+  );
+};
+
+// ─── Arcade HUD ──────────────────────────────────────────────────────
+const HUD = ({ score, cleared, total }) => {
+  const isVG = A.isVanGogh;
+  return (
+  <div style={{
+    position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+    display: "flex", justifyContent: "space-between", alignItems: "center",
+    padding: isVG ? "12px 24px" : "10px 20px",
+    background: isVG
+      ? "linear-gradient(180deg, rgba(11,26,59,0.92) 0%, rgba(11,26,59,0.6) 80%, transparent 100%)"
+      : A.isDark
+        ? "linear-gradient(180deg, rgba(6,6,15,0.95) 0%, rgba(6,6,15,0.7) 80%, transparent 100%)"
+        : "linear-gradient(180deg, rgba(244,242,239,0.95) 0%, rgba(244,242,239,0.7) 80%, transparent 100%)",
+    fontFamily: A.font, fontSize: isVG ? 11 : 9,
+    borderBottom: isVG ? `2px solid rgba(180,150,80,0.3)` : `1px solid ${A.border}`,
+    ...(isVG ? { fontStyle: "italic", letterSpacing: "0.04em" } : {}),
+  }}>
+    <div><span style={{ color: A.textDim }}>{isVG ? "Points " : "SCORE "}</span><span style={{ color: A.cyan }}>{String(score).padStart(6, "0")}</span></div>
+    <div><span style={{ color: A.textDim }}>{isVG ? "Galerie " : "TARGETS "}</span><span style={{ color: A.green }}>{cleared}</span><span style={{ color: A.textDim }}>/{total}</span></div>
+    <div><span style={{ color: A.textDim }}>{isVG ? "L'artiste " : "PLAYER 1 "}</span><span style={{ color: A.amber }}>JC</span></div>
+  </div>
+  );
+};
+
+// ─── Shared: Arcade Button (impressionist in VG mode) ────────────────
+const ArcadeBtn = ({ children, onClick, color = A.cyan, large = false, style = {} }) => {
+  const [h, setH] = useState(false);
+  const isVG = A.isVanGogh;
+  return (
+    <button onClick={onClick} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{
+      background: isVG
+        ? (h ? `linear-gradient(135deg, ${color}30, ${color}18)` : `linear-gradient(135deg, ${color}15, transparent)`)
+        : (h ? `${color}${A.isDark ? "1a" : "14"}` : "transparent"),
+      border: isVG ? `2px solid ${color}50` : `2px solid ${color}`,
+      color: color,
+      fontFamily: A.font,
+      fontSize: large ? (isVG ? 14 : 11) : (isVG ? 10 : 8),
+      fontStyle: isVG ? "italic" : "normal",
+      fontWeight: isVG ? "600" : "normal",
+      padding: large ? (isVG ? "18px 40px" : "16px 36px") : (isVG ? "12px 24px" : "10px 20px"),
+      cursor: "pointer",
+      borderRadius: isVG ? 20 : 2,
+      transition: "all 0.3s ease",
+      textShadow: isVG
+        ? `0 0 20px ${color}60, 0 2px 4px rgba(0,0,0,0.3)`
+        : (h ? `0 0 12px ${color}` : "none"),
+      boxShadow: isVG
+        ? (h ? `0 4px 24px ${color}40, inset 0 1px 0 ${color}20` : `0 2px 12px ${color}20`)
+        : (h ? `0 0 20px ${color}40, inset 0 0 20px ${color}10` : "none"),
+      letterSpacing: isVG ? "0.08em" : "0.05em",
+      ...(isVG ? { filter: "url(#vg-paint)" } : {}),
+      ...style,
+    }}>
+      {children}
+    </button>
+  );
+};
+
+// ─── Easter Eggs ─────────────────────────────────────────────────────
+const easterEggs = {
+  starClick: [
+    "You found an easter egg! I hid a few in here.",
+    "Fun fact: I convinced a McKinsey partner to try deep dish at Lou Malnati\u2019s. He switched firms to Chicago.",
+    "This entire app was built as a product exercise. The meta is the message.",
+    "If you\u2019re reading this, you\u2019re exactly the curious person I\u2019d love to work with.",
+  ],
+  engagementFacts: {},
+};
+
+// ─── Data ────────────────────────────────────────────────────────────
+const timeline = [
+  {
+    era: "University of Illinois", years: "2008\u20132012", icon: "\uD83C\uDF93",
+    color: A.amber, highlights: [
+      { metric: "B.S.", label: "Finance & Accountancy" },
+      { metric: "UIUC", label: "Champaign, IL" },
+      { metric: "2012", label: "graduated" },
+    ],
+    description: "Bachelor of Science in Finance and Accountancy from the University of Illinois at Urbana-Champaign. The pragmatic Midwest foundations that would later inform everything.",
+  },
+  {
+    era: "Chicago Startups", years: "2013\u20132018", icon: "\uD83D\uDE80",
+    color: A.red, highlights: [
+      { metric: "3", label: "ventures built" },
+      { metric: "CEO", label: "of Matchist" },
+      { metric: "0\u21921", label: "products shipped" },
+    ],
+    description: "Started in finance at Cortland Capital, then caught the startup bug. Founded GigScout \u2014 a live music discovery app born from frustration with Chicago\u2019s fragmented venue scene. Took over as CEO of Matchist, a developer marketplace that needed a turnaround. Built product at Fulton Works. Chicago\u2019s startup ecosystem taught me scrappiness, speed, and the art of building with constraints.",
+  },
+  {
+    era: "McKinsey Product Guild", years: "2018\u2013Present", icon: "\uD83C\uDFDB\uFE0F",
+    color: A.pink, highlights: [
+      { metric: "11+", label: "engagements" },
+      { metric: "4", label: "promotions" },
+      { metric: "EM", label: "current level" },
+    ],
+    description: "Rose from Digital Analyst to Engagement Specialist & Manager in McKinsey\u2019s Product Management practice. Built products across energy, financial services, government, insurance, healthcare, consumer tech, and entertainment. From dynamic pricing algorithms for a global commodities firm, to first responder tools for a major NYC utility, to an internal AI tool (Beacon) for McKinsey\u2019s own Business Building practice. Brought a rare founder\u2019s perspective \u2014 I\u2019ve actually shipped the things most consultants only advise on.",
+  },
+  {
+    era: "What\u2019s Next", years: "2026\u2013", icon: "\u2726",
+    highlights: [
+      { metric: "\uD83D\uDD25", label: "mission driven" },
+      { metric: "12yr+", label: "PM experience" },
+      { metric: "1", label: "portfolio you\u2019re exploring" },
+    ],
+    description: "Ready to bring product leadership to complex, high-stakes programs. 12+ years of product experience, from founding startups to leading McKinsey engagements across banking, energy, and AI \u2014 strategic rigor meets shipping velocity.",
+    color: A.cyan,
+  },
+];
+
+const engagements = [
+  // AI / Agentic engagements first
+  { icon: "\uD83E\uDD16", sector: "Internal AI", headline: "Beacon \u2014 Agentic Business Building Tool", product: "Built Beacon, an internal agentic AI tool for McKinsey\u2019s Business Building practice. Start with a few lines describing an idea, and Beacon explores its potential \u2014 mapping value pools, identifying strategic advantages, and using AI to generate novel business concepts executives hadn\u2019t considered. Genuine human-in-the-loop experience where the machine surfaced patterns and the human steered. Went all the way from ideation to business cases, wireframes, personas, and pitch decks \u2014 everything needed to sell a new venture. ~100 agentic workflows, aggressively pushing the fidelity of what LLMs could deliver.", team: "~16 people (3 PMs, 3 designers, ~10 engineers)", timeline: "~6 months (2024)", tag: "AI Product", color: A.cyan },
+  { icon: "\uD83C\uDFAE", sector: "Entertainment", headline: "AI-Era Character IP Protection Strategy", product: "A major toy company needed to protect its character IP in a world where LLMs have ingested countless unauthorized copies and users are remixing them freely. Consulted on building an official \u2018character bank\u2019 \u2014 a controlled, canonical source for how their IP could be used by content creators and internal teams. Skeletoned out the core architecture considering the state of AI in early 2026: knowledge graphs, character constitutions, usage guardrails. Short engagement, high-leverage strategic framing.", team: "Small advisory team", timeline: "~2 months", tag: "AI Strategy", color: A.pink },
+  // Lingo
+  { icon: "\uD83D\uDCF1", sector: "Consumer Tech", headline: "Lingo \u2014 Consumer Glucose Wearable", product: "Took an established medical glucose monitoring business and reimagined it for the consumer wellness market \u2014 an entirely different use case, audience, and bar for design. Built a mobile-led wearable experience requiring high-fidelity UX, brand building from scratch, and careful navigation of health claims without FDA-approved language. Launched across multiple markets \u2014 starting in the UK to test and learn, then expanding to North America. Built on top of hardware SDKs we didn\u2019t control, while simultaneously navigating FDA approval \u2014 one of the most complex product environments I\u2019ve worked in.", team: "Large cross-functional team (product, design, engineering, regulatory)", timeline: "~12+ months", tag: "Consumer 0\u21921", color: A.green },
+  // Rest: most recent to oldest
+  { icon: "\uD83C\uDFDB\uFE0F", sector: "Finance", headline: "Platform Stabilization & Client Onboarding Fix", product: "A major bank had launched a platform to great fanfare \u2014 but core tech decisions were breaking down. They\u2019d stopped onboarding new clients entirely, turning away millions in potential revenue. Came in as a SWAT team: audited infrastructure weaknesses, standardized the onboarding process, and built criteria for which clients could be brought on and in what order. Less of a hands-on build, more of a diagnose-and-repair mission. Unblocked the pipeline so they could start onboarding again.", team: "Advisory / SWAT team", timeline: "~4 months", tag: "Product Ops", color: A.amber },
+  { icon: "\uD83C\uDFDB\uFE0F", sector: "Government", headline: "Immigration Visa Workflow Modernization", product: "Extended a G7 nation\u2019s legacy visa decisioning software \u2014 infrastructure dating back to 1980 that agents were legislatively required to keep using. Couldn\u2019t rip and replace, so we got creative: built lightweight UI layers and automated repetitive interactions for agents buried in a Frankenstein system. Deployments only happened 3 times a year on a fixed schedule \u2014 miss the window and you wait months. Scoped lean, hit the timeline, and shipped. Team was a mix of our engineers and theirs, building their internal capability along the way.", team: "~20 people (3 PMs, 2 designers, ~15 engineers \u2014 mixed McKinsey + client)", timeline: "~2.5 months", tag: "UX / Product", color: A.cyan },
+  { icon: "\uD83D\uDC8A", sector: "Healthcare", headline: "Pharma Negotiation Intelligence Platform", product: "Built the first digital negotiation tool for a top 3 PBM. Drug pricing negotiations involve deep secrecy and real game theory \u2014 negotiators had always done it manually. Had to deeply understand how they thought about pricing strategy, then build tooling that let them craft proposals, react to pharma counter-offers, and get creative with deal structures \u2014 all within a single digital experience. Another fully remote build at the peak of the pandemic.", team: "~27 people (3 PMs, 4 designers, ~20 engineers)", timeline: "~6 months", tag: "Product Build", color: A.red },
+  { icon: "\uD83D\uDEE1\uFE0F", sector: "Insurance", headline: "Broker Client Onboarding Tool", product: "First fully remote engagement \u2014 kicked off during the pandemic. Digitized how insurance brokers onboarded new clients, replacing a clunky manual process with a streamlined web app focused on high usability. Brokers could gather prospective client information and feed it directly into their pipeline. Not the sexiest problem, but a masterclass in shipping product with a distributed team.", team: "~8 people (1 PM, 2 designers, ~5 engineers)", timeline: "~3 months", tag: "Product Build", color: A.amber },
+  { icon: "\uD83C\uDFE6", sector: "Banking", headline: "SMB Lending BaaS API Platform", product: "Built a Banking-as-a-Service product for a major bank to sell small business loans through affiliate partners. No UI \u2014 entirely API-driven. Mapped out every requirement in the loan origination process and translated it into a structured API spec that affiliates could integrate against, letting them collect borrower details and pass them back seamlessly. A different kind of product problem: designing the experience without owning the interface.", team: "~11 people (3 PMs, no designers, ~8 engineers)", timeline: "~6 months", tag: "0\u21921 API Product", color: A.pink },
+  { icon: "\uD83C\uDF3E", sector: "Commodities", headline: "Buyer-Seller CRM & Dynamic Pricing Tool", product: "Worked on-site at a soybean processing plant in Lincoln, Nebraska. The buyer\u2019s team had no structured way to manage farmer relationships or price competitively in real time. Built a CRM-style platform that gave buyers full context on each seller \u2014 history, past deals, relationship notes \u2014 plus dynamic pricing that factored in market forces and competition so they could offer the right price on any given day. Helped them win significantly more business.", team: "~8 people (1 PM, 1 designer, ~6 engineers)", timeline: "~3\u20134 months", tag: "CRM + Pricing", color: A.green },
+  { icon: "\uD83C\uDFD9\uFE0F", sector: "Utilities", headline: "First Responder Field Triage Platform", product: "When outages or infrastructure issues hit, first responders were surveying damage with paper forms and manual photos \u2014 slowing restoration times across all five NYC boroughs. Built an iPad-based web app that let responders triage issues on-site, capture structured data, and receive real-time instructions on whether to fix in place or dispatch a repair crew \u2014 all within a single experience. Directly improved how quickly power got restored.", team: "~25 people (multiple PMs, ~5 designers, ~15\u201320 engineers)", timeline: "~4 months to MVP", tag: "Mobile Product", color: A.cyan },
+  { icon: "\u26A1", sector: "Energy", headline: "Nuclear Maintenance Planning Platform", product: "Maintenance tasks \u2014 even replacing a single screw \u2014 could take up to 2 years due to regulatory, safety, and coordination overhead. Built an end-to-end web application that unified planners, procurement, and implementation teams onto one platform, streamlining collaboration and dramatically cutting cycle times for facility maintenance.", team: "~30 people (multiple PMs, designers, large engineering group)", timeline: "~6 months", tag: "Product Build", color: A.amber },
+  // Bonus round
+  { icon: "\uD83C\uDFB5", sector: "GigScout", headline: "GigScout \u2014 Rebuilt in a Day with AI", product: "GigScout was my first startup \u2014 a live music discovery app born from frustration with Chicago\u2019s fragmented venue scene. In 2025, I rebuilt the entire thing in a single day using AI tools. Same vision, modern stack, shipped and live. A personal proof point that the barrier to creation has fundamentally changed.", team: "Solo (AI-assisted)", timeline: "1 day", tag: "BONUS ROUND", color: A.amber, bonus: true, link: "https://gigscout.app" },
+  { icon: "\uD83D\uDCF0", sector: "The AI Brief", headline: "The AI Brief \u2014 AI News for Real People", product: "A newsletter and web experience that translates AI developments into plain language for non-technical readers. No hype, no jargon \u2014 just real context about what\u2019s happening and why it matters. Built and launched in a week as a personal project to make AI accessible to everyone.", team: "Solo (AI-assisted)", timeline: "1 week", tag: "BONUS ROUND", color: A.cyan, bonus: true, link: "https://the-ai-brief-lilac.vercel.app" },
+];
+
+// ─── Screen: Landing (Arcade Boot / Impressionist Gallery Entrance) ──
+const Landing = ({ onStart }) => {
+  const [phase, setPhase] = useState(0);
+  const [eggIdx, setEggIdx] = useState(-1);
+  const [eggShow, setEggShow] = useState(false);
+  const isVG = A.isVanGogh;
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setPhase(1), 400);
+    const t2 = setTimeout(() => setPhase(2), 1200);
+    const t3 = setTimeout(() => setPhase(3), 2000);
+    const t4 = setTimeout(() => setPhase(4), 2800);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+  }, []);
+
+  const handleEgg = () => {
+    const next = (eggIdx + 1) % easterEggs.starClick.length;
+    setEggIdx(next); setEggShow(true);
+    setTimeout(() => setEggShow(false), 3500);
+  };
+
+  return (
+    <div style={{
+      minHeight: "100vh", display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center", padding: 32,
+      textAlign: "center", position: "relative", zIndex: 1,
+    }}>
+      {/* JC avatar — painted portrait in gilded frame (VG) or glowing orb (arcade) */}
+      {phase >= 1 && (
+        <div style={{
+          animation: isVG ? "fade-in 1.2s ease-out" : "warp-in 0.6s ease-out",
+          marginBottom: 20,
+        }}>
+          <div onClick={handleEgg} style={{
+            width: isVG ? 120 : 100, height: isVG ? 120 : 100,
+            borderRadius: isVG ? 16 : "50%",
+            border: isVG ? `4px solid rgba(180,150,80,0.6)` : `3px solid ${A.cyan}`,
+            background: isVG
+              ? "linear-gradient(145deg, #1a3060 0%, #0d1f45 40%, #1a3570 70%, #0b1530 100%)"
+              : A.isDark ? "radial-gradient(circle at 30% 30%, #1a2a3a, #06060f)" : "radial-gradient(circle at 30% 30%, #e8f0f2, #d0dfe3)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: isVG
+              ? "0 4px 30px rgba(240,192,64,0.3), inset 0 2px 20px rgba(240,192,64,0.1), 0 0 0 2px rgba(120,90,40,0.4), 0 0 0 6px rgba(60,45,20,0.2)"
+              : A.cyanGlow,
+            animation: isVG ? "vg-float 6s ease-in-out infinite" : "glow-pulse 3s ease-in-out infinite",
+            transition: "background 0.4s, box-shadow 0.4s",
+            ...(isVG ? { filter: "url(#vg-paint)" } : {}),
+          }}>
+            <span style={{
+              fontFamily: A.font, fontSize: isVG ? 28 : 24,
+              color: A.cyan,
+              textShadow: isVG ? `0 0 24px rgba(240,192,64,0.6), 0 2px 8px rgba(0,0,0,0.4)` : (A.isDark ? `0 0 20px ${A.cyan}` : "none"),
+              ...(isVG ? { fontStyle: "italic", fontWeight: 700 } : {}),
+            }}>JC</span>
+          </div>
+          {eggShow && (
+            <div style={{
+              fontSize: 12, color: A.amber, fontStyle: "italic",
+              marginTop: 12, maxWidth: 350, lineHeight: 1.6,
+              animation: "fade-in 0.3s ease-out",
+              fontFamily: A.bodyFont,
+            }}>{easterEggs.starClick[eggIdx]}</div>
+          )}
+        </div>
+      )}
+
+      {/* Title — impressionist lettering (VG) or arcade heading */}
+      {phase >= 2 && (
+        <div style={{ animation: "fade-in 0.6s ease-out" }}>
+          <h1 style={{
+            fontFamily: isVG ? A.font : A.bodyFont,
+            fontSize: isVG ? 44 : 48, fontWeight: 700,
+            color: A.textBright, margin: "0 0 8px 0", lineHeight: 1.1,
+            letterSpacing: isVG ? "0.02em" : "-0.02em",
+            textShadow: isVG
+              ? `0 0 40px rgba(240,192,64,0.25), 0 2px 8px rgba(0,0,0,0.4)`
+              : A.isDark ? `0 0 40px rgba(0,255,255,0.15)` : "none",
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>Hi, I'm John.</h1>
+          <p style={{
+            fontFamily: A.font, fontSize: isVG ? 11 : 9, color: A.cyan,
+            letterSpacing: isVG ? "0.15em" : "0.1em", marginBottom: 8,
+            ...(isVG ? { fontStyle: "italic", fontWeight: 400 } : {}),
+          }}>{isVG ? "Product Manager \u00B7 Builder \u00B7 Consultant" : "PRODUCT MANAGER // BUILDER"}</p>
+        </div>
+      )}
+
+      {/* Subtitle */}
+      {phase >= 3 && (
+        <div style={{ animation: "fade-in 0.6s ease-out", maxWidth: 520, marginTop: 16 }}>
+          <p style={{
+            fontSize: isVG ? 20 : 18, color: A.text, lineHeight: 1.65,
+            fontFamily: A.bodyFont, marginBottom: 8,
+            ...(isVG ? { fontStyle: "italic", textShadow: vgTextShadow } : {}),
+          }}>Welcome to my portfolio walkthrough.</p>
+          <p style={{
+            fontSize: isVG ? 15 : 14, color: isVG ? A.text : A.textDim, lineHeight: 1.6,
+            fontFamily: A.bodyFont,
+            ...(isVG ? { textShadow: vgTextShadow } : {}),
+          }}>
+            Startup founder turned McKinsey PM.
+            <br />Chicago&#8209;built.
+          </p>
+        </div>
+      )}
+
+      {/* TL;DR Panel — Gallery placard (VG) or Mission Briefing (arcade) */}
+      {phase >= 3 && (
+        <div style={{
+          animation: "fade-in 0.6s ease-out 0.3s both",
+          maxWidth: 540, width: "100%", marginTop: 32,
+          background: isVG ? A.panelBg : A.bgPanel,
+          border: isVG ? `2px solid rgba(180,150,80,0.3)` : `1px solid ${A.border}`,
+          borderRadius: isVG ? A.borderRadius : 4,
+          padding: isVG ? "28px 30px" : "22px 26px", textAlign: "left",
+          ...(isVG ? {
+            boxShadow: "0 4px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)",
+            filter: "url(#vg-paint)",
+            ...vgPanelTexture,
+          } : {}),
+        }}>
+          {isVG && <BrushDivider color="rgba(180,150,80,0.25)" style={{ marginBottom: 16 }} />}
+          <p style={{
+            fontFamily: A.font, fontSize: isVG ? 10 : 8, color: A.pink,
+            letterSpacing: isVG ? "0.15em" : "0.1em", marginBottom: isVG ? 18 : 14,
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>{isVG ? "Exhibition Notes" : "MISSION BRIEFING"}</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: isVG ? 14 : 10 }}>
+            {[
+              { icon: "\uD83D\uDE80", vgIcon: "sunflower", text: "Founded GigScout (live music) and led Matchist (dev marketplace) as CEO in Chicago\u2019s startup scene" },
+              { icon: "\uD83C\uDFDB\uFE0F", vgIcon: "cypress", text: "12+ years in product \u2014 5 in Chicago startups, 8 at McKinsey (Analyst to Engagement Manager). 11+ engagements across energy, banking, government, AI, consumer tech" },
+              { icon: "\uD83E\uDD16", vgIcon: "swirl", text: "Built Beacon, McKinsey\u2019s internal AI tool. Advised a global entertainment co on AI & IP strategy" },
+              { icon: "\u26A1", vgIcon: "star", text: "This week: rebuilt GigScout in a day with AI, launched The AI Brief. Still shipping." },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                {isVG
+                  ? <div style={{ flexShrink: 0, marginTop: -2 }}><PaintIcon type={item.vgIcon} size={22} color={A.cyan} /></div>
+                  : <span style={{ fontSize: 16, lineHeight: 1.4, flexShrink: 0 }}>{item.icon}</span>
+                }
+                <p style={{
+                  fontSize: isVG ? 15 : 14, color: A.text, lineHeight: isVG ? 1.65 : 1.55, margin: 0,
+                  fontFamily: A.bodyFont,
+                  ...(isVG ? { fontStyle: "italic", textShadow: vgTextShadow } : {}),
+                }}>{item.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Start button — "Enter the Gallery" (VG) or "Insert Coin" (arcade) */}
+      {phase >= 4 && (
+        <div style={{ animation: "fade-in 0.5s ease-out", marginTop: 36 }}>
+          <ArcadeBtn large color={A.cyan} onClick={onStart}>
+            {isVG ? "Enter the Gallery \u2192" : "INSERT COIN TO BEGIN \u25B6"}
+          </ArcadeBtn>
+          <p style={{
+            fontFamily: A.font, fontSize: isVG ? 9 : 7, color: A.textDim, marginTop: 16,
+            ...(isVG ? { fontStyle: "italic", letterSpacing: "0.08em" } : {}),
+          }}>
+            {isVG ? "~4 min \u00B7 Interactive \u00B7 No login required" : "~4 MIN \u00B7 INTERACTIVE \u00B7 NO LOGIN REQUIRED"}
+          </p>
+          <div style={{
+            marginTop: 32, display: "flex", gap: 10, justifyContent: "center",
+            animation: "fade-in 0.5s ease-out 0.3s both",
+          }}>
+            {[
+              { label: "One-Pager (Dark)", href: "jc-pm-teaser.html", icon: "\u263E" },
+              { label: "One-Pager (Light)", href: "jc-pm-teaser-light.html", icon: "\u2600" },
+            ].map((dl, i) => (
+              <a key={i} href={dl.href} target="_blank" rel="noopener noreferrer" style={{
+                display: "flex", alignItems: "center", gap: 8,
+                padding: isVG ? "10px 18px" : "8px 16px",
+                borderRadius: isVG ? 12 : 4,
+                background: isVG ? A.panelBg : A.bgPanel,
+                border: isVG ? `1.5px solid rgba(180,150,80,0.3)` : `1px solid ${A.border}`,
+                textDecoration: "none", transition: "all 0.2s",
+                cursor: "pointer",
+                ...(isVG ? { boxShadow: "0 2px 12px rgba(0,0,0,0.2)" } : {}),
+              }}>
+                <span style={{ fontSize: 14 }}>{dl.icon}</span>
+                <span style={{
+                  fontFamily: A.font, fontSize: isVG ? 8 : 7, color: A.textDim,
+                  letterSpacing: "0.06em",
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{isVG ? dl.label : dl.label.toUpperCase()}</span>
+                <span style={{ fontSize: 10, color: A.textDim }}>{"\u2197"}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Screen: Hub (Arcade Menu / Gallery Hall) ────────────────────────
+const Hub = ({ onNavigate, onHome, completed, score }) => {
+  const [ready, setReady] = useState(false);
+  useEffect(() => { setTimeout(() => setReady(true), 100); }, []);
+  const isVG = A.isVanGogh;
+
+  const allDone = completed.fleet && completed.record && completed.why;
+
+  const missions = [
+    {
+      key: "fleet", icon: "\uD83D\uDC7E", vgIconType: "frame",
+      title: "ENGAGEMENT FLEET", vgTitle: "The Portfolio Collection",
+      subtitle: "11 TARGETS TO CLEAR", vgSubtitle: "11 Works on Display",
+      color: A.cyan,
+      desc: "Destroy the invaders to reveal my McKinsey & startup portfolio. Each tile is a real engagement.",
+      vgDesc: "Each painting reveals a McKinsey or startup engagement. Tap to unveil the collection.",
+      time: "~2 min", done: completed.fleet,
+    },
+    {
+      key: "record", icon: "\uD83D\uDE80", vgIconType: "cypress",
+      title: "THE MISSION LOG", vgTitle: "The Career Retrospective",
+      subtitle: "4 CAREER ERAS", vgSubtitle: "4 Periods of Work",
+      color: A.amber,
+      desc: "UIUC \u2192 Chicago startups \u2192 McKinsey Product Guild \u2192 What\u2019s Next. The full career arc with real milestones.",
+      vgDesc: "From university to startups to McKinsey to what\u2019s next. A retrospective in four movements.",
+      time: "~1 min", done: completed.record,
+    },
+    {
+      key: "why", icon: "\u2726", vgIconType: "quill",
+      title: "INCOMING TRANSMISSION", vgTitle: "Artist\u2019s Statement",
+      subtitle: "A MESSAGE FROM THE PILOT", vgSubtitle: "A Personal Letter",
+      color: A.pink,
+      desc: "My Product Philosophy. The genuine version \u2014 no buzzwords, just conviction.",
+      vgDesc: "My Product Philosophy. Written with conviction, not corporate polish.",
+      time: "~1 min", done: completed.why,
+    },
+  ];
+
+  return (
+    <div style={{
+      minHeight: "100vh", display: "flex", flexDirection: "column",
+      alignItems: "center", padding: "70px 24px 60px", maxWidth: 720, margin: "0 auto",
+      position: "relative", zIndex: 1,
+    }}>
+      {ready && (
+        <div style={{ textAlign: "center", marginBottom: 40, animation: "fade-in 0.5s ease-out" }}>
+          <p style={{
+            fontFamily: A.font, fontSize: isVG ? 10 : 8, color: A.pink,
+            letterSpacing: isVG ? "0.15em" : "0.1em", marginBottom: 10,
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>{isVG ? "Product Manager Portfolio" : "PRODUCT MANAGER PORTFOLIO"}</p>
+          <h2 style={{
+            fontFamily: isVG ? A.font : A.bodyFont, fontSize: isVG ? 30 : 34, fontWeight: 700,
+            color: A.textBright, margin: "0 0 8px 0",
+            letterSpacing: isVG ? "0.02em" : "-0.01em",
+            ...(isVG ? { fontStyle: "italic", textShadow: `0 0 30px rgba(240,192,64,0.2)` } : {}),
+          }}>{isVG ? "Choose Your Gallery Wing" : "Select your mission"}</h2>
+          <p style={{
+            fontSize: 15, color: A.textDim, fontFamily: A.bodyFont,
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>{isVG ? "Wander freely. Each wing reveals a different dimension." : "Explore in any order. Each reveals a different dimension."}</p>
+        </div>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: isVG ? 18 : 14, width: "100%" }}>
+        {missions.map((m, i) => (
+          <MissionCard key={m.key} m={m} delay={200 + i * 120} ready={ready} onClick={() => onNavigate(m.key)} />
+        ))}
+      </div>
+
+      {allDone && (
+        <div style={{ textAlign: "center", marginTop: 40, animation: isVG ? "fade-in 0.8s ease-out" : "warp-in 0.6s ease-out" }}>
+          <p style={{
+            fontFamily: A.font, fontSize: isVG ? 12 : 10, color: A.green, marginBottom: 16,
+            textShadow: A.isDark ? `0 0 20px ${A.green}` : "none",
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>
+            {isVG ? "The Collection Is Complete" : "ALL MISSIONS COMPLETE"}
+          </p>
+          <p style={{
+            fontSize: 16, color: A.text, fontFamily: A.bodyFont, marginBottom: 20,
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>{isVG ? "You\u2019ve seen every wing. Shall we talk?" : "You explored all three dimensions. Let's talk."}</p>
+          <ArcadeBtn large color={A.green} onClick={() => onNavigate("contact")}>
+            {isVG ? "Sign the Guestbook" : "SIGNAL HOME \u2605"}
+          </ArcadeBtn>
+        </div>
+      )}
+
+      {/* Back to start */}
+      <div style={{ marginTop: 40, textAlign: "center" }}>
+        <button onClick={onHome} style={{
+          background: "transparent", border: "none",
+          fontFamily: A.font, fontSize: isVG ? 9 : 7, color: A.textDim,
+          cursor: "pointer", letterSpacing: "0.08em",
+          padding: "8px 16px", transition: "color 0.2s",
+          opacity: 0.6,
+          ...(isVG ? { fontStyle: "italic" } : {}),
+        }}>{isVG ? "\u2190 Return to Entrance" : "\u25C0 BACK TO START"}</button>
+      </div>
+    </div>
+  );
+};
+
+const MissionCard = ({ m, delay, ready, onClick }) => {
+  const [hovered, setHovered] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const isVG = A.isVanGogh;
+  useEffect(() => { if (ready) { const t = setTimeout(() => setVisible(true), delay); return () => clearTimeout(t); } }, [ready]);
+
+  if (!visible) return <div style={{ height: 110 }} />;
+
+  return (
+    <div onClick={onClick} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+      style={{
+        background: isVG
+          ? (hovered ? "linear-gradient(135deg, rgba(40,60,120,0.5), rgba(25,40,80,0.4))" : A.panelBg)
+          : (hovered ? (A.isDark ? "rgba(0,255,255,0.04)" : "rgba(0,100,120,0.04)") : A.bgPanel),
+        border: isVG
+          ? `2px solid ${hovered ? `${m.color}60` : "rgba(180,150,80,0.25)"}`
+          : `1px solid ${hovered ? m.color : A.border}`,
+        borderLeft: isVG ? undefined : `4px solid ${m.done ? A.green : m.color}`,
+        borderRadius: isVG ? A.borderRadius : 4,
+        padding: isVG ? "26px 28px" : "22px 24px",
+        cursor: "pointer", transition: "all 0.35s ease",
+        boxShadow: isVG
+          ? (hovered ? `0 8px 40px rgba(0,0,0,0.4), 0 0 30px ${m.color}15, inset 0 1px 0 rgba(255,255,255,0.06)` : "0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04)")
+          : (hovered ? `0 0 30px ${m.color}15` : "none"),
+        animation: "descend 0.4s ease-out",
+        position: "relative", overflow: "hidden",
+        ...(isVG ? { filter: hovered ? "url(#vg-paint)" : "none", ...vgPanelTexture } : {}),
+      }}
+    >
+      {/* Gilded top accent for VG mode */}
+      {isVG && (
+        <div style={{
+          position: "absolute", top: 0, left: 0, right: 0, height: 3,
+          background: `linear-gradient(90deg, transparent, ${m.done ? A.green : m.color}60, transparent)`,
+        }} />
+      )}
+
+      {/* Targeting reticle (arcade) / swirling paint ring (VG) on hover */}
+      {hovered && !m.done && !isVG && (
+        <div style={{
+          position: "absolute", top: 14, right: 16,
+          width: 28, height: 28, borderRadius: "50%",
+          border: `2px solid ${m.color}`, opacity: 0.5,
+          animation: "target-lock 1s ease-in-out infinite",
+        }}>
+          <div style={{ position: "absolute", top: "50%", left: -4, right: -4, height: 1, background: m.color }} />
+          <div style={{ position: "absolute", left: "50%", top: -4, bottom: -4, width: 1, background: m.color }} />
+        </div>
+      )}
+      {hovered && !m.done && isVG && (
+        <div style={{
+          position: "absolute", top: 12, right: 14,
+          width: 32, height: 32, borderRadius: "50%",
+          border: `2px solid ${m.color}40`,
+          animation: "vg-float 3s ease-in-out infinite",
+          opacity: 0.6,
+          background: `radial-gradient(circle, ${m.color}15, transparent 70%)`,
+        }} />
+      )}
+
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 18 }}>
+        <div style={{
+          fontSize: isVG ? 34 : 30, lineHeight: 1, minWidth: 40, textAlign: "center",
+          filter: hovered ? `drop-shadow(0 0 ${isVG ? 12 : 8}px ${m.color})` : "none",
+          transition: "filter 0.3s ease",
+        }}>{isVG ? <PaintIcon type={m.vgIconType} size={36} color={m.color} /> : m.icon}</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: isVG ? 6 : 4 }}>
+            <h3 style={{
+              fontFamily: A.font, fontSize: isVG ? 14 : 11,
+              color: m.done ? A.green : A.textBright, margin: 0,
+              ...(isVG ? { fontStyle: "italic", fontWeight: 600, letterSpacing: "0.02em" } : {}),
+            }}>{isVG ? (m.vgTitle || m.title) : m.title}</h3>
+            {m.done && <span style={{
+              fontFamily: A.font, fontSize: isVG ? 9 : 8, color: A.green,
+              animation: "pulse-glow 2s infinite",
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>{isVG ? "Viewed" : "CLEAR"}</span>}
+          </div>
+          <p style={{
+            fontFamily: A.font, fontSize: isVG ? 9 : 7, color: m.color,
+            margin: "0 0 8px 0", letterSpacing: isVG ? "0.1em" : "0.08em",
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>{isVG ? (m.vgSubtitle || m.subtitle) : m.subtitle}</p>
+          <p style={{
+            fontSize: isVG ? 15 : 14, color: isVG ? A.text : A.textDim, margin: "0 0 6px 0",
+            lineHeight: isVG ? 1.6 : 1.5, fontFamily: A.bodyFont,
+            ...(isVG ? { fontStyle: "italic", textShadow: vgTextShadow } : {}),
+          }}>{isVG ? (m.vgDesc || m.desc) : m.desc}</p>
+          <span style={{
+            fontFamily: A.font, fontSize: isVG ? 8 : 7, color: A.textDim,
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>{m.time}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── Screen: Engagement Fleet (Shootable Grid / Gallery Wall) ────────
+const Fleet = ({ onBack, onComplete, score, setScore }) => {
+  const [cleared, setCleared] = useState({});
+  const [active, setActive] = useState(null);
+  const [firing, setFiring] = useState(null);
+  const [exploding, setExploding] = useState(null);
+  const [scorePop, setScorePop] = useState(null);
+  const [ready, setReady] = useState(false);
+  const detailRef = useRef(null);
+  const isVG = A.isVanGogh;
+
+  useEffect(() => { setTimeout(() => setReady(true), 200); }, []);
+
+  useEffect(() => {
+    if (active !== null && detailRef.current) {
+      setTimeout(() => {
+        const el = detailRef.current;
+        const top = el.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top, behavior: "smooth" });
+      }, 350);
+    }
+  }, [active]);
+
+  const clearedCount = Object.keys(cleared).length;
+
+  useEffect(() => {
+    if (clearedCount === engagements.length && !active) {
+      setTimeout(() => onComplete(), 800);
+    }
+  }, [clearedCount, active]);
+
+  const handleShoot = (idx) => {
+    if (cleared[idx] || firing !== null) return;
+    if (isVG) {
+      // In VG mode: gentle "unveil" — no laser, just a soft reveal
+      setCleared(prev => ({ ...prev, [idx]: true }));
+      setActive(idx);
+      setScore(prev => prev + 500);
+      setScorePop(idx);
+      setTimeout(() => setScorePop(null), 1000);
+    } else {
+      setFiring(idx);
+      setTimeout(() => {
+        setExploding(idx);
+        setFiring(null);
+        setTimeout(() => {
+          setExploding(null);
+          setCleared(prev => ({ ...prev, [idx]: true }));
+          setActive(idx);
+          setScore(prev => prev + 500);
+          setScorePop(idx);
+          setTimeout(() => setScorePop(null), 1000);
+        }, 400);
+      }, 300);
+    }
+  };
+
+  const eng = active !== null ? engagements[active] : null;
+  const fact = eng ? easterEggs.engagementFacts[eng.sector] : null;
+
+  return (
+    <div style={{ minHeight: "100vh", position: "relative", zIndex: 1, padding: "70px 20px 40px" }}>
+      <div style={{ maxWidth: 800, margin: "0 auto" }}>
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+          <ArcadeBtn onClick={onBack}>{isVG ? "\u2190 Back" : "ESC"}</ArcadeBtn>
+          <div style={{
+            fontFamily: A.font, fontSize: isVG ? 9 : 8, color: A.textDim,
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>
+            {isVG ? "Unveiled: " : "CLEARED: "}<span style={{ color: A.green }}>{clearedCount}</span>/{engagements.length}
+          </div>
+        </div>
+
+        {/* Detail Panel */}
+        {eng && (
+          <div key={active} ref={detailRef} style={{
+            animation: isVG ? "fade-in 0.5s ease-out" : "warp-in 0.4s ease-out",
+            background: isVG ? A.panelBg : A.bgPanel,
+            border: isVG ? `2px solid rgba(180,150,80,0.3)` : `1px solid ${A.border}`,
+            borderLeft: isVG ? undefined : `4px solid ${eng.color}`,
+            borderRadius: isVG ? A.borderRadius : 4,
+            padding: isVG ? "32px 28px" : "28px 24px",
+            marginBottom: 24,
+            ...(isVG ? {
+              boxShadow: "0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)",
+              filter: "url(#vg-paint)",
+              ...vgPanelTexture,
+            } : {}),
+          }}>
+            {/* Gilded top bar for VG */}
+            {isVG && <div style={{ position: "absolute", top: 0, left: 20, right: 20, height: 2, background: `linear-gradient(90deg, transparent, ${eng.color}50, transparent)` }} />}
+
+            {isVG && <BrushDivider color={`${eng.color}40`} style={{ marginBottom: 14 }} />}
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+              {isVG
+                ? <PaintIcon type={sectorIconMap[eng.sector] || "star"} size={36} color={eng.color} />
+                : <span style={{ fontSize: 32, filter: `drop-shadow(0 0 8px ${eng.color})` }}>{eng.icon}</span>
+              }
+              <div>
+                <div style={{
+                  fontFamily: A.font, fontSize: isVG ? 12 : 10, color: eng.color, marginBottom: 4,
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{eng.sector.toUpperCase()}</div>
+                <div style={{
+                  fontFamily: A.font, fontSize: isVG ? 8 : 7, color: A.textDim, letterSpacing: "0.05em",
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{eng.tag}</div>
+              </div>
+            </div>
+
+            <h3 style={{
+              fontFamily: A.bodyFont, fontSize: isVG ? 22 : 20, fontWeight: 700,
+              color: A.textBright, margin: "0 0 14px 0", lineHeight: 1.3,
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>{eng.headline}</h3>
+
+            <p style={{
+              fontSize: isVG ? 16 : 15, color: A.text, lineHeight: 1.7,
+              fontFamily: A.bodyFont, margin: "0 0 18px 0",
+              ...(isVG ? { fontStyle: "italic", textShadow: vgTextShadow } : {}),
+            }}>{eng.product}</p>
+
+            <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
+              <div style={{
+                flex: 1, minWidth: 180,
+                background: isVG ? "rgba(255,255,255,0.03)" : (A.isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)"),
+                border: `1px solid ${A.border}`,
+                borderRadius: isVG ? 8 : 4, padding: isVG ? "14px 16px" : "12px 14px",
+              }}>
+                <div style={{
+                  fontFamily: A.font, fontSize: isVG ? 8 : 7, color: eng.color,
+                  letterSpacing: "0.1em", marginBottom: 6,
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{isVG ? "Collaborators" : "TEAM"}</div>
+                <div style={{ fontSize: 13, color: A.text, lineHeight: 1.5, fontFamily: A.bodyFont }}>{eng.team}</div>
+              </div>
+              <div style={{
+                minWidth: 100,
+                background: isVG ? "rgba(255,255,255,0.03)" : (A.isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)"),
+                border: `1px solid ${A.border}`,
+                borderRadius: isVG ? 8 : 4, padding: isVG ? "14px 16px" : "12px 14px",
+              }}>
+                <div style={{
+                  fontFamily: A.font, fontSize: isVG ? 8 : 7, color: eng.color,
+                  letterSpacing: "0.1em", marginBottom: 6,
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{isVG ? "Period" : "DURATION"}</div>
+                <div style={{ fontFamily: A.bodyFont, fontSize: 18, fontWeight: 700, color: A.textBright }}>{eng.timeline}</div>
+              </div>
+            </div>
+
+            {eng.link && (
+              <a href={eng.link} target="_blank" rel="noopener noreferrer" style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                background: `${eng.color}15`, border: `1px solid ${eng.color}40`,
+                borderRadius: isVG ? 12 : 4, padding: "10px 18px", marginBottom: 16,
+                textDecoration: "none", transition: "all 0.2s",
+                fontFamily: A.font, fontSize: isVG ? 9 : 8, color: eng.color,
+                letterSpacing: "0.08em",
+                ...(isVG ? { fontStyle: "italic" } : {}),
+              }}>
+                {isVG ? "View Live \u2192" : "VISIT LIVE \u2192"}
+              </a>
+            )}
+
+            {fact && (
+              <div style={{
+                borderTop: `1px solid ${A.border}`, paddingTop: 12,
+                fontSize: 13, color: A.amber, fontStyle: "italic", lineHeight: 1.6,
+                fontFamily: A.bodyFont,
+              }}>
+                {"\uD83D\uDCAC"} {fact}
+              </div>
+            )}
+            <button onClick={() => setActive(null)} style={{
+              marginTop: 14, background: "transparent",
+              border: `1px solid ${A.border}`,
+              color: A.textDim, fontFamily: A.font,
+              fontSize: isVG ? 8 : 7, padding: isVG ? "8px 16px" : "6px 14px",
+              cursor: "pointer", borderRadius: isVG ? 10 : 2,
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>{isVG ? "Close" : "CLOSE"}</button>
+          </div>
+        )}
+
+        {ready && (
+          <div style={{ animation: "fade-in 0.4s ease-out" }}>
+            {isVG && <div style={{ textAlign: "center", marginBottom: 10 }}><PaintIcon type="frame" size={36} color={A.cyan} /></div>}
+            <h2 style={{
+              fontFamily: A.font, fontSize: isVG ? 18 : 14, color: A.cyan,
+              textShadow: A.isDark ? `0 0 20px ${A.cyan}` : "none", marginBottom: 6, textAlign: "center",
+              ...(isVG ? { fontStyle: "italic", fontWeight: 600 } : {}),
+            }}>{isVG ? "The Portfolio Collection" : "ENGAGEMENT FLEET"}</h2>
+            <p style={{
+              fontFamily: A.font, fontSize: isVG ? 9 : 7, color: A.pink,
+              textAlign: "center", marginBottom: 28, letterSpacing: "0.1em",
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>
+              {isVG ? "Tap each painting to unveil the work beneath" : "\u25BC DESTROY TARGETS TO REVEAL PORTFOLIO \u25BC"}
+            </p>
+          </div>
+        )}
+
+        {/* Grid */}
+        {ready && (
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+            gap: isVG ? 14 : 10,
+            marginBottom: 20,
+          }}>
+            {engagements.filter(e => !e.bonus).map((eng, _) => {
+              const idx = engagements.indexOf(eng);
+              return (
+              <InvaderTile
+                key={idx} eng={eng} idx={idx}
+                cleared={!!cleared[idx]} isActive={active === idx}
+                isFiring={firing === idx} isExploding={exploding === idx}
+                scorePop={scorePop === idx}
+                onShoot={() => handleShoot(idx)}
+                onSelect={() => cleared[idx] && setActive(idx)}
+              />
+              );
+            })}
+          </div>
+        )}
+
+        {/* Bonus Round */}
+        {ready && (
+          <>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 12, marginBottom: 14,
+              animation: "fade-in 0.4s ease-out 0.6s both",
+            }}>
+              {isVG
+                ? <BrushDivider color={`${A.pink}50`} style={{ flex: 1 }} />
+                : <div style={{ flex: 1, height: 1, background: A.border }} />
+              }
+              <span style={{
+                fontFamily: A.font, fontSize: isVG ? 9 : 7, color: A.pink,
+                letterSpacing: "0.15em",
+                ...(isVG ? { fontStyle: "italic" } : {}),
+              }}>{isVG ? "Personal Works" : "BONUS ROUND"}</span>
+              {isVG
+                ? <BrushDivider color={`${A.pink}50`} style={{ flex: 1 }} />
+                : <div style={{ flex: 1, height: 1, background: A.border }} />
+              }
+            </div>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, minmax(140px, 1fr))",
+              gap: isVG ? 14 : 10, marginBottom: 28,
+              maxWidth: 300, margin: "0 auto 28px",
+              animation: "fade-in 0.4s ease-out 0.7s both",
+            }}>
+              {engagements.filter(e => e.bonus).map((eng, _) => {
+                const idx = engagements.indexOf(eng);
+                return (
+                <InvaderTile
+                  key={idx} eng={eng} idx={idx}
+                  cleared={!!cleared[idx]} isActive={active === idx}
+                  isFiring={firing === idx} isExploding={exploding === idx}
+                  scorePop={scorePop === idx}
+                  onShoot={() => handleShoot(idx)}
+                  onSelect={() => cleared[idx] && setActive(idx)}
+                />
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* Completion */}
+        {clearedCount === engagements.length && (
+          <div style={{ textAlign: "center", marginTop: 20, animation: isVG ? "fade-in 0.6s ease-out" : "warp-in 0.5s ease-out" }}>
+            <div style={{
+              fontFamily: A.font, fontSize: isVG ? 16 : 14, color: A.green,
+              textShadow: A.isDark ? `0 0 30px ${A.green}` : "none", marginBottom: 12,
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>
+              {isVG ? "The Full Collection, Unveiled" : "FLEET DESTROYED"}
+            </div>
+            <p style={{
+              fontSize: 15, color: A.text, fontFamily: A.bodyFont, marginBottom: 20,
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>
+              {isVG ? "11 engagements. 4 industries. One relentless builder." : "11 engagements. 4 industries. One relentless builder."}
+            </p>
+            <ArcadeBtn color={A.green} onClick={onBack}>{isVG ? "\u2190 Return to Gallery" : "RETURN TO BASE \u25C0"}</ArcadeBtn>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const InvaderTile = ({ eng, idx, cleared, isActive, isFiring, isExploding, scorePop, onShoot, onSelect }) => {
+  const [hovered, setHovered] = useState(false);
+  const isVG = A.isVanGogh;
+
+  return (
+    <div
+      onClick={cleared ? onSelect : onShoot}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        position: "relative",
+        aspectRatio: "1",
+        border: isVG
+          ? `2px solid ${isActive ? `${eng.color}70` : cleared ? `${A.green}30` : hovered ? `${eng.color}50` : "rgba(180,150,80,0.2)"}`
+          : `2px solid ${isActive ? eng.color : cleared ? `${A.green}40` : hovered ? eng.color : A.border}`,
+        borderRadius: isVG ? A.borderRadius : 4,
+        background: isVG
+          ? (isActive ? `linear-gradient(145deg, ${eng.color}18, ${eng.color}08)` : cleared ? "rgba(90,144,64,0.06)" : hovered ? `linear-gradient(145deg, ${eng.color}10, transparent)` : A.panelBg)
+          : (isActive ? `${eng.color}12` : cleared ? (A.isDark ? "rgba(0,255,0,0.03)" : "rgba(21,112,21,0.05)") : hovered ? `${eng.color}08` : A.bgPanel),
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        cursor: "pointer", transition: "all 0.3s ease",
+        animation: isVG
+          ? (cleared ? "fade-in 0.4s ease-out" : `descend 0.3s ease-out ${0.05 * idx}s both`)
+          : (isExploding ? "explode 0.4s ease-out forwards" : `descend 0.3s ease-out ${0.05 * idx}s both`),
+        boxShadow: isVG
+          ? (hovered && !cleared ? `0 6px 24px rgba(0,0,0,0.4), 0 0 20px ${eng.color}20` : isActive ? `0 6px 30px rgba(0,0,0,0.4), 0 0 20px ${eng.color}15` : "0 2px 12px rgba(0,0,0,0.25)")
+          : (hovered && !cleared ? `0 0 20px ${eng.color}30` : isActive ? `0 0 20px ${eng.color}25` : "none"),
+        overflow: "hidden",
+        ...(isVG && hovered && !cleared ? { filter: "url(#vg-paint)", transform: "translateY(-2px)" } : {}),
+      }}
+    >
+      {/* VG: Gilded frame top accent */}
+      {isVG && !cleared && (
+        <div style={{
+          position: "absolute", top: 0, left: 0, right: 0, height: 2,
+          background: `linear-gradient(90deg, transparent, ${eng.color}40, transparent)`,
+        }} />
+      )}
+
+      {/* Bonus badge */}
+      {eng.bonus && !cleared && (
+        <div style={{
+          position: "absolute", top: 4, right: 4,
+          fontFamily: A.font, fontSize: isVG ? 6 : 5, color: A.pink,
+          letterSpacing: "0.1em", opacity: 0.8,
+          animation: "pulse-glow 2s infinite",
+          ...(isVG ? { fontStyle: "italic" } : {}),
+        }}>{isVG ? "Extra" : "BONUS"}</div>
+      )}
+
+      {/* Laser beam (arcade only) */}
+      {isFiring && !isVG && (
+        <div style={{
+          position: "absolute", bottom: "50%", left: "50%",
+          width: 3, transform: "translateX(-50%)",
+          background: `linear-gradient(to top, ${eng.color}, transparent)`,
+          animation: "laser-down 0.3s ease-out forwards",
+          zIndex: 5,
+        }} />
+      )}
+
+      {/* Score popup */}
+      {scorePop && (
+        <div style={{
+          position: "absolute", top: "30%", left: "50%", transform: "translateX(-50%)",
+          fontFamily: A.font, fontSize: isVG ? 9 : 8, color: A.green,
+          textShadow: A.isDark ? `0 0 10px ${A.green}` : "none",
+          animation: "score-pop 1s ease-out forwards",
+          zIndex: 10,
+          ...(isVG ? { fontStyle: "italic" } : {}),
+        }}>+500</div>
+      )}
+
+      {/* Icon */}
+      <div style={{
+        fontSize: cleared ? (isVG ? 22 : 20) : (isVG ? 32 : 28),
+        lineHeight: 1,
+        filter: hovered && !cleared
+          ? `drop-shadow(0 0 ${isVG ? 14 : 10}px ${eng.color})`
+          : cleared ? (isVG ? "none" : "grayscale(0.3) brightness(0.7)") : "none",
+        transition: "all 0.3s ease",
+        marginBottom: 6,
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}>
+        {isVG
+          ? (cleared
+            ? <PaintIcon type="check" size={22} color={A.green} />
+            : <PaintIcon type={sectorIconMap[eng.sector] || "star"} size={30} color={eng.color} />)
+          : (cleared ? "\u2713" : eng.icon)
+        }
+      </div>
+
+      {/* Label */}
+      <div style={{
+        fontFamily: A.font,
+        fontSize: isVG ? 7 : 6,
+        color: cleared ? A.green : hovered ? eng.color : A.textDim,
+        textAlign: "center",
+        letterSpacing: "0.05em",
+        transition: "color 0.2s ease",
+        padding: "0 4px",
+        ...(isVG ? { fontStyle: "italic" } : {}),
+      }}>
+        {eng.sector.toUpperCase()}
+      </div>
+
+      {/* Targeting reticle (arcade) */}
+      {hovered && !cleared && !isVG && (
+        <div style={{
+          position: "absolute", inset: 8,
+          border: `1px solid ${eng.color}60`,
+          borderRadius: "50%",
+          animation: "target-lock 0.8s ease-in-out infinite",
+          pointerEvents: "none",
+        }}>
+          <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: `${eng.color}40` }} />
+          <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: `${eng.color}40` }} />
+        </div>
+      )}
+
+      {/* Swirling paint glow (VG hover) */}
+      {hovered && !cleared && isVG && (
+        <div style={{
+          position: "absolute", inset: 6,
+          borderRadius: 10,
+          background: `radial-gradient(circle at 50% 50%, ${eng.color}12, transparent 70%)`,
+          animation: "vg-float 2s ease-in-out infinite",
+          pointerEvents: "none",
+        }} />
+      )}
+    </div>
+  );
+};
+
+// ─── Screen: Mission Log (Track Record / Career Retrospective) ──────
+const MissionLog = ({ onBack, onComplete }) => {
+  const [activeEra, setActiveEra] = useState(0);
+  const [ready, setReady] = useState(false);
+  const isVG = A.isVanGogh;
+  useEffect(() => { setTimeout(() => setReady(true), 150); }, []);
+
+  const era = timeline[activeEra];
+
+  return (
+    <div style={{ minHeight: "100vh", position: "relative", zIndex: 1, padding: "70px 24px 40px", maxWidth: 720, margin: "0 auto" }}>
+      <div style={{ marginBottom: 28 }}><ArcadeBtn onClick={onBack}>{isVG ? "\u2190 Back" : "ESC"}</ArcadeBtn></div>
+
+      {ready && (
+        <div style={{ animation: "fade-in 0.4s ease-out" }}>
+          {isVG && <div style={{ textAlign: "center", marginBottom: 12 }}><PaintIcon type="cypress" size={36} color={A.amber} /></div>}
+          <h2 style={{
+            fontFamily: A.font, fontSize: isVG ? 18 : 14, color: A.amber,
+            textShadow: A.isDark ? `0 0 20px ${A.amber}` : "none", marginBottom: 6, textAlign: "center",
+            ...(isVG ? { fontStyle: "italic", fontWeight: 600 } : {}),
+          }}>{isVG ? "The Career Retrospective" : "THE MISSION LOG"}</h2>
+          <p style={{
+            fontFamily: A.font, fontSize: isVG ? 9 : 7, color: A.textDim,
+            textAlign: "center", marginBottom: 28, letterSpacing: "0.1em",
+            ...(isVG ? { fontStyle: "italic" } : {}),
+          }}>{isVG ? "Four Periods \u00B7 2012\u2013Present" : "CAREER TRAJECTORY // 2012\u2013PRESENT"}</p>
+
+          {/* Era Tabs */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: isVG ? 10 : 8, marginBottom: 28 }}>
+            {timeline.map((t, i) => (
+              <button key={i} onClick={() => setActiveEra(i)} style={{
+                padding: isVG ? "12px 10px" : "10px 8px",
+                borderRadius: isVG ? 10 : 2,
+                border: `2px solid ${activeEra === i ? t.color : A.border}`,
+                background: activeEra === i
+                  ? (isVG ? `linear-gradient(135deg, ${t.color}18, ${t.color}08)` : (A.isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"))
+                  : "transparent",
+                color: activeEra === i ? t.color : A.textDim,
+                fontFamily: A.font, fontSize: isVG ? 8 : 7, cursor: "pointer",
+                transition: "all 0.2s ease",
+                boxShadow: isVG && activeEra === i ? `0 2px 12px ${t.color}20` : "none",
+                textAlign: "center",
+                ...(isVG ? { fontStyle: "italic" } : {}),
+              }}>
+                {isVG
+                  ? <><PaintIcon type={["wheat","sunflower","cypress","star"][i]} size={20} color={activeEra === i ? t.color : A.textDim} /><br/></>
+                  : <>{t.icon}<br/></>
+                }
+                {t.era.split(":")[0].toUpperCase()}
+              </button>
+            ))}
+          </div>
+
+          {/* Era Card */}
+          <div key={activeEra} style={{
+            animation: isVG ? "fade-in 0.5s ease-out" : "warp-in 0.4s ease-out",
+            background: isVG ? A.panelBg : A.bgPanel,
+            border: isVG ? `2px solid rgba(180,150,80,0.25)` : `1px solid ${A.border}`,
+            borderRadius: isVG ? A.borderRadius : 4, padding: isVG ? 32 : 28,
+            ...(isVG ? {
+              boxShadow: "0 6px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)",
+              filter: "url(#vg-paint)",
+              ...vgPanelTexture,
+            } : {}),
+          }}>
+            {isVG && <BrushDivider color={`${era.color}35`} style={{ marginBottom: 18 }} />}
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 22 }}>
+              {isVG
+                ? <PaintIcon type={["wheat","sunflower","cypress","star"][activeEra]} size={44} color={era.color} />
+                : <span style={{ fontSize: 40, filter: `drop-shadow(0 0 10px ${era.color})` }}>{era.icon}</span>
+              }
+              <div>
+                <h3 style={{
+                  fontFamily: A.font, fontSize: isVG ? 14 : 11, color: era.color, margin: 0,
+                  ...(isVG ? { fontStyle: "italic", fontWeight: 600 } : {}),
+                }}>{era.era.toUpperCase()}</h3>
+                <span style={{
+                  fontFamily: A.font, fontSize: isVG ? 9 : 8, color: A.textDim,
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{era.years}</span>
+              </div>
+            </div>
+
+            {/* Metrics */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 22 }}>
+              {era.highlights.map((h, i) => (
+                <div key={i} style={{
+                  background: isVG ? "rgba(255,255,255,0.03)" : (A.isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)"),
+                  border: `1px solid ${A.border}`,
+                  borderRadius: isVG ? 8 : 4, padding: isVG ? 16 : 14, textAlign: "center",
+                }}>
+                  <div style={{
+                    fontFamily: A.font, fontSize: isVG ? 20 : 18, color: era.color, lineHeight: 1, marginBottom: 6,
+                    ...(isVG ? { fontWeight: 700 } : {}),
+                  }}>{h.metric}</div>
+                  <div style={{
+                    fontFamily: A.font, fontSize: isVG ? 7 : 6, color: A.textDim, letterSpacing: "0.05em",
+                    ...(isVG ? { fontStyle: "italic" } : {}),
+                  }}>{h.label.toUpperCase()}</div>
+                </div>
+              ))}
+            </div>
+
+            <p style={{
+              fontSize: isVG ? 16 : 15, color: A.text, lineHeight: 1.75, fontFamily: A.bodyFont,
+              ...(isVG ? { fontStyle: "italic", textShadow: vgTextShadow } : {}),
+            }}>{era.description}</p>
+          </div>
+        </div>
+      )}
+
+      <div style={{ textAlign: "center", marginTop: 32 }}>
+        <ArcadeBtn color={A.amber} onClick={() => { onComplete(); onBack(); }}>
+          {isVG ? "Period Reviewed \u2713" : "MISSION LOGGED \u2713"}
+        </ArcadeBtn>
+      </div>
+    </div>
+  );
+};
+
+// ─── Screen: Why Anthropic (Star Wars Crawl + Static / Artist's Statement) ──
+const WhyAnthropic = ({ onBack, onComplete }) => {
+  const isVG = A.isVanGogh;
+  const [mode, setMode] = useState(isVG ? "static" : "crawl"); // VG skips crawl
+  const [crawlKey, setCrawlKey] = useState(0); // bump to restart animation
+  const [crawlDone, setCrawlDone] = useState(false);
+  const [ready, setReady] = useState(false);
+  const crawlTimer = useRef(null);
+
+  useEffect(() => { setTimeout(() => setReady(true), 300); }, []);
+
+  // When crawl starts, set a timer for when it finishes (~55s)
+  useEffect(() => {
+    if (mode === "crawl") {
+      setCrawlDone(false);
+      crawlTimer.current = setTimeout(() => {
+        setCrawlDone(true);
+        // Auto-transition to static after crawl ends
+        setTimeout(() => setMode("static"), 1200);
+      }, 55000);
+      return () => clearTimeout(crawlTimer.current);
+    }
+  }, [mode, crawlKey]);
+
+  const goStatic = () => {
+    clearTimeout(crawlTimer.current);
+    setMode("static");
+  };
+
+  const replayCrawl = () => {
+    setCrawlKey(k => k + 1);
+    setCrawlDone(false);
+    setMode("crawl");
+  };
+
+  // Shared content for both modes
+  const contentBlocks = [
+    { type: "text", text: "As a PM and a human, I am both excited and nervous about this new world." },
+    { type: "text", text: "Just this week I rebuilt GigScout, piloted an AI newsletter for friends and family who are curious but not technical, and built a portfolio tour for you in the theme of Space Invaders meets Star Wars. The barrier to building has collapsed\u2026 What a world, indeed." },
+    { type: "projects" },
+    { type: "text", text: "I can prototype in hours what used to take weeks. I can test ideas at a pace that would have seemed absurd even two months ago. The velocity alone changes how you think \u2014 you stop self-censoring ideas before they even leave your head." },
+    { type: "text", text: "But in parallel \u2014 does it mean anything to make creative things when everyone else can just as easily too? What happens to craft when the barrier to creation drops to zero? I don\u2019t think there are clean answers yet, and I\u2019m suspicious of anyone who claims otherwise." },
+    { type: "quote", text: "The teams I admire most are the ones taking these questions seriously \u2014 even when they don\u2019t have the answers yet. That kind of intellectual honesty is what I look for in collaborators." },
+    { type: "text", text: "Most companies in this space are either moving too fast to ask the hard questions, or too paralyzed by them to ship anything meaningful. The best teams do both \u2014 building world-class products while genuinely wrestling with what it all means for people and for the world." },
+    { type: "text", text: "I\u2019m hungry to make the best of this new technology with people who are optimistic, aware, and willing to be scrappy to figure it out. That\u2019s the energy I bring to every engagement and what I look for in the teams I join." },
+    { type: "ps", text: "P.S. \u2014 I built this interactive portfolio because I believe the best way to evaluate a PM is to experience their product thinking, not read about it. This site is the artifact. I hope it shows something a resume can\u2019t." },
+  ];
+
+  const projects = [
+    { icon: "\uD83C\uDFB5", vgIcon: "sunflower", title: "GigScout \u2014 Rebuilt", desc: "Rebuilt my first startup in a single day using AI.", link: "https://gigscout.app", color: A.amber },
+    { icon: "\uD83D\uDCF0", vgIcon: "star", title: "The AI Brief", desc: "AI news for non-techies \u2014 real context for real people.", link: "https://the-ai-brief-lilac.vercel.app", color: A.cyan },
+  ];
+
+  const renderBlock = (b, i, isCrawl) => {
+    const baseText = {
+      fontSize: isCrawl ? 20 : (isVG ? 18 : 17),
+      color: isCrawl ? (A.isDark ? "#eee" : "#444") : A.text,
+      lineHeight: isCrawl ? 2 : (isVG ? 1.9 : 1.85),
+      fontFamily: A.bodyFont, textAlign: "center",
+      ...(isVG && !isCrawl ? { fontStyle: "italic", textAlign: "left", textShadow: vgTextShadow } : {}),
+    };
+    const mb = isCrawl ? 36 : 28;
+    const animStyle = !isCrawl ? { animation: `fade-in 0.5s ease-out ${0.1 + i * 0.1}s both`, textAlign: "left" } : {};
+
+    if (b.type === "projects") {
+      return (
+        <div key={i} style={{ display: "flex", gap: isCrawl ? 14 : 14, marginBottom: isCrawl ? 36 : 36, justifyContent: "center", ...animStyle }}>
+          {projects.map((proj, j) => (
+            <a key={j} href={proj.link} target="_blank" rel="noopener noreferrer" style={{
+              flex: isCrawl ? "0 1 260px" : 1, background: A.bgPanel,
+              border: `1px solid ${proj.color}25`, borderTop: `3px solid ${proj.color}`,
+              borderRadius: 4, padding: isCrawl ? "16px 14px" : "18px 16px",
+              textDecoration: "none", transition: "all 0.25s ease",
+              textAlign: "left",
+            }}>
+              <div style={{ fontSize: isCrawl ? 22 : 24, marginBottom: isCrawl ? 8 : 10 }}>
+                {isVG && !isCrawl ? <PaintIcon type={proj.vgIcon} size={26} color={proj.color} /> : proj.icon}
+              </div>
+              <div style={{ fontFamily: A.font, fontSize: isCrawl ? 8 : 8, color: proj.color, marginBottom: isCrawl ? 6 : 8 }}>{proj.title.toUpperCase()}</div>
+              <div style={{ fontSize: isCrawl ? 13 : 14, color: A.textDim, lineHeight: 1.55, fontFamily: A.bodyFont }}>{proj.desc}</div>
+              <div style={{ fontFamily: A.font, fontSize: 6, color: proj.color, marginTop: isCrawl ? 10 : 12, letterSpacing: "0.08em" }}>BUILT THIS WEEK {"\u2192"}</div>
+            </a>
+          ))}
+        </div>
+      );
+    }
+    if (b.type === "quote") {
+      return (
+        <div key={i} style={{
+          borderLeft: isCrawl ? "none" : `3px solid ${A.cyan}`,
+          borderTop: isCrawl ? `2px solid ${A.cyan}40` : "none",
+          borderBottom: isCrawl ? `2px solid ${A.cyan}40` : "none",
+          paddingLeft: isCrawl ? 0 : 24,
+          padding: isCrawl ? "20px 16px" : undefined,
+          margin: isCrawl ? "32px auto" : "36px 0",
+          maxWidth: isCrawl ? 560 : "none",
+          textAlign: "center",
+          ...animStyle,
+        }}>
+          <p style={{
+            fontSize: isCrawl ? 22 : 20, fontWeight: 600, color: A.textBright,
+            fontStyle: "italic", lineHeight: isCrawl ? 1.75 : 1.6,
+            fontFamily: A.bodyFont,
+            textShadow: A.isDark ? `0 0 30px rgba(0,255,255,0.12)` : "none",
+          }}>{b.text}</p>
+        </div>
+      );
+    }
+    if (b.type === "ps") {
+      return (
+        <div key={i} style={{
+          background: A.bgPanel, border: `1px solid ${A.border}`,
+          borderRadius: 4, padding: isCrawl ? "16px 20px" : "20px 22px",
+          marginTop: isCrawl ? 24 : 16, marginBottom: isCrawl ? 0 : 40,
+          maxWidth: isCrawl ? 540 : "none",
+          marginLeft: "auto", marginRight: "auto",
+          textAlign: "center",
+          ...animStyle,
+        }}>
+          <p style={{
+            fontSize: isCrawl ? 16 : 15, color: isCrawl ? (A.isDark ? "#bbb" : "#666") : A.textDim, lineHeight: 1.75,
+            fontStyle: "italic", fontFamily: A.bodyFont, margin: 0,
+          }}>{b.text}</p>
+        </div>
+      );
+    }
+    return (
+      <p key={i} style={{ ...baseText, marginBottom: mb, ...animStyle }}>{b.text}</p>
+    );
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", position: "relative", zIndex: 1, overflow: "hidden" }}>
+      {/* Fixed header */}
+      <div style={{
+        position: "fixed", top: 44, left: 0, right: 0, zIndex: 20,
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        padding: "10px 20px",
+      }}>
+        <ArcadeBtn onClick={onBack}>{isVG ? "\u2190 Back" : "ESC"}</ArcadeBtn>
+        <div style={{ display: "flex", gap: 8 }}>
+          {mode === "crawl" && !isVG && (
+            <ArcadeBtn color={A.textDim} onClick={goStatic}>SKIP TO TEXT</ArcadeBtn>
+          )}
+          {mode === "static" && !isVG && (
+            <ArcadeBtn color={A.pink} onClick={replayCrawl}>{"\u25B6"} REPLAY CRAWL</ArcadeBtn>
+          )}
+        </div>
+      </div>
+
+      {/* ═══ CRAWL MODE ═══ */}
+      {mode === "crawl" && ready && (
+        <div style={{
+          position: "fixed", inset: 0,
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "flex-end",
+          opacity: crawlDone ? 0 : 1,
+          transition: "opacity 1s ease",
+        }}>
+          {/* Perspective viewport */}
+          <div style={{
+            perspective: 350,
+            perspectiveOrigin: "50% 100%",
+            width: "100%",
+            flex: 1,
+            overflow: "hidden",
+            position: "relative",
+          }}>
+            {/* Top fade mask */}
+            <div style={{
+              position: "absolute", top: 0, left: 0, right: 0, height: 120,
+              background: `linear-gradient(180deg, ${A.bg} 0%, transparent 100%)`,
+              zIndex: 5, pointerEvents: "none",
+            }} />
+
+            {/* Scrolling content */}
+            <div key={crawlKey} style={{
+              position: "absolute", bottom: 0, left: "50%",
+              transform: "translateX(-50%)",
+              width: 540, maxWidth: "92vw",
+              transformOrigin: "50% 100%",
+              animation: `crawl-full 55s linear forwards`,
+              textAlign: "center",
+              padding: "0 24px 60px",
+            }}>
+              {/* Crawl preamble */}
+              <div style={{
+                fontFamily: A.font, fontSize: 8, color: A.pink,
+                letterSpacing: "0.2em", marginBottom: 24,
+              }}>A LONG TIME AGO IN A STARTUP FAR, FAR AWAY...</div>
+              <div style={{
+                fontFamily: A.font, fontSize: 18, color: A.cyan,
+                textShadow: A.isDark ? `0 0 30px ${A.cyan}, 0 0 60px ${A.cyan}40` : "none",
+                marginBottom: 12, lineHeight: 1.5,
+              }}>MY PRODUCT PHILOSOPHY</div>
+              <div style={{
+                width: 50, height: 2,
+                background: `linear-gradient(90deg, transparent, ${A.cyan}, transparent)`,
+                margin: "0 auto 36px",
+              }} />
+
+              {/* Full content in crawl style */}
+              {contentBlocks.map((b, i) => renderBlock(b, i, true))}
+            </div>
+          </div>
+
+          {/* Bottom controls */}
+          <div style={{
+            position: "relative", zIndex: 10,
+            padding: "20px 20px 30px",
+            textAlign: "center",
+            background: `linear-gradient(180deg, transparent, ${A.bg} 50%)`,
+            width: "100%",
+          }}>
+            <ArcadeBtn color={A.textDim} onClick={goStatic}>SKIP TO TEXT {"\u25B6"}</ArcadeBtn>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ STATIC MODE ═══ */}
+      {mode === "static" && (
+        <div style={{
+          maxWidth: 640, margin: "0 auto",
+          padding: "100px 28px 80px",
+          animation: "fade-in 0.6s ease-out",
+          ...(isVG ? { filter: "url(#vg-paint)", ...vgPanelTexture } : {}),
+        }}>
+          {/* Title */}
+          <div style={{ textAlign: "center", marginBottom: 48 }}>
+            {isVG && <PaintIcon type="quill" size={36} color={A.pink} style={{ margin: "0 auto 12px", display: "block" }} />}
+            <div style={{
+              fontFamily: A.font, fontSize: isVG ? 10 : 8, color: A.pink,
+              letterSpacing: "0.15em", marginBottom: 12,
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>{isVG ? "Artist\u2019s Statement" : "INCOMING TRANSMISSION"}</div>
+            <div style={{
+              fontFamily: A.font, fontSize: isVG ? 24 : 20, color: A.cyan,
+              textShadow: A.isDark ? `0 0 30px ${A.cyan}, 0 0 60px ${A.cyan}40` : "none", marginBottom: 6,
+              ...(isVG ? { fontStyle: "italic", fontWeight: 600 } : {}),
+            }}>{isVG ? "My Product Philosophy" : "MY PRODUCT PHILOSOPHY"}</div>
+            {isVG
+              ? <BrushDivider color={`${A.cyan}50`} width="80px" style={{ margin: "16px auto 0" }} />
+              : <div style={{ width: 60, height: 2, background: `linear-gradient(90deg, transparent, ${A.cyan}, transparent)`, margin: "16px auto 0" }} />
+            }
+          </div>
+
+          {/* All content blocks rendered in static style */}
+          {contentBlocks.map((b, i) => renderBlock(b, i, false))}
+
+          {/* Complete button */}
+          <div style={{ textAlign: "center", paddingBottom: 40 }}>
+            <ArcadeBtn color={A.pink} onClick={() => { onComplete(); onBack(); }}>
+              {isVG ? "Statement Read \u2713" : "TRANSMISSION RECEIVED \u2713"}
+            </ArcadeBtn>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Screen: Contact (Game Credits / Gallery Guestbook) ─────────────
+const Contact = ({ onBack, score }) => {
+  const [ready, setReady] = useState(false);
+  const [showBuild, setShowBuild] = useState(false);
+  const isVG = A.isVanGogh;
+  useEffect(() => { setTimeout(() => setReady(true), 100); }, []);
+
+  const rank = score >= 7000 ? (isVG ? "Maître" : "PM LEGEND") : score >= 5000 ? (isVG ? "Artisan" : "STRATEGIC THINKER") : score >= 3000 ? (isVG ? "Apprenti" : "SOLID OPERATOR") : (isVG ? "Visiteur" : "RECRUIT");
+
+  return (
+    <div style={{
+      minHeight: "100vh", display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      padding: "70px 32px 60px", textAlign: "center",
+      position: "relative", zIndex: 1,
+    }}>
+      {ready && (
+        <>
+          <div style={{ animation: isVG ? "fade-in 0.8s ease-out" : "warp-in 0.6s ease-out", marginBottom: 24 }}>
+            <div style={{
+              fontFamily: A.font, fontSize: isVG ? 10 : 8, color: A.textDim, marginBottom: 12,
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>{isVG ? "Final Impression" : "FINAL SCORE"}</div>
+            <div style={{
+              fontFamily: A.font, fontSize: isVG ? 32 : 28, color: A.cyan,
+              textShadow: A.isDark ? `0 0 30px ${A.cyan}, 0 0 60px ${A.cyan}40` : "none",
+              marginBottom: 8,
+              ...(isVG ? { fontWeight: 700 } : {}),
+            }}>{String(score).padStart(6, "0")}</div>
+            <div style={{
+              fontFamily: A.font, fontSize: isVG ? 12 : 10, color: A.amber,
+              textShadow: A.isDark ? `0 0 15px ${A.amber}` : "none",
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>{isVG ? `Titre: ${rank}` : `RANK: ${rank}`}</div>
+          </div>
+
+          <div style={{ animation: "fade-in 0.5s ease-out 0.3s both" }}>
+            <h2 style={{
+              fontFamily: isVG ? A.font : A.bodyFont, fontSize: isVG ? 32 : 36, fontWeight: 700,
+              color: A.textBright, margin: "0 0 10px 0",
+              ...(isVG ? { fontStyle: "italic", textShadow: `0 0 30px rgba(240,192,64,0.2)` } : {}),
+            }}>{isVG ? "Thank you for visiting." : "Thanks for playing."}</h2>
+            <p style={{
+              fontSize: isVG ? 18 : 17, color: isVG ? A.text : A.textDim, maxWidth: 480,
+              lineHeight: 1.6, fontFamily: A.bodyFont, marginBottom: 36,
+              ...(isVG ? { fontStyle: "italic", textShadow: vgTextShadow } : {}),
+            }}>{isVG ? "I\u2019d love to continue this conversation in person." : "I'd love to continue this conversation in person."}</p>
+          </div>
+
+          {/* Contact Card */}
+          <div style={{
+            animation: "fade-in 0.5s ease-out 0.5s both",
+            maxWidth: 400, width: "100%",
+            background: isVG ? A.panelBg : A.bgPanel,
+            border: isVG ? `2px solid rgba(180,150,80,0.3)` : `1px solid ${A.border}`,
+            borderRadius: isVG ? A.borderRadius : 4,
+            padding: isVG ? "32px 28px" : "28px 24px", textAlign: "left",
+            ...(isVG ? {
+              boxShadow: "0 6px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)",
+              filter: "url(#vg-paint)",
+              ...vgPanelTexture,
+            } : {}),
+          }}>
+            <div style={{
+              fontFamily: A.font, fontSize: isVG ? 14 : 12, color: A.cyan, marginBottom: 20,
+              ...(isVG ? { fontStyle: "italic", fontWeight: 600, borderBottom: `1px solid rgba(180,150,80,0.2)`, paddingBottom: 14 } : {}),
+            }}>{isVG ? "John Cifelli" : "JOHN CIFELLI"}</div>
+            {[
+              { label: isVG ? "Correspondence" : "EMAIL", value: "cifelli89@gmail.com", href: "mailto:cifelli89@gmail.com", color: A.amber },
+              { label: isVG ? "Profile" : "LINKEDIN", value: "linkedin.com/in/johnlcifelli", href: "https://linkedin.com/in/johnlcifelli", color: A.cyan },
+              { label: isVG ? "Atelier" : "LOCATION", value: "Chicago, IL", color: A.green },
+            ].map((item, i) => (
+              <div key={i} style={{ marginBottom: 16 }}>
+                <div style={{
+                  fontFamily: A.font, fontSize: isVG ? 8 : 7, color: A.textDim,
+                  letterSpacing: "0.1em", marginBottom: 4,
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{item.label}</div>
+                {item.href ? (
+                  <a href={item.href} target="_blank" rel="noopener noreferrer" style={{
+                    fontSize: isVG ? 16 : 15, color: item.color, textDecoration: "none",
+                    fontFamily: A.bodyFont, fontWeight: 500,
+                    ...(isVG ? { fontStyle: "italic" } : {}),
+                  }}>{item.value}</a>
+                ) : (
+                  <div style={{
+                    fontSize: isVG ? 16 : 15, color: A.text, fontFamily: A.bodyFont,
+                    ...(isVG ? { fontStyle: "italic" } : {}),
+                  }}>{item.value}</div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ animation: "fade-in 0.5s ease-out 0.7s both", marginTop: 32 }}>
+            <ArcadeBtn onClick={onBack}>{isVG ? "\u2190 Visit Again" : "\u25C0 PLAY AGAIN"}</ArcadeBtn>
+          </div>
+
+          <div style={{ animation: "fade-in 0.5s ease-out 1s both", marginTop: 48 }}>
+            <p onClick={() => setShowBuild(!showBuild)} style={{
+              fontFamily: A.font, fontSize: isVG ? 8 : 7, color: A.textDim,
+              cursor: "pointer", transition: "color 0.3s",
+              ...(isVG ? { fontStyle: "italic" } : {}),
+            }}>
+              {isVG ? "Crafted with care \u00B7 2026" : "BUILT WITH CARE \u00B7 2026"}
+            </p>
+            {showBuild && (
+              <div style={{
+                marginTop: 14, padding: isVG ? "20px 22px" : "16px 20px",
+                background: isVG ? A.panelBg : A.bgPanel,
+                border: isVG ? `1.5px solid rgba(180,150,80,0.25)` : `1px solid ${A.border}`,
+                borderRadius: isVG ? A.borderRadius : 4, maxWidth: 420, textAlign: "left",
+                animation: "fade-in 0.3s ease-out",
+              }}>
+                <p style={{
+                  fontFamily: A.font, fontSize: isVG ? 8 : 7, color: A.cyan, marginBottom: 8,
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>{isVG ? "How This Was Made" : "\uD83D\uDEE0 HOW THIS WAS BUILT"}</p>
+                <p style={{
+                  fontSize: 13, color: A.textDim, lineHeight: 1.65, fontFamily: A.bodyFont,
+                  ...(isVG ? { fontStyle: "italic" } : {}),
+                }}>
+                  React, zero dependencies, single-file deployment. No templates. {isVG ? "An impressionist gallery meets PM portfolio." : "Space Invaders meets PM portfolio."} The engagements are real \u2014 pulled from my actual McKinsey and startup work. Even the easter eggs are intentional product decisions: they reward curiosity, which is exactly the kind of user behavior I optimize for in every product I build.
+                </p>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+// ─── Theme Toggle Button ────────────────────────────────────────────
+const ThemeToggle = ({ themeMode, onToggle, vanGoghUnlocked }) => {
+  const isDark = themeMode === "dark";
+  const isVG = themeMode === "vangogh";
+  const isLight = themeMode === "light";
+  const titles = {
+    dark: vanGoghUnlocked ? "Switch to light mode (Starry Night available!)" : "Switch to light mode",
+    light: vanGoghUnlocked ? "Switch to Starry Night mode" : "Switch to dark mode",
+    vangogh: "Switch to dark mode",
+  };
+  const icons = { dark: "\u2600", light: vanGoghUnlocked ? "\uD83C\uDFA8" : "\u263E", vangogh: "\u263E" };
+  return (
+    <button onClick={onToggle} style={{
+      position: "fixed", bottom: 16, right: 16, zIndex: 9998,
+      width: isVG ? 44 : 40, height: isVG ? 44 : 40,
+      borderRadius: isVG ? 14 : "50%",
+      background: isVG ? "rgba(240,192,64,0.15)" : isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+      border: `1.5px solid ${isVG ? "rgba(240,192,64,0.4)" : isDark ? "rgba(0,255,255,0.25)" : "rgba(0,122,138,0.2)"}`,
+      color: isVG ? "#f0c040" : isDark ? "#0ff" : "#007a8a",
+      fontSize: isVG ? 18 : 16, cursor: "pointer",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      transition: "all 0.3s ease",
+      boxShadow: isVG
+        ? "0 0 20px rgba(240,192,64,0.3), 0 4px 16px rgba(0,0,0,0.3)"
+        : isDark ? "0 0 12px rgba(0,255,255,0.15)" : "0 2px 8px rgba(0,0,0,0.08)",
+      ...(isVG ? { filter: "url(#vg-paint)", animation: "vg-float 6s ease-in-out infinite" } : {}),
+    }}
+    title={titles[themeMode]}
+    >{isVG ? "\uD83C\uDFA8" : icons[themeMode]}</button>
+  );
+};
+
+// ─── App ─────────────────────────────────────────────────────────────
+function App() {
+  const [screen, setScreen] = useState("landing");
+  const [completed, setCompleted] = useState({ fleet: false, record: false, why: false });
+  const [score, setScore] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [themeMode, setThemeMode] = useState("dark"); // "dark" | "light" | "vangogh"
+  const [vanGoghUnlocked, setVanGoghUnlocked] = useState(false);
+  const [vgFlash, setVgFlash] = useState(false);
+
+  // ─── Konami Code Easter Egg ───────────────────────────────────────
+  const konamiRef = useRef([]);
+  const KONAMI = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+  useEffect(() => {
+    const handler = (e) => {
+      konamiRef.current.push(e.key);
+      konamiRef.current = konamiRef.current.slice(-10);
+      if (KONAMI.every((k, i) => konamiRef.current[i] === k)) {
+        if (!vanGoghUnlocked) {
+          setVanGoghUnlocked(true);
+          setThemeMode("vangogh");
+          setVgFlash(true);
+          setTimeout(() => setVgFlash(false), 1500);
+          setScore(s => s + 5000);
+        } else {
+          setThemeMode(m => m === "vangogh" ? "dark" : "vangogh");
+          setVgFlash(true);
+          setTimeout(() => setVgFlash(false), 1500);
+        }
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [vanGoghUnlocked]);
+
+  // Swap the global A palette SYNCHRONOUSLY during render
+  const THEMES = { dark: DARK, light: LIGHT, vangogh: VANGOGH };
+  A = THEMES[themeMode] || DARK;
+
+  // Update body + scrollbar/selection styles via effect (DOM side-effect)
+  useEffect(() => {
+    document.body.style.background = A.bg;
+    document.body.style.transition = "background 0.6s ease";
+    let dynStyle = document.getElementById("theme-dynamic");
+    if (!dynStyle) { dynStyle = document.createElement("style"); dynStyle.id = "theme-dynamic"; document.head.appendChild(dynStyle); }
+    const isVG = themeMode === "vangogh";
+    dynStyle.textContent = `
+      ::-webkit-scrollbar-track { background: ${A.bgLight}; }
+      ::-webkit-scrollbar-thumb { background: ${isVG ? "rgba(240,192,64,0.3)" : A.isDark ? "rgba(0,255,255,0.2)" : "rgba(0,100,120,0.2)"}; border-radius: 3px; }
+      ::selection { background: ${isVG ? "rgba(240,192,64,0.3)" : A.isDark ? "rgba(0,255,255,0.3)" : "rgba(0,100,120,0.2)"}; color: ${A.textBright}; }
+      ${isVG ? `
+        .vg-painted { filter: url(#vg-paint); }
+        .vg-swirl { animation: vg-float 8s ease-in-out infinite; }
+      ` : ""}
+    `;
+  }, [themeMode]);
+
+  const toggleTheme = () => {
+    if (vanGoghUnlocked) {
+      setThemeMode(m => m === "dark" ? "light" : m === "light" ? "vangogh" : "dark");
+    } else {
+      setThemeMode(m => m === "dark" ? "light" : "dark");
+    }
+  };
+
+  const [vgAnnounce, setVgAnnounce] = useState(false);
+
+  const markComplete = (key) => {
+    setCompleted(prev => {
+      const next = { ...prev, [key]: true };
+      const wasAnyDone = prev.fleet || prev.record || prev.why;
+      const isAnyDone = next.fleet || next.record || next.why;
+      // Unlock Van Gogh mode on first mission completion — announce, don't auto-switch
+      if (isAnyDone && !wasAnyDone && !vanGoghUnlocked) {
+        setVanGoghUnlocked(true);
+        setVgAnnounce(true);
+        setTimeout(() => setVgAnnounce(false), 4000);
+        setScore(s => s + 5000);
+      }
+      const wasAllDone = prev.fleet && prev.record && prev.why;
+      const isAllDone = next.fleet && next.record && next.why;
+      if (isAllDone && !wasAllDone) {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 4000);
+        setScore(s => s + 2000); // completion bonus
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [screen]);
+
+  const totalCleared = Object.values(completed).filter(Boolean).length;
+
+  return (
+    <ThemeCtx.Provider value={A}>
+      <div style={{
+        background: A.bg, minHeight: "100vh",
+        fontFamily: A.bodyFont, WebkitFontSmoothing: "antialiased",
+        position: "relative",
+        transition: "background 0.6s ease",
+      }}>
+        <GlobalStyles />
+        <VanGoghOverlay />
+        <StarField />
+        <Scanlines />
+        <Confetti active={showConfetti} />
+        <ThemeToggle themeMode={themeMode} onToggle={toggleTheme} vanGoghUnlocked={vanGoghUnlocked} />
+
+        {/* Van Gogh unlock announcement — subtle toast */}
+        {vgAnnounce && (
+          <div style={{
+            position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)",
+            zIndex: 10000,
+            background: "linear-gradient(135deg, rgba(30,50,100,0.95), rgba(20,35,70,0.95))",
+            border: "2px solid rgba(240,192,64,0.4)",
+            borderRadius: 16, padding: "16px 28px",
+            animation: "fade-in 0.4s ease-out",
+            pointerEvents: "none",
+            display: "flex", alignItems: "center", gap: 12,
+            boxShadow: "0 8px 40px rgba(0,0,0,0.5), 0 0 30px rgba(240,192,64,0.15)",
+          }}>
+            <PaintIcon type="palette" size={28} color="#f0c040" />
+            <div>
+              <div style={{ fontFamily: '"Georgia", serif', fontSize: 13, color: "#f0c040", fontStyle: "italic", fontWeight: 600, marginBottom: 2 }}>Starry Night Mode Unlocked</div>
+              <div style={{ fontFamily: '"Georgia", serif', fontSize: 11, color: "rgba(212,201,168,0.7)", fontStyle: "italic" }}>Use the theme toggle to explore</div>
+            </div>
+          </div>
+        )}
+
+        {/* Van Gogh activation flash (Konami code toggle) */}
+        {vgFlash && (
+          <div style={{
+            position: "fixed", inset: 0, zIndex: 10000,
+            background: "radial-gradient(circle at 50% 40%, rgba(240,192,64,0.6), rgba(11,26,59,0.9))",
+            animation: "fade-in 0.3s ease-out",
+            pointerEvents: "none",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <div style={{
+              fontFamily: "'Press Start 2P', monospace",
+              fontSize: 14, color: "#f0c040", textAlign: "center",
+              textShadow: "0 0 30px rgba(240,192,64,0.8), 0 0 60px rgba(240,192,64,0.4)",
+              animation: "vg-float 2s ease-in-out infinite",
+            }}>
+              {themeMode === "vangogh" ? "\u2728 STARRY NIGHT MODE UNLOCKED \u2728" : "\u263E RETURNING TO NORMAL \u263E"}
+            </div>
+          </div>
+        )}
+
+        {screen !== "landing" && (
+          <HUD score={score} cleared={totalCleared} total={3} />
+        )}
+
+        {screen === "landing" && <Landing onStart={() => setScreen("hub")} />}
+        {screen === "hub" && <Hub onNavigate={setScreen} onHome={() => setScreen("landing")} completed={completed} score={score} />}
+        {screen === "fleet" && <Fleet onBack={() => setScreen("hub")} onComplete={() => markComplete("fleet")} score={score} setScore={setScore} />}
+        {screen === "record" && <MissionLog onBack={() => setScreen("hub")} onComplete={() => markComplete("record")} />}
+        {screen === "why" && <WhyAnthropic onBack={() => setScreen("hub")} onComplete={() => markComplete("why")} />}
+        {screen === "contact" && <Contact onBack={() => setScreen("hub")} score={score} />}
+      </div>
+    </ThemeCtx.Provider>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+  </script>
+</body>
+</html>

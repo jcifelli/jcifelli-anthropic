@@ -1,9 +1,9 @@
 {
     "rewrites": [
-          { "source": "/anthropic", "destination": "/index.html" },
-          { "source": "/bradesco", "destination": "/index.html" },
-          { "source": "/google", "destination": "/index.html" },
-          { "source": "/openai", "destination": "/index.html" },
+          { "source": "/anthropic", "destination": "/anthropic.html" },
+          { "source": "/bradesco", "destination": "/anthropic.html" },
+          { "source": "/google", "destination": "/anthropic.html" },
+          { "source": "/openai", "destination": "/anthropic.html" },
           { "source": "/mckinsey", "destination": "/mckinsey.html" },
           { "source": "/jc-pm-teaser-light", "destination": "/jc-pm-teaser-light.html" },
           { "source": "/jc-pm-teaser", "destination": "/jc-pm-teaser.html" }
